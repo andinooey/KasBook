@@ -1,0 +1,31 @@
+name: Unzip dan deploy
+
+on:
+  push:
+    branches: [main]
+    paths: ['jejakduit.zip']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unzip ke root
+        run: |
+          if [ ! -f jejakduit.zip ]; then echo "Tidak ada zip"; exit 0; fi
+          unzip -o jejakduit.zip -d . -x '__MACOSX/*' '*.DS_Store'
+          rm jejakduit.zip
+
+      - name: Commit hasilnya
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "Unzip jejakduit.zip"
+          git push
