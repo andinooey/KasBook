@@ -292,8 +292,34 @@ function mePage(){
 <button class="set dng" data-a="reset"><span class="si">${ic('trash',19)}</span><span class="st">Hapus semua data<small>Tidak bisa dibatalkan</small></span></button></div>
 <p class="note">Data tersimpan di perangkat ini dan tidak perlu login. Jika data situs dihapus, catatan ikut hilang, jadi cadangkan data secara berkala. Di iPhone, pasang lewat Bagikan, lalu Tambah ke Layar Utama.</p><div class="brand"><img src="/logo.svg" width="46" height="46" alt=""><div><b>Jejak<span>Duit</span></b><small>Catat duit, tinggalkan jejak.</small></div></div>`;
 }
-const pages={home,tx:txPage,rep:repPage,me:mePage};
+const pages={cal:calPage,home,tx:txPage,rep:repPage,me:mePage};
 
+
+/* ---------- Kalender ---------- */
+let cdsel=null;
+const DOW=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+function dayMap(){const by={};S.tx.forEach(t=>{const k=ymd(t.ts);if(k.slice(0,7)!=mon)return;const b=by[k]||(by[k]={i:0,o:0,l:[]});t.ty=='in'?b.i+=t.a:b.o+=t.a;b.l.push(t)});return by}
+function cdHTML(k){
+  if(!k)return`<div class="empty"><div class="ei">${ic('cal',26)}</div><b>Pilih tanggal</b>Ketuk tanggal untuk melihat rinciannya.</div>`;
+  const b=dayMap()[k]||{i:0,o:0,l:[]},now=ymd(Date.now()),d=new Date(k+'T12:00'),net=b.i-b.o,oc={};
+  b.l.filter(t=>t.ty=='out').forEach(t=>oc[t.c]=(oc[t.c]||0)+t.a);
+  const bar=b.o?`<div class="cbar">${Object.entries(oc).sort((x,y)=>y[1]-x[1]).map(([c,v])=>`<i style="flex:${v};background:${cat(c)[2]}" title="${esc(cat(c)[0])}"></i>`).join('')}</div>`:'';
+  return`<div class="cdh"><h3>${d.toLocaleDateString(DL,{weekday:'long',day:'numeric',month:'long'})}</h3><span class="${net<0?'out':'in'}" style="color:var(--${net<0?'exp':'inc'})">${b.l.length?(net>0?'+':'')+money(net):''}</span></div>
+<div class="cs" style="margin:12px 0 0"><div><small>Masuk</small><b class="i">${money(b.i)}</b></div><div><small>Keluar</small><b class="o">${money(b.o)}</b></div><div><small>Transaksi</small><b>${b.l.length}</b></div></div>${bar}
+${b.l.length?b.l.sort((x,y)=>y.ts-x.ts).map(t=>row(t)).join(''):`<p style="color:var(--mu);text-align:center;margin:18px 0 6px">Tidak ada transaksi di tanggal ini.</p>`}
+${k<=now?`<button class="cadd" data-a="cadd" data-d="${k}">${ic('plus',16,2.6)} Catat di tanggal ini</button>`:''}`;
+}
+function calPage(){
+  const y=+mon.slice(0,4),m=+mon.slice(5)-1,dim=new Date(y,m+1,0).getDate(),off=(new Date(y,m,1).getDay()+6)%7,now=ymd(Date.now()),by=dayMap();
+  let I=0,O=0,mx=0;Object.values(by).forEach(d=>{I+=d.i;O+=d.o;mx=Math.max(mx,d.o)});
+  if(!cdsel||cdsel.slice(0,7)!=mon)cdsel=mon==curM()?now:(Object.keys(by).sort().pop()||null);
+  let cells='';for(let i=0;i<off;i++)cells+='<span class="cd e"></span>';
+  for(let d=1;d<=dim;d++){const k=mon+'-'+pad(d),b=by[k],h=b&&b.o&&mx?(.1+.5*b.o/mx).toFixed(2):0;
+    cells+=`<button class="cd${k==now?' t':''}${k==cdsel?' on':''}" style="--h2:${h};--i:${d+off}" data-a="cday" data-d="${k}" ${k>now?'disabled':''} aria-label="${d} ${mlabel(mon)}${b?', keluar '+money(b.o)+', masuk '+money(b.i):''}"><i>${d}</i><em>${b&&b.o?compact(b.o):''}</em>${b&&b.i?'<s></s>':''}</button>`}
+  return`<header class="hd"><h1>Kalender</h1></header>${monNav()}
+<div class="cs"><div><small>Masuk</small><b class="i" data-k="cI" data-n="${I}" data-f="c"></b></div><div><small>Keluar</small><b class="o" data-k="cO" data-n="${O}" data-f="c"></b></div><div><small>Selisih</small><b data-k="cN" data-n="${I-O}" data-f="c"></b></div></div>
+<div class="cw">${DOW.map(x=>`<span>${x}</span>`).join('')}</div><div class="cg">${cells}</div><div class="cdp" id="cdp">${cdHTML(cdsel)}</div>`;
+}
 function render(anim){
   OPEN=null;const p=$('#page');p.className='pg'+(anim?' in':'');p.innerHTML=pages[tab](anim);NEW=null;after(anim);
 }
@@ -313,7 +339,7 @@ function after(anim){
 }
 
 /* ---------- Navigasi ---------- */
-const TABS=[['home','Beranda','home'],['tx','Transaksi','list'],['rep','Laporan','pie'],['me','Profil','user']];
+const TABS=[['home','Beranda','home'],['tx','Transaksi','list'],['cal','Kalender','cal'],['rep','Laporan','pie'],['me','Profil','user']];
 const tabBtn=t=>`<button data-a="tab" data-t="${t[0]}" aria-label="${t[1]}">${ic(t[2],22)}<span>${t[1]}</span></button>`;
 $('#nav').innerHTML=TABS.slice(0,2).map(tabBtn).join('')+`<button class="fab" data-a="add" aria-label="Tambah transaksi">${ic('plus',22,2.6)}</button>`+TABS.slice(2).map(tabBtn).join('');
 function setTab(t,anim=true){
@@ -351,7 +377,7 @@ const calc=(a,o,b)=>r2(o=='+'?a+b:a-b);
 function curVal(){const b=parseFloat(E.buf)||0;if(E.op&&E.acc!=null)return E.buf?calc(E.acc,E.op,b):E.acc;return b}
 function openTx(o={}){
   const t=o.id?S.tx.find(x=>x.id==o.id):null,ty=t?t.ty:(o.ty||'out');
-  E={id:t&&t.id,ty,c:t?t.c:(o.c||(ty=='in'?INC[0]:OUT[0])),buf:t?String(t.a):'',acc:null,op:null,ts:t?t.ts:Date.now(),n:t?t.n:'',open:!!(t&&t.n),rep:false};
+  E={id:t&&t.id,ty,c:t?t.c:(o.c||(ty=='in'?INC[0]:OUT[0])),buf:t?String(t.a):'',acc:null,op:null,ts:t?t.ts:(o.ts||Date.now()),n:t?t.n:'',open:!!(t&&t.n),rep:false};
   openSheet(`<div class="sheet" role="dialog" aria-modal="true" aria-label="${t?'Ubah transaksi':'Tambah transaksi'}" tabindex="-1"><div class="tint"></div><div class="grab"></div>
 <div class="sh-top"><div class="seg"><button data-s="ty" data-v="out">Keluar</button><button data-s="ty" data-v="in">Masuk</button></div><div class="sh-act">${t?`<button class="ib d" data-s="del" aria-label="Hapus transaksi">${ic('trash',18)}</button>`:''}<button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div>
 <div class="cats" id="cats"></div>
@@ -661,6 +687,8 @@ recs:openRecs,
 bkjson:exportJSON,
 budget:openBudget,
 mon:el=>{mon=madd(mon,+el.dataset.d);if(mon>curM())mon=curM();render(false)},
+cday:el=>{cdsel=el.dataset.d;$$('.cd').forEach(b=>b.classList.toggle('on',b.dataset.d==cdsel));const p=$('#cdp');p.innerHTML=cdHTML(cdsel);p.classList.remove('in2');void p.offsetWidth;p.classList.add('in2');vib&&vib()},
+cadd:el=>{const d=new Date(),[Y,M,D]=el.dataset.d.split('-');d.setFullYear(+Y,+M-1,+D);openTx({ts:d.getTime()})},
 monset:el=>{mon=el.dataset.m;render(false)},
 flt:el=>{flt=el.dataset.f;$$('#fl .chip').forEach(b=>b.classList.toggle('on',b.dataset.f==flt));$('#txl').innerHTML=listHTML()},
 rep:el=>{rep=el.dataset.r;render(false)},
@@ -788,3 +816,6 @@ if('serviceWorker'in navigator){
   navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>{const u=(x.active||x.waiting||x.installing||{}).scriptURL||'';if(u.includes('firebase-messaging-sw'))x.unregister()})).catch(()=>{}).finally(()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
 })();
+
+let SX=null;document.addEventListener('touchstart',e=>{SX=e.target.closest('.cg')?e.touches[0].clientX:null},{passive:true});
+document.addEventListener('touchend',e=>{if(SX==null)return;const dx=e.changedTouches[0].clientX-SX;SX=null;if(Math.abs(dx)>70){const n=madd(mon,dx<0?1:-1);if(n<=curM()){mon=n;render(false)}}},{passive:true});
