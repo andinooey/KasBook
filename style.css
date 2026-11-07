@@ -97,15 +97,15 @@ html.tt *{transition:background-color .38s,color .38s,border-color .38s,fill .38
 .bars em{font-style:normal;font-size:9.5px;color:var(--mu);font-weight:700;height:11px}
 
 /* ---------- Baris transaksi ---------- */
-.tr{display:flex;align-items:center;gap:12px;width:100%;padding:10px 10px;border-radius:20px;transition:background-color .2s}
-.tr:active{background:color-mix(in srgb,var(--tx) 5%,transparent)}
+.tr{display:flex;align-items:center;gap:12px;width:100%;padding:10px 10px;border-radius:20px;transition:background-color .2s,transform .25s cubic-bezier(.22,1,.36,1);background:var(--sf);touch-action:pan-y;position:relative}
+.tr:active{background:color-mix(in srgb,var(--tx) 5%,var(--sf))}
 .tr .tm{flex:1;min-width:0}
 .tr .tm b{display:block;font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tr .tm small{display:block;margin-top:1px}
 .tr .am{font-size:14.5px;font-weight:800;white-space:nowrap}
 .am.in{color:var(--inc)}
 .tr.new{animation:sl .6s cubic-bezier(.22,1,.36,1)}
-@keyframes sl{0%{opacity:0;transform:translateY(-26px) scale(.96);background:color-mix(in srgb,var(--p) 18%,transparent)}60%{background:color-mix(in srgb,var(--p) 12%,transparent)}}
+@keyframes sl{0%{opacity:0;transform:translateY(-26px) scale(.96);background:color-mix(in srgb,var(--p) 18%,var(--sf))}60%{background:color-mix(in srgb,var(--p) 12%,var(--sf))}}
 .dh{display:flex;justify-content:space-between;align-items:center;margin:18px 6px 8px;font-size:12.5px;font-weight:700;color:var(--mu)}
 .dh b{font-weight:800}
 .dh .in{color:var(--inc)}
@@ -120,7 +120,7 @@ html.tt *{transition:background-color .38s,color .38s,border-color .38s,fill .38
 .sum2 .card{padding:14px 16px}
 .sum2 b{display:block;font-size:19px;font-weight:800;letter-spacing:-.02em;margin-top:2px;overflow-wrap:anywhere}
 .sum2 .in{color:var(--inc)}.sum2 .out{color:var(--exp)}
-.fl{display:flex;gap:8px;margin:2px 0 12px}
+.fl{display:flex;gap:8px;margin:2px 0 12px;overflow-x:auto;scrollbar-width:none}.fl::-webkit-scrollbar{display:none}.fl .chip{flex:none}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:999px;background:var(--sf);box-shadow:var(--sh);font-size:13px;font-weight:700;color:var(--mu);transition:background-color .25s,color .25s;position:relative}
 .chip.on{background:var(--p);color:var(--pc)}
 .srch{position:relative;margin-bottom:12px}
@@ -171,13 +171,6 @@ html.tt *{transition:background-color .38s,color .38s,border-color .38s,fill .38
 .set.dng{color:var(--exp)}.set.dng .si{background:color-mix(in srgb,var(--exp) 13%,transparent);color:var(--exp)}
 .sel{appearance:none;-webkit-appearance:none;border:0;background:color-mix(in srgb,var(--tx) 7%,transparent);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;max-width:170px}
 .sel option{color:#111}
-.pal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px}
-.pal button{border-radius:20px;padding:10px 6px 9px;text-align:center;font-size:12px;font-weight:700;background:color-mix(in srgb,var(--tx) 4%,transparent);border:2px solid transparent;transition:border-color .25s,transform .2s}
-.pal button:active{transform:scale(.95)}
-.pal button.on{border-color:var(--p)}
-.pal .sw{width:44px;height:44px;border-radius:50%;margin:0 auto 7px;display:grid;place-items:center;color:#fff;box-shadow:0 6px 12px -4px rgba(0,0,0,.3)}
-.pal .sw svg{opacity:0;transform:scale(.4);transition:.25s}
-.pal .on .sw svg{opacity:1;transform:none}
 .note{font-size:12.5px;color:var(--mu);font-weight:600;padding:8px 12px 14px;line-height:1.5}
 .sec.s2{margin-top:22px}
 
@@ -225,7 +218,7 @@ html.tt *{transition:background-color .38s,color .38s,border-color .38s,fill .38
 .ch2 input[type=date]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
 .nin{width:100%;height:46px;border-radius:16px;border:0;background:color-mix(in srgb,var(--tx) 6%,transparent);padding:0 16px;margin-bottom:12px}
 .nin[hidden]{display:none}
-.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
 .pad button{height:clamp(44px,7.2vh,56px);border-radius:18px;background:color-mix(in srgb,var(--tx) 5.5%,transparent);font-size:22px;font-weight:700;display:grid;place-items:center;transition:background-color .15s,transform .12s}
 .pad button:active{background:color-mix(in srgb,var(--c) 26%,transparent);transform:scale(.94)}
 .save{width:100%;height:54px;border-radius:20px;margin-top:12px;background-color:var(--c);color:#fff;font-weight:800;font-size:15.5px;text-align:center;box-shadow:0 12px 22px -10px color-mix(in srgb,var(--c) 85%,transparent);transition:background-color .35s,opacity .25s,transform .15s}
@@ -259,9 +252,74 @@ html.tt *{transition:background-color .38s,color .38s,border-color .38s,fill .38
 .brand small{display:block}
 
 /* Cegah zoom dobel-ketuk dan zoom otomatis saat fokus ke kolom input (iOS) */
-html,body,button,a,label,input,select,.card,.tr,.chip,.pad button{touch-action:manipulation}
+html,body,button,a,label,input,select,.card,.chip,.pad button{touch-action:manipulation}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 input,select,textarea{font-size:16px !important}
 body{-webkit-touch-callout:none}
 input,.nin{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}
 button,.tr,.qt,.cb,.pad button{-webkit-user-select:none;user-select:none}
+
+/* ---------- Tambahan v2 ---------- */
+/* Picker palet minimalis */
+.pal2{padding:14px 10px 6px;text-align:center}
+.pdots{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}
+.pdots button{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;text-align:center}
+.pdots button i{width:28px;height:28px;border-radius:50%;background:var(--k);display:grid;place-items:center;color:#fff;transition:box-shadow .25s,transform .2s;font-style:normal}
+.pdots button:active i{transform:scale(.88)}
+.pdots button i svg{opacity:0;transform:scale(.4);transition:.25s}
+.pdots button.on i{box-shadow:0 0 0 2.5px var(--sf),0 0 0 4.5px var(--k)}
+.pdots button.on i svg{opacity:1;transform:none}
+.pnm{font-size:12.5px;font-weight:700;color:var(--mu);margin-top:6px}
+
+/* Keypad: 4 kolom, operator, tanda sama dengan */
+.ex{height:18px;font-size:13px;font-weight:700;color:var(--mu);margin-top:6px;letter-spacing:0}
+.ex+.num{margin-top:0}
+.pad button.op,.pad button.dl{background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c)}
+.pad button.op{font-size:26px}
+.pad button.eq{grid-column:span 2;background:var(--c);color:#fff}
+.pad button.eq[disabled]{opacity:.3}
+.pad button.dl{touch-action:none}
+.svrow{display:flex;gap:10px;margin-top:12px}
+.svrow .save{margin-top:0;flex:1}
+.save2{flex:0 0 36%;height:54px;border-radius:20px;font-weight:800;font-size:13px;line-height:1.2;text-align:center;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);padding:0 8px;transition:opacity .25s,transform .15s}
+.save2:active{transform:scale(.97)}
+.save2[disabled]{opacity:.4}
+.ch2 .chip.act{background:color-mix(in srgb,var(--c) 22%,transparent);color:var(--c)}
+
+/* Navigasi: tombol tambah di tengah */
+#nav button.fab{flex:none;width:46px;padding:0;border-radius:50%;background:var(--p);color:var(--pc);box-shadow:0 8px 16px -8px color-mix(in srgb,var(--p) 85%,transparent);transition:transform .2s}
+#nav button.fab:active{transform:scale(.9)}
+@media(max-width:380px){#nav button{padding:0 11px}#nav button.on{padding:0 13px;gap:6px}#nav button.on span{max-width:62px}#nav button.fab{padding:0}}
+
+/* Geser untuk hapus */
+.rw{position:relative;overflow:hidden;border-radius:20px}
+.rb{position:absolute;right:0;top:0;bottom:0;width:84px;background:var(--exp);color:#fff;display:grid;place-items:center;border-radius:20px;visibility:hidden}
+.rw.sw .rb{visibility:visible}
+
+/* Filter tanggal */
+.rngb{display:flex;align-items:center;justify-content:space-between;background:color-mix(in srgb,var(--p) 12%,transparent);color:var(--p);border-radius:999px;padding:6px 6px 6px 18px;margin-bottom:14px;font-weight:800;font-size:13.5px}
+.rngb button{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--sf);color:var(--tx)}
+.fld input[type=date]{min-height:42px}
+.fld .sel{max-width:55%}
+
+/* Banner cadangan */
+.nudge{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border-radius:22px;background:color-mix(in srgb,var(--amb) 14%,var(--sf));box-shadow:var(--sh);color:var(--tx)}
+.nudge .si{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--amb) 22%,transparent);color:var(--amb);flex:none}
+.nudge .st{flex:1;min-width:0;font-size:14px}
+.nudge .st b{display:block;font-weight:800}
+.nudge>svg{color:var(--mu)}
+
+/* Master kategori */
+.cprev{display:grid;place-items:center;margin:14px 0 12px}
+.cprev .cico{width:64px;height:64px;border-radius:22px}
+.lbl{font-size:12.5px;font-weight:800;color:var(--mu);margin:12px 2px 8px}
+.ig{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.ig button{aspect-ratio:1;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--tx) 6%,transparent);color:var(--mu);transition:background-color .2s,color .2s}
+.ig button.on{background:var(--c);color:#fff}
+.cg{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.cg button{aspect-ratio:1;border-radius:50%;background:var(--k);display:grid;place-items:center;color:#fff;max-width:44px;width:100%;margin:0 auto}
+.cg button svg{opacity:0;transform:scale(.4);transition:.25s}
+.cg button.on svg{opacity:1;transform:none}
+.btn2.dl2{width:100%;margin-top:10px;color:var(--exp)}
+.btn2[disabled]{opacity:.4;cursor:default}
+.hint{font-size:12.5px;color:var(--mu);font-weight:600;line-height:1.45;margin:8px 4px 0}
