@@ -1,4 +1,4 @@
-# Kasku
+# JejakDuit
 Aplikasi pencatatan keuangan (PWA). Tanpa login dan tanpa backend: data tersimpan di browser (localStorage) pada perangkat masing-masing.
 
 ## Deploy ke Cloudflare Pages

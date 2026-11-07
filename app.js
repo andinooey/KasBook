@@ -1,4 +1,4 @@
-/* Kasku: aplikasi pencatatan keuangan. Data tersimpan lokal (localStorage), tanpa login dan tanpa backend. */
+/* JejakDuit: aplikasi pencatatan keuangan. Data tersimpan lokal (localStorage), tanpa login dan tanpa backend. */
 (()=>{
 'use strict';
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -113,7 +113,7 @@ function dlabel(ts,full){
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /* ---------- Data ---------- */
-const KEY='kasku2';
+const KEY='kasku2'; // nama kunci lama dipertahankan supaya data yang sudah tersimpan tidak hilang
 const def=()=>({tx:[],bud:{total:0,cats:{}},set:{pal:'tosca',mode:'auto',cur:'',hide:false}});
 function norm(j){const d=def();return{tx:j.tx.filter(t=>t&&t.a>0&&t.ts&&C[t.c]),bud:{total:+(j.bud&&j.bud.total)||0,cats:(j.bud&&j.bud.cats)||{}},set:{...d.set,...j.set}}}
 function migrate(){ // dari versi lama (kasku_tx)
@@ -248,9 +248,9 @@ function mePage(){
 <button class="set" data-a="budget"><span class="si">${ic('target',19)}</span><span class="st">Budget bulanan<small>${S.bud.total?money(S.bud.total):'Belum diatur'}</small></span>${ic('cr',18)}</button></div>
 <div class="sec s2">Data</div>
 <div class="grp"><button class="set" data-a="export"><span class="si">${ic('dl',19)}</span><span class="st">Ekspor CSV<small>Cadangkan semua transaksi</small></span></button>
-<button class="set" data-a="import"><span class="si">${ic('ul',19)}</span><span class="st">Impor CSV<small>Gabungkan dari file ekspor Kasku</small></span></button>
+<button class="set" data-a="import"><span class="si">${ic('ul',19)}</span><span class="st">Impor CSV<small>Gabungkan dari file ekspor JejakDuit</small></span></button>
 <button class="set dng" data-a="reset"><span class="si">${ic('trash',19)}</span><span class="st">Hapus semua data<small>Tidak bisa dibatalkan</small></span></button></div>
-<p class="note">Data tersimpan di perangkat ini dan tidak perlu login. Jika data situs dihapus, catatan ikut hilang, jadi ekspor CSV secara berkala. Di iPhone, pasang lewat Bagikan, lalu Tambah ke Layar Utama.</p>`;
+<p class="note">Data tersimpan di perangkat ini dan tidak perlu login. Jika data situs dihapus, catatan ikut hilang, jadi ekspor CSV secara berkala. Di iPhone, pasang lewat Bagikan, lalu Tambah ke Layar Utama.</p><div class="brand"><img src="/logo.svg" width="46" height="46" alt=""><div><b>Jejak<span>Duit</span></b><small>Catat duit, tinggalkan jejak.</small></div></div>`;
 }
 const pages={home,tx:txPage,rep:repPage,me:mePage};
 
@@ -399,7 +399,7 @@ let CONF=null;
 /* ---------- CSV ---------- */
 function exportCSV(){
   const rows=['waktu,jenis,kategori,jumlah,catatan',...S.tx.slice().sort((a,b)=>a.ts-b.ts).map(t=>[new Date(t.ts).toISOString(),t.ty=='in'?'masuk':'keluar',cat(t.c)[0],t.a,'"'+(t.n||'').replace(/"/g,'""')+'"'].join(','))];
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+rows.join('\n')],{type:'text/csv;charset=utf-8'}));a.download='kasku-'+ymd(Date.now())+'.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+rows.join('\n')],{type:'text/csv;charset=utf-8'}));a.download='jejakduit-'+ymd(Date.now())+'.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
   toast('CSV diekspor');
 }
 function parseCSV(t){
@@ -484,6 +484,9 @@ document.addEventListener('keydown',e=>{
 });
 addEventListener('storage',e=>{if(e.key==KEY){S=load();sortTx();theme();if(!E)render(false)}});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!$('#sheet').firstChild)render(false)});
+
+/* Cegah zoom cubit di iOS Safari (zoom dobel-ketuk dicegah lewat touch-action di CSS) */
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
 
 /* ---------- Mulai ---------- */
 theme();setTab('home',true);
