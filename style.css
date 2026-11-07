@@ -323,3 +323,6 @@ button,.tr,.qt,.cb,.pad button{-webkit-user-select:none;user-select:none}
 .btn2.dl2{width:100%;margin-top:10px;color:var(--exp)}
 .btn2[disabled]{opacity:.4;cursor:default}
 .hint{font-size:12.5px;color:var(--mu);font-weight:600;line-height:1.45;margin:8px 4px 0}
+
+/* Zoom dimatikan: blokir cubit-zoom di Chrome Android dan iOS */
+html,body{touch-action:pan-x pan-y}

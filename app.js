@@ -773,7 +773,8 @@ function swEnd(e){
 ['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,swEnd));
 document.addEventListener('click',e=>{if(DRAGGED){e.stopPropagation();e.preventDefault();DRAGGED=false}},true);
 
-/* Zoom cubit sengaja dibiarkan aktif demi aksesibilitas. Zoom dobel-ketuk dicegah lewat touch-action di CSS. */
+/* Cegah zoom cubit di iOS Safari (zoom dobel-ketuk dicegah lewat touch-action di CSS) */
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
 
 /* ---------- Mulai ---------- */
 const gn=genRec();
