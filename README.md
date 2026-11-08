@@ -5,7 +5,7 @@ Aplikasi pencatatan keuangan (PWA). Tanpa login dan tanpa backend: data tersimpa
 Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 
 ## Fitur
-- Beranda: dompet (kartu menampilkan saldo, masuk/keluar bulan ini, saldo minus berwarna merah, tombol Transfer), catat cepat dengan garis budget per kategori (urutan tombol bisa diatur lewat tombol Atur: geser pegangan atau pakai tombol panah), budget, grafik 7 hari, pengingat cadangan.
+- Beranda: dompet (kartu menampilkan saldo, masuk/keluar bulan ini, saldo minus berwarna merah, tombol Transfer), catat cepat dengan cincin budget di sekeliling ikon kategori (urutan tombol bisa diatur lewat tombol Atur: geser pegangan atau pakai tombol panah), budget, grafik 7 hari, pengingat cadangan.
 - Dompet: banyak dompet (Tunai, bank, e-wallet) dengan saldo awal. Ketuk kartu dompet untuk melihat detail: saldo, masuk/keluar bulan ini, grafik saldo 30 hari, tombol Catat/Transfer/Sesuaikan/Ubah, dan transaksi per hari. Dengan 1 dompet, Beranda menawarkan chip sekali ketuk (BCA, GoPay, OVO, Dana). Dompet yang sudah dipakai bisa dihapus dengan memindahkan transaksinya ke dompet lain. Saldo minus diberi tanda merah, toast, dan notifikasi di lonceng.
 - Sesuaikan saldo: ketik saldo asli di rekening, app mencatat selisihnya sebagai penyesuaian (tidak dihitung sebagai pemasukan atau pengeluaran di Beranda dan Laporan).
 - Transfer: pindah uang antar dompet tanpa dihitung sebagai pemasukan atau pengeluaran. Biaya admin opsional dicatat sebagai pengeluaran terpisah (kategori Lainnya) di dompet asal.
@@ -15,7 +15,7 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 - Laporan: bisa disaring per dompet, donat per kategori, tren 6 bulan, perbandingan dengan bulan lalu (bulan berjalan dibandingkan di tanggal yang sama), grafik garis biaya per kategori bulan ini vs bulan lalu (ketuk grafik untuk lihat angkanya).
 - Profil: 7 palet (termasuk pink), mode terang/gelap, animasi Hemat (default) atau Penuh, mata uang (Rupiah atau tanpa), budget, master kategori (tambah, ubah, hapus; kategori yang sudah dipakai transaksi tidak bisa dihapus), transaksi berulang bulanan, cadangan JSON (bisa dibagikan lewat Web Share ke WhatsApp atau Files), ekspor/impor CSV.
 - Keamanan: kunci aplikasi dengan PIN 6 angka (PIN 4 angka lama tetap berfungsi sampai diganti) (kunci otomatis, pembatasan percobaan), biometrik opsional lewat WebAuthn, tampilan disamarkan di pratinjau multitasking. PIN hanya mengunci tampilan, data di localStorage tidak dienkripsi. Lupa PIN berarti data dihapus.
-- Budget: batas persen peringatan diatur di lembar Budget (muncul di lonceng). Pengingat catat: Profil > Pengingat catat untuk mengatur jeda hari (1 sampai 30) dan jam 24 jam. Notifikasi perangkat muncul saat aplikasi dibuka pada atau setelah jam itu, dilewati kalau hari itu sudah ada catatan.
+- Budget: total dan batas per kategori diatur di lembar Budget. Pengingat budget (Profil > Pengingat budget) punya saklar aktif/mati; saat aktif muncul pengaturan batas persen, notifikasi perangkat, dan jam 24 jam. Saat mati, peringatan budget tidak muncul di lonceng, toast, maupun notifikasi perangkat. Pengingat catat: Profil > Pengingat catat untuk mengatur jeda hari (1 sampai 30) dan jam 24 jam. Notifikasi perangkat muncul saat aplikasi dibuka pada atau setelah jam itu, dilewati kalau hari itu sudah ada catatan.
 - PWA: bisa dipasang, jalan pintas "Catat pengeluaran/pemasukan" dari ikon aplikasi, font tersimpan untuk offline.
 
 ## Catatan
@@ -23,11 +23,17 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 - Semua angka memakai format Indonesia: titik sebagai pemisah ribuan, koma sebagai desimal. Kolom input uang diberi titik otomatis saat mengetik.
 - Perangkat berbeda tidak saling sinkron.
 - Transaksi berulang dicatat saat aplikasi dibuka pada atau setelah tanggalnya (PWA tidak bisa berjalan di latar belakang).
-- Setelah deploy, sw.js memakai cache `jejakduit-v16`. Naikkan nomor versinya tiap rilis agar perangkat lama memuat file baru.
+- Setelah deploy, sw.js memakai cache `jejakduit-v19`. Naikkan nomor versinya tiap rilis agar perangkat lama memuat file baru.
 
 ## Build
 `app.js` di root adalah hasil minify. Sumber yang bisa dibaca ada di `src/app.js`. Setelah mengubah sumber, jalankan `sh build.sh` lalu naikkan versi cache di `sw.js`.
 SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast "Versi baru tersedia" setelah rilis baru.
+
+## Versi 19 (tambahan di atas v18)
+- Kalender: nominal keluar di bawah tanggal tetap merah saat tanggal dipilih maupun hari ini (tanggal terpilih memakai latar tint dan cincin, bukan latar solid). Nominal keluar di rincian hari juga merah.
+- Ringkasan Masuk, Keluar, Pindah dana, Selisih, dan Transaksi (kalender dan rincian hari) diganti satu kartu ringkas dengan pembatas tipis, tanpa ikon. Nilai nol diredupkan.
+- Garis kategori dirapikan: kelas `.dl` dipakai ganda (teks perbandingan di Laporan dan daftar jatuh tempo) sehingga teks "vs bulan lalu" bergeser. Teks perbandingan sekarang memakai `.dlt`. Garis budget di Catat cepat diganti cincin progres di sekeliling ikon, jadi tidak lagi terlihat seperti garis bawah label dan tinggi semua tile sama.
+- Pengingat budget: saklar aktif/mati, pengaturan hanya tampil saat aktif. Bagian peringatan dipindah dari lembar Budget ke Profil > Pengingat budget. Notifikasi perangkat budget punya saklar sendiri (default mengikuti pengaturan Pengingat catat).
 
 ## Versi 18 (tambahan di atas v17)
 - Kotak Masuk, Keluar, Pindah dana, dan Selisih/Transaksi dibuat lebih besar dan jelas; keterangan di bawah Dompet dan Catat cepat dihapus; kalender: cincin untuk hari ini, 🔥 saja untuk pengeluaran terbesar, legend disederhanakan.
