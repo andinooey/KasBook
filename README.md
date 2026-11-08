@@ -17,4 +17,4 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 - Data hanya ada di perangkat tempat dipakai. Jika data situs dihapus, data hilang. Cadangkan lewat Profil > Cadangkan data (JSON), yang berisi transaksi, kategori, budget, dan transaksi berulang. CSV hanya berisi transaksi.
 - Perangkat berbeda tidak saling sinkron.
 - Transaksi berulang dicatat saat aplikasi dibuka pada atau setelah tanggalnya (PWA tidak bisa berjalan di latar belakang).
-- Setelah deploy, sw.js memakai cache `jejakduit-v5`. Naikkan nomor versinya tiap rilis agar perangkat lama memuat file baru.
+- Setelah deploy, sw.js memakai cache `jejakduit-v6`. Naikkan nomor versinya tiap rilis agar perangkat lama memuat file baru.
