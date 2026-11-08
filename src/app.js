@@ -144,7 +144,7 @@ const curM=()=>ymd(Date.now()).slice(0,7);
 const mlabel=m=>new Date(+m.slice(0,4),+m.slice(5)-1,1).toLocaleDateString(DL,{month:'long',year:'numeric'});
 const mshort=m=>new Date(+m.slice(0,4),+m.slice(5)-1,1).toLocaleDateString(DL,{month:'short'});
 const madd=(m,n)=>{const d=new Date(+m.slice(0,4),+m.slice(5)-1+n,1);return d.getFullYear()+'-'+pad(d.getMonth()+1)};
-const tlabel=ts=>new Date(ts).toLocaleTimeString(DL,{hour:'2-digit',minute:'2-digit'});
+const tlabel=ts=>new Date(ts).toLocaleTimeString(DL,{hour:'2-digit',minute:'2-digit',hour12:false}).replace('.',':');
 function dlabel(ts,full){
   const k=ymd(ts),t=ymd(Date.now()),y=ymd(Date.now()-864e5);
   if(k==t)return'Hari ini';if(k==y)return'Kemarin';
@@ -252,7 +252,7 @@ function row(t,o={}){
 }
 const empty=(i,a,b)=>`<div class="empty"><div class="ei">${ic(i,26)}</div><b>${a}</b>${b}</div>`;
 
-function NT(){const n={pct:80,t:'17:00',sys:false,last:'',...(S.set.nt||{})};n.pct=Math.min(100,Math.max(50,Math.round(+n.pct)||80));if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(n.t))n.t='17:00';return n}
+function NT(){const n={pct:80,t:'17:00',d:1,sys:false,last:'',...(S.set.nt||{})};n.pct=Math.min(100,Math.max(50,Math.round(+n.pct)||80));n.d=Math.min(30,Math.max(1,Math.round(+n.d)||1));if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(n.t))n.t='17:00';return n}
 function insights(){
   const r=[],m=curM(),O=sum(inMonth(m),'out'),sp=spentBy(m),b=S.bud.total,nt=NT(),th=nt.pct/100;
   S.wal.forEach(w=>{const v=wb(w.id);if(v<0)r.push({w:1,i:'alert',c:'var(--exp)',t:`Saldo ${w.n} minus`,s:`Saldo ${money(v)}. Cek apakah ada catatan yang salah dompet, atau sesuaikan saldo dari detail dompet.`})});
@@ -412,8 +412,8 @@ function mePage(){
 <div class="sec s2">Umum</div>
 <div class="grp"><label class="set"><span class="si">${ic('coins',19)}</span><span class="st">Mata uang<small>Hanya tampilan, tanpa konversi</small></span><select class="sel" id="cur" aria-label="Mata uang">${(CURS.some(c=>c[0]==S.set.cur)?CURS:[...CURS,[S.set.cur,S.set.cur]]).map(c=>`<option value="${esc(c[0])}" ${S.set.cur==c[0]?'selected':''}>${esc(c[1])}</option>`).join('')}</select></label>
 <button class="set" data-a="wals"><span class="si">${ic('wallet',19)}</span><span class="st">Dompet<small>${S.wal.length} dompet · total ${money(balance())}</small></span>${ic('cr',18)}</button>
-<button class="set" data-a="budget"><span class="si">${ic('target',19)}</span><span class="st">Budget bulanan<small>${S.bud.total?money(S.bud.total):'Belum diatur'}</small></span>${ic('cr',18)}</button>
-<button class="set" data-a="notif"><span class="si">${ic('bell',19)}</span><span class="st">Notifikasi<small>Peringatan budget ${NT().pct}% · jam ${NT().t}</small></span>${ic('cr',18)}</button>
+<button class="set" data-a="budget"><span class="si">${ic('target',19)}</span><span class="st">Budget bulanan<small>${S.bud.total?money(S.bud.total):'Belum diatur'} · peringatan ${NT().pct}%</small></span>${ic('cr',18)}</button>
+<button class="set" data-a="remind"><span class="si">${ic('bell',19)}</span><span class="st">Pengingat catat<small>${NT().sys?(NT().d==1?'Tiap hari':'Tiap '+NT().d+' hari')+' · jam '+NT().t:'Mati. Ingatkan mencatat transaksi'}</small></span>${ic('cr',18)}</button>
 <button class="set" data-a="cats"><span class="si">${ic('tag',19)}</span><span class="st">Kategori<small>${OUT.length} keluar · ${INC.length} masuk</small></span>${ic('cr',18)}</button>
 <button class="set" data-a="recs"><span class="si">${ic('repeat',19)}</span><span class="st">Transaksi berulang<small>${S.rec.length?S.rec.length+' aktif':'Belum ada'}</small></span>${ic('cr',18)}</button></div>
 <div class="sec s2">Keamanan</div>
@@ -850,10 +850,11 @@ let ntTm=null,NTS=false;
 async function ntCheck(){
   const nt=NT();if(!nt.sys||!NOTI||Notification.permission!='granted')return;
   const d=new Date(),mm=d.getHours()*60+d.getMinutes();
-  if(mm<(+nt.t.slice(0,2))*60+(+nt.t.slice(3))||nt.last==ymd(Date.now()))return;
-  const L=insights().filter(x=>x.w);if(!L.length)return;
+  const gap=nt.last?Math.round((new Date(ymd(Date.now())+'T00:00:00')-new Date(nt.last+'T00:00:00'))/864e5):1e3;
+  if(mm<(+nt.t.slice(0,2))*60+(+nt.t.slice(3))||gap<nt.d)return;
+  if(S.tx.some(t=>ymd(t.ts)==ymd(Date.now())))return; // sudah mencatat hari ini, tidak perlu diingatkan
   S.set.nt={...nt,last:ymd(Date.now())};save();
-  const body=L.slice(0,3).map(x=>x.t).join(' · ');
+  const body='Belum ada catatan hari ini. Yuk catat pengeluaran dan pemasukanmu.';
   try{const r=await navigator.serviceWorker.ready;await r.showNotification('JejakDuit',{body,icon:'/icon-192.png',badge:'/icon-192.png',tag:'jd-daily'})}
   catch(e){try{new Notification('JejakDuit',{body,icon:'/icon-192.png'})}catch(x){}}
 }
@@ -862,17 +863,27 @@ function ntSched(){
   const d=new Date(),t=new Date(d.getFullYear(),d.getMonth(),d.getDate(),+nt.t.slice(0,2),+nt.t.slice(3),0,500).getTime()-d.getTime();
   if(t>0&&t<864e5)ntTm=setTimeout(()=>{ntCheck();ntSched()},t);
 }
-function openNotif(){
+/* Peringatan budget: hanya batas persen, ikut di lembar Budget */
+function ntBudSection(){
+  const nt=NT();
+  return`<div class="sec" style="margin:18px 0 2px">Peringatan budget</div>
+<div class="grp"><label class="set" for="ntp"><span class="si">${ic('target',19)}</span><span class="st">Batas peringatan<small>Muncul di lonceng saat pemakaian sudah segini</small></span><span class="nti"><input id="ntp" inputmode="numeric" maxlength="3" value="${nt.pct}" aria-label="Batas peringatan budget dalam persen"><b>%</b></span></label>
+<div class="bpr" style="margin:2px 0 6px">${[70,80,90,100].map(v=>`<button class="chip${v==nt.pct?' on':''}" data-s="ntpct" data-v="${v}">${v}%</button>`).join('')}</div></div>`;
+}
+/* Pengingat mencatat transaksi: tiap N hari pada jam tertentu. Jam lewat dropdown supaya selalu 24 jam (input type=time mengikuti pengaturan HP). */
+function openRemind(){
   const nt=NT(),perm=NOTI?Notification.permission:'unsupported';NTS=nt.sys&&perm=='granted';
   const sub=perm=='unsupported'?'Browser ini belum mendukung notifikasi':perm=='denied'?'Diblokir. Aktifkan lewat pengaturan browser':'Tampil di layar HP saat app dibuka pada atau setelah jam ini';
-  openSheet(`<div class="sheet" role="dialog" aria-modal="true" aria-label="Notifikasi" tabindex="-1" style="--c:var(--p)"><div class="tint"></div><div class="grab"></div>
-<div class="sh-top"><div class="sh-t">Notifikasi</div><div class="sh-act"><button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div>
-<div class="grp"><label class="set" for="ntp"><span class="si">${ic('target',19)}</span><span class="st">Batas peringatan budget<small>Muncul di lonceng saat pemakaian sudah segini</small></span><span class="nti"><input id="ntp" inputmode="numeric" maxlength="3" value="${nt.pct}" aria-label="Batas peringatan budget dalam persen"><b>%</b></span></label>
-<div class="bpr" style="margin:2px 0 6px">${[70,80,90,100].map(v=>`<button class="chip" data-s="ntpct" data-v="${v}">${v}%</button>`).join('')}</div>
-<label class="set" for="ntt"><span class="si">${ic('bell',19)}</span><span class="st">Jam pengingat<small>Cek budget dan ingatkan mencatat hari ini</small></span><span class="nti"><input id="ntt" type="time" value="${nt.t}" aria-label="Jam pengingat"></span></label>
+  const H=[...Array(24).keys()].map(x=>String(x).padStart(2,'0')),hh=nt.t.slice(0,2),mn=nt.t.slice(3);
+  const M=[...Array(12).keys()].map(x=>String(x*5).padStart(2,'0'));if(!M.includes(mn)){M.push(mn);M.sort()}
+  openSheet(`<div class="sheet" role="dialog" aria-modal="true" aria-label="Pengingat catat" tabindex="-1" style="--c:var(--p)"><div class="tint"></div><div class="grab"></div>
+<div class="sh-top"><div class="sh-t">Pengingat catat</div><div class="sh-act"><button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div>
+<div class="grp"><label class="set" for="ntd"><span class="si">${ic('repeat',19)}</span><span class="st">Ingatkan setiap<small>Berapa hari sekali (1 sampai 30)</small></span><span class="nti"><input id="ntd" inputmode="numeric" maxlength="2" value="${nt.d}" aria-label="Ingatkan setiap berapa hari"><b>hari</b></span></label>
+<div class="bpr" style="margin:2px 0 6px">${[1,2,3,7].map(v=>`<button class="chip${v==nt.d?' on':''}" data-s="ntday" data-v="${v}">${v}</button>`).join('')}</div>
+<div class="set"><span class="si">${ic('bell',19)}</span><span class="st">Jam pengingat<small>Format 24 jam</small></span><span class="nti"><select id="nth" aria-label="Jam">${H.map(x=>`<option ${x==hh?'selected':''}>${x}</option>`).join('')}</select><b>:</b><select id="ntm" aria-label="Menit">${M.map(x=>`<option ${x==mn?'selected':''}>${x}</option>`).join('')}</select></span></div>
 <button class="set" data-s="ntsys"><span class="si">${ic('bell',19)}</span><span class="st">Notifikasi perangkat<small id="ntsub">${sub}</small></span><span class="tg${NTS?' on':''}" id="nttg"><i></i></span></button></div>
-<p class="hint">Aplikasi web tidak bisa berjalan di latar belakang, jadi notifikasi perangkat muncul saat JejakDuit dibuka pada atau setelah jam yang dipilih, maksimal sekali sehari.</p>
-<button class="save" data-s="ntsave" style="background-color:var(--p);color:var(--pc)">Simpan</button></div>`);
+<p class="hint">Mengingatkan untuk mencatat transaksi. Aplikasi web tidak bisa berjalan di latar belakang, jadi notifikasi muncul saat JejakDuit dibuka pada atau setelah jam yang dipilih, dan dilewati kalau hari itu sudah ada catatan.</p>
+<button class="save" data-s="rsave" style="background-color:var(--p);color:var(--pc)">Simpan</button></div>`);
 }
 async function ntToggle(){
   if(!NOTI){toast('Browser ini belum mendukung notifikasi',{c:'var(--exp)'});return}
@@ -885,11 +896,15 @@ async function ntToggle(){
   }
   $('#nttg').classList.toggle('on',NTS);
 }
-function saveNotif(){
+function readPct(){
   const pct=Math.round(+String($('#ntp').value).replace(/\D/g,''));
-  if(!(pct>=50&&pct<=100)){toast('Isi batas antara 50 sampai 100',{c:'var(--exp)'});return}
-  const t=$('#ntt').value||'17:00';
-  S.set.nt={pct,t,sys:NTS,last:''};save();closeSheet();render(false);toast('Notifikasi disimpan');ntSched();ntCheck();
+  if(!(pct>=50&&pct<=100)){toast('Batas peringatan harus 50 sampai 100',{c:'var(--exp)'});return null}
+  return pct;
+}
+function saveRemind(){
+  const d=Math.round(+String($('#ntd').value).replace(/\D/g,''));
+  if(!(d>=1&&d<=30)){toast('Jeda ingatkan harus 1 sampai 30 hari',{c:'var(--exp)'});return}
+  S.set.nt={...NT(),d,t:$('#nth').value+':'+$('#ntm').value,sys:NTS,last:''};save();closeSheet();render(false);toast('Pengingat disimpan');ntSched();ntCheck();
 }
 function openBudget(){
   const sp=spentBy(curM());
@@ -901,10 +916,12 @@ function openBudget(){
 <div class="bact"><button class="btn2" data-s="bavg">${ic('repeat',15)}Rata-rata 3 bulan</button><button class="btn2" data-s="beq">Bagi rata</button></div></div>
 <div class="sec" style="margin:14px 0 2px">Per kategori <small style="color:var(--mu);font-weight:600">(boleh kosong)</small></div>
 ${OUT.map(k=>`<div class="bkr" style="--c:${cat(k)[2]}"><span class="cico sm">${ic(cat(k)[1],18)}</span><div class="bkn"><b>${esc(cat(k)[0])}</b><small>Bulan ini ${money(sp[k]||0)}</small></div><div class="bki"><span>Rp</span><input data-bk="${k}" data-money inputmode="numeric" placeholder="0" value="${S.bud.cats[k]?num(S.bud.cats[k]):''}" aria-label="Budget ${esc(cat(k)[0])}"></div></div>`).join('')}</div>
+${ntBudSection()}
 <button class="save" data-s="bsave" style="background-color:var(--p);color:var(--pc)">Simpan budget</button></div>`,sh=>{budUpd();sh.addEventListener('input',budUpd)});
 }
 function saveBudget(){
-  S.bud.total=parseNum($('#bt').value);const c={};$$('[data-bk]').forEach(i=>{const v=parseNum(i.value);if(v>0)c[i.dataset.bk]=v});S.bud.cats=c;if(!S.bud.total)S.bud.total=Object.values(c).reduce((a,b)=>a+b,0);save();closeSheet();render(false);toast('Budget disimpan');
+  const pc=readPct();if(pc==null)return;
+  S.bud.total=parseNum($('#bt').value);const c={};$$('[data-bk]').forEach(i=>{const v=parseNum(i.value);if(v>0)c[i.dataset.bk]=v});S.bud.cats=c;if(!S.bud.total)S.bud.total=Object.values(c).reduce((a,b)=>a+b,0);S.set.nt={...NT(),pct:pc};save();closeSheet();render(false);toast('Budget disimpan');
 }
 
 /* --- Notifikasi (lonceng) --- */
@@ -1043,8 +1060,7 @@ cmpt:el=>{
   let d='';if(p>0){const v=Math.round((c-p)/p*100);d=v?`<em class="dl ${(v>0)==(el.dataset.ty=='out')?'bad':'good'}">${v>0?'▲':'▼'} ${Math.abs(v)>999?'>999':Math.abs(v)}%</em>`:'<em class="dl">Sama</em>'}else if(c)d='<em class="dl nw">Baru</em>';
   $('#cmpi').innerHTML=`<b>${esc(el.dataset.n)}</b><span>Bulan ini <strong>${money(c)}</strong></span><span>Bulan lalu <strong>${money(p)}</strong></span>${d}`;
 },
-budget:openBudget,
-notif:openNotif,
+budget:openBudget,remind:openRemind,
 reload:()=>location.reload(),
 wals:openWals,
 wadd:()=>openWalForm(),
@@ -1087,9 +1103,9 @@ document.addEventListener('click',e=>{
     else if(v=='del')delTx();
     else if(v=='note'){const i=$('#nin');i.hidden=!i.hidden;if(!i.hidden)i.focus()}
     else if(v=='bsave')saveBudget();
-    else if(v=='ntpct')$('#ntp').value=s.dataset.v;
+    else if(v=='ntpct'||v=='ntday'){const f=$(v=='ntpct'?'#ntp':'#ntd');f.value=s.dataset.v;$$('[data-s='+v+']').forEach(b=>b.classList.toggle('on',b==s))}
     else if(v=='ntsys')ntToggle();
-    else if(v=='ntsave')saveNotif();
+    else if(v=='rsave')saveRemind();
     else if(v=='ok'){const f=CONF;CONF=null;f&&f()}
     else if(v=='ctab'){CT=s.dataset.v;openCats()}
     else if(v=='cadd')openCatForm();

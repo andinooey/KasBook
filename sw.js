@@ -1,4 +1,4 @@
-const C='jejakduit-v12',F='jejakduit-fonts';
+const C='jejakduit-v13',F='jejakduit-fonts';
 const FILES=['/','/index.html','/style.css','/app.js','/manifest.json','/favicon.svg','/logo.svg','/icon-192.png'];
 self.addEventListener('install',e=>{
   // cache:'reload' supaya file baru diambil dari server, bukan dari cache HTTP browser

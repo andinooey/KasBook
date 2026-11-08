@@ -15,7 +15,7 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 - Laporan: bisa disaring per dompet, donat per kategori, tren 6 bulan, perbandingan dengan bulan lalu (bulan berjalan dibandingkan di tanggal yang sama), grafik garis biaya per kategori bulan ini vs bulan lalu (ketuk grafik untuk lihat angkanya).
 - Profil: 7 palet (termasuk pink), mode terang/gelap, mata uang (Rupiah atau tanpa), budget, master kategori (tambah, ubah, hapus; kategori yang sudah dipakai transaksi tidak bisa dihapus), transaksi berulang bulanan, cadangan JSON (bisa dibagikan lewat Web Share ke WhatsApp atau Files), ekspor/impor CSV.
 - Keamanan: kunci aplikasi dengan PIN 6 angka (PIN 4 angka lama tetap berfungsi sampai diganti) (kunci otomatis, pembatasan percobaan), biometrik opsional lewat WebAuthn, tampilan disamarkan di pratinjau multitasking. PIN hanya mengunci tampilan, data di localStorage tidak dienkripsi. Lupa PIN berarti data dihapus.
-- Notifikasi: Profil > Notifikasi untuk mengatur batas persen peringatan budget dan jam pengingat. Notifikasi perangkat muncul saat aplikasi dibuka pada atau setelah jam itu, maksimal sekali sehari.
+- Budget: batas persen peringatan diatur di lembar Budget (muncul di lonceng). Pengingat catat: Profil > Pengingat catat untuk mengatur jeda hari (1 sampai 30) dan jam 24 jam. Notifikasi perangkat muncul saat aplikasi dibuka pada atau setelah jam itu, dilewati kalau hari itu sudah ada catatan.
 - PWA: bisa dipasang, jalan pintas "Catat pengeluaran/pemasukan" dari ikon aplikasi, font tersimpan untuk offline.
 
 ## Catatan
@@ -23,7 +23,7 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 - Semua angka memakai format Indonesia: titik sebagai pemisah ribuan, koma sebagai desimal. Kolom input uang diberi titik otomatis saat mengetik.
 - Perangkat berbeda tidak saling sinkron.
 - Transaksi berulang dicatat saat aplikasi dibuka pada atau setelah tanggalnya (PWA tidak bisa berjalan di latar belakang).
-- Setelah deploy, sw.js memakai cache `jejakduit-v12`. Naikkan nomor versinya tiap rilis agar perangkat lama memuat file baru.
+- Setelah deploy, sw.js memakai cache `jejakduit-v13`. Naikkan nomor versinya tiap rilis agar perangkat lama memuat file baru.
 
 ## Build
 `app.js` di root adalah hasil minify. Sumber yang bisa dibaca ada di `src/app.js`. Setelah mengubah sumber, jalankan `sh build.sh` lalu naikkan versi cache di `sw.js`.
