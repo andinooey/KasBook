@@ -28,3 +28,11 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 ## Build
 `app.js` di root adalah hasil minify. Sumber yang bisa dibaca ada di `src/app.js`. Setelah mengubah sumber, jalankan `sh build.sh` lalu naikkan versi cache di `sw.js`.
 SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast "Versi baru tersedia" setelah rilis baru.
+
+## Versi 17
+- Kalender: titik masuk (hijau) dan pindah dana (biru) di atas tanggal, total keluar ringkas di bawah tanggal, keterangan titik, kotak Pindah dana di ringkasan bulan dan rincian hari, serta sorotan hari pengeluaran terbesar.
+- "Transfer" diganti "Pindah dana" di seluruh tampilan (format cadangan tetap kompatibel).
+- Peringatan budget punya pengaturan jam sendiri (24 jam).
+- Kolom catatan langsung tampil di form catat.
+- Transaksi berulang: default minta konfirmasi (Catat, Ubah, Lewati) lewat kartu Jatuh tempo di Beranda. Saklar Catat otomatis tersedia per item.
+- Catatan build: app.js di zip ini belum diminify. Jalankan `sh build.sh` (butuh Node dan internet) untuk meminify dari src/app.js, lalu naikkan nomor cache di sw.js.
