@@ -29,6 +29,9 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 `app.js` di root adalah hasil minify. Sumber yang bisa dibaca ada di `src/app.js`. Setelah mengubah sumber, jalankan `sh build.sh` lalu naikkan versi cache di `sw.js`.
 SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast "Versi baru tersedia" setelah rilis baru.
 
+## Versi 18 (tambahan di atas v17)
+- Kotak Masuk, Keluar, Pindah dana, dan Selisih/Transaksi dibuat lebih besar dan jelas; keterangan di bawah Dompet dan Catat cepat dihapus; kalender: cincin untuk hari ini, 🔥 saja untuk pengeluaran terbesar, legend disederhanakan.
+
 ## Versi 17
 - Kalender: titik masuk (hijau) dan pindah dana (biru) di atas tanggal, total keluar ringkas di bawah tanggal, keterangan titik, kotak Pindah dana di ringkasan bulan dan rincian hari, serta sorotan hari pengeluaran terbesar.
 - "Transfer" diganti "Pindah dana" di seluruh tampilan (format cadangan tetap kompatibel).

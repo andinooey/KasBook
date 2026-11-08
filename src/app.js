@@ -277,7 +277,7 @@ function walStrip(hide){
     return`<button class="wc${b<0?' neg':''}" style="--c:${w.c}" data-a="wopen" data-id="${esc(w.id)}" aria-label="${esc(w.n)}, saldo ${money(b)}${b<0?' (minus)':''}. Buka detail"><span class="cico sm">${ic(w.i,20)}</span><span class="wn">${esc(w.n)}</span><b class="${h}">${money(b)}</b><span class="wf ${h}"><i class="in">↓ ${NFC.format(f.i)}</i><i class="out">↑ ${NFC.format(f.o)}</i></span></button>`}).join('');
   const tf=one?'':`<button class="wc tfc" data-a="wtf" aria-label="Pindah dana antar dompet"><span class="wp">${ic('swap',20,2.4)}</span><span class="wn">Pindah dana</span></button>`;
   const add=one?'':`<button class="wc add" data-a="wadd" aria-label="Tambah dompet"><span class="wp">${ic('plus',20,2.6)}</span><span class="wn">Dompet</span></button>`;
-  return`<div class="sec">Dompet<button class="more" data-a="wals">Kelola</button></div><div class="wr">${cards}${tf}${add}</div><p class="wh">↓ masuk, ↑ keluar bulan ini</p>${one?wNudge():''}`;
+  return`<div class="sec">Dompet<button class="more" data-a="wals">Kelola</button></div><div class="wr">${cards}${tf}${add}</div>${one?wNudge():''}`;
 }
 function wNudge(){
   const have=S.wal[0].n.toLowerCase();
@@ -328,7 +328,7 @@ function home(anim){
     if(k=='IN')return`<button class="qt" style="--c:#10B981" data-a="quick" data-c="${INC[0]}" data-ty="in"><span class="cico">${ic('adl',24,2.4)}</span><span class="ql">Pemasukan</span></button>`;
     const id=k,bg=S.bud.cats[id],bp=bg?(sp[id]||0)/bg*100:0;
     return`<button class="qt" style="--c:${cat(id)[2]}" data-a="quick" data-c="${id}"><span class="cico">${ic(cat(id)[1],28)}</span><span class="ql">${esc(cat(id)[0])}</span>${bg?`<i class="qb${bp>=100?' o':bp>=80?' w':''}" role="img" aria-label="Budget ${esc(cat(id)[0])} terpakai ${Math.round(bp)} persen"><b data-t="w" data-k="qb${id}" data-z="0" data-v="${Math.min(100,bp)}" style="transform:translateX(-100%)"></b></i>`:''}</button>`};
-  const tiles=qorder().map(tile).join('')+(anyB?'<p class="qh">Garis di bawah kategori = budget bulan ini yang sudah terpakai.</p>':'');
+  const tiles=qorder().map(tile).join('');
   const nudge=bkDue()?`<button class="nudge" data-a="bkjson"><span class="si">${ic('dl',18)}</span><span class="st"><b>Cadangkan datamu</b><small>${S.set.bk?'Cadangan terakhir sudah lebih dari 2 minggu':'Belum pernah dicadangkan. Data hanya ada di perangkat ini.'}</small></span>${ic('cr',16)}</button>`:'';
   const rc=S.tx.slice(0,5);
   return`<header class="hd"><div><div class="gr">${g}</div><div class="dt">${n.toLocaleDateString(DL,{weekday:'long',day:'numeric',month:'long'})}</div></div>
@@ -441,6 +441,7 @@ function txPage(){const g=`<div class="seg vw" role="tablist">${[['list','Daftar
 
 let cdsel=null;
 const DOW=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+const kbox=(k,i0,lab,v)=>`<div class="kb ${k}"><span class="kh"><span class="ki">${ic(i0,14,2.6)}</span>${lab}</span>${v}</div>`;
 const ktg=n=>n>=1e9?(+(n/1e9).toFixed(1)+'').replace('.',',')+'M':n>=1e6?(+(n/1e6).toFixed(1)+'').replace('.',',')+'jt':n>=1e3?Math.round(n/1e3)+'rb':String(Math.round(n));
 const maxDay=by=>{let k=null,v=0;for(const x in by)if(by[x].o>v){v=by[x].o;k=x}return k};
 function dayMap(){const by={};S.tx.forEach(t=>{if(!wvis(t))return;const k=ymd(t.ts);if(k.slice(0,7)!=mon)return;const b=by[k]||(by[k]={i:0,o:0,f:0,l:[]});if(!t.adj){if(t.ty=='in')b.i+=t.a;else if(t.ty=='out')b.o+=t.a;else if(t.ty=='tf')b.f+=t.a}b.l.push(t)});return by}
@@ -450,7 +451,7 @@ function cdHTML(k){
   b.l.filter(t=>t.ty=='out'&&!t.adj).forEach(t=>oc[t.c]=(oc[t.c]||0)+t.a);
   const bar=b.o?`<div class="kcbar">${Object.entries(oc).sort((x,y)=>y[1]-x[1]).map(([c,v])=>`<i style="flex:${v};background:${cat(c)[2]}" title="${esc(cat(c)[0])}"></i>`).join('')}</div>`:'';
   return`<div class="kcdh"><h3>${d.toLocaleDateString(DL,{weekday:'long',day:'numeric',month:'long'})}</h3><span class="${net<0?'out':'in'}" style="color:var(--${net<0?'exp':'inc'})">${b.l.length?(net>0?'+':'')+money(net):''}</span></div>
-${k==maxDay(by)?'<p class="kcmxb">🔥 Pengeluaran terbesar bulan ini</p>':''}<div class="kcs k4" style="margin:12px 0 0"><div><small>Masuk</small><b class="i">${compact(b.i)}</b></div><div><small>Keluar</small><b class="o">${compact(b.o)}</b></div><div><small>Pindah dana</small><b class="f">${compact(b.f)}</b></div><div><small>Transaksi</small><b>${b.l.length}</b></div></div>${bar}
+${k==maxDay(by)?'<p class="kcmxb">🔥 Pengeluaran terbesar bulan ini</p>':''}<div class="kst" style="margin:12px 0 0">${kbox('i','adl','Masuk',`<b>${money(b.i)}</b>`)}${kbox('o','aur','Keluar',`<b>${money(b.o)}</b>`)}${kbox('f','swap','Pindah dana',`<b>${money(b.f)}</b>`)}${kbox('n','list','Transaksi',`<b>${b.l.length}</b>`)}</div>${bar}
 ${b.l.length?b.l.sort((x,y)=>y.ts-x.ts).map(t=>row(t)).join(''):`<p style="color:var(--mu);text-align:center;margin:18px 0 6px">Tidak ada transaksi di tanggal ini.</p>`}
 ${k<=now?`<button class="kcadd" data-a="cadd" data-d="${k}">${ic('plus',16,2.6)} Catat di tanggal ini</button>`:''}`;
 }
@@ -462,8 +463,8 @@ function calPage(){
   for(let d=1;d<=dim;d++){const k=mon+'-'+pad(d),b=by[k],h=b&&b.o&&mx?Math.round((.03+.1*b.o/mx)*100):0;
     cells+=`<button class="kcd${k==now?' t':''}${k==cdsel?' on':''}${k==mk?' mxd':''}" style="--hp:${h}%" data-a="cday" data-d="${k}" ${k>now?'disabled':''} aria-label="${d} ${mlabel(mon)}${b?', keluar '+money(b.o)+', masuk '+money(b.i)+(b.f?', pindah dana '+money(b.f):''):''}${k==mk?', pengeluaran terbesar bulan ini':''}"><u>${b&&b.i?'<b class="i"></b>':''}${b&&b.f?'<b class="f"></b>':''}</u><i>${d}</i><em>${b&&b.o?ktg(b.o):''}</em></button>`}
   return`<header class="hd"><h1>Transaksi</h1><button class="ib pr" data-a="add" aria-label="Tambah transaksi">${ic('plus',20,2.6)}</button></header>${monNav()}${wChips(wf,'wfil')}
-<div class="kcs k4"><div><small>Masuk</small><b class="i" data-k="cI" data-n="${I}" data-f="c"></b></div><div><small>Keluar</small><b class="o" data-k="cO" data-n="${O}" data-f="c"></b></div><div><small>Pindah dana</small><b class="f" data-k="cF" data-n="${F}" data-f="c"></b></div><div><small>Selisih</small><b data-k="cN" data-n="${I-O}" data-f="c"></b></div></div>
-<div class="kcw">${DOW.map(x=>`<span>${x}</span>`).join('')}</div><div class="kcg">${cells}</div>${mk?`<button class="kcmx" data-a="cday" data-d="${mk}">🔥 <span>Pengeluaran terbesar: <b>${+mk.slice(8)} ${new Date(mk+'T12:00').toLocaleDateString(DL,{month:'short'})}</b> · ${money(by[mk].o)}</span></button>`:''}<div class="kcl"><span><i class="i"></i>Masuk</span><span><i class="f"></i>Pindah dana</span><span><em>50rb</em>Total keluar</span><span>🔥 Terbesar</span></div><div class="kcdp" id="cdp">${cdHTML(cdsel)}</div>`;
+<div class="kst">${kbox('i','adl','Masuk',`<b data-k="cI" data-n="${I}"></b>`)}${kbox('o','aur','Keluar',`<b data-k="cO" data-n="${O}"></b>`)}${kbox('f','swap','Pindah dana',`<b data-k="cF" data-n="${F}"></b>`)}${kbox(I-O>=0?'i':'o','up','Selisih',`<b data-k="cN" data-n="${I-O}"></b>`)}</div>
+<div class="kcw">${DOW.map(x=>`<span>${x}</span>`).join('')}</div><div class="kcg">${cells}</div><div class="kcl"><span><i class="i"></i>Masuk</span><span><i class="f"></i>Pindah dana</span></div><div class="kcdp" id="cdp">${cdHTML(cdsel)}</div>`;
 }
 let FIRSTR=true;
 function applyAnim(){document.documentElement.classList.toggle('lite',S.set.anim!='full')}
