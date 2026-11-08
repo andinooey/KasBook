@@ -29,6 +29,14 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 `app.js` di root adalah hasil minify. Sumber yang bisa dibaca ada di `src/app.js`. Setelah mengubah sumber, jalankan `sh build.sh` lalu naikkan versi cache di `sw.js`.
 SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast "Versi baru tersedia" setelah rilis baru.
 
+## Versi 20 (tambahan di atas v19)
+- Notifikasi digabung jadi satu: Profil > Notifikasi. Saklar perangkat di atas, lalu Pengingat catat dan Peringatan budget sebagai accordion (buka-tutup), masing-masing punya saklar on/off.
+- Budget bulanan bisa dimatikan (saklar di sheet Budget). Saat mati, ring budget, peringatan, dan batas per kategori disembunyikan; angka tetap tersimpan.
+- Form Pindah dana: pil ikon dan tulisan "Pindah dana" di atas nominal dihapus.
+- Sembunyikan saldo memakai titik bulat (••••••), bukan blur.
+- Tipografi: ukuran minimum 11px, teks bantu 12,5px; layar 360px dirapikan.
+- Shadow tidak lagi terpotong di daftar geser (dompet, filter, kategori); daftar budget diberi fade bawah.
+
 ## Versi 19 (tambahan di atas v18)
 - Kalender: nominal keluar di bawah tanggal tetap merah saat tanggal dipilih maupun hari ini (tanggal terpilih memakai latar tint dan cincin, bukan latar solid). Nominal keluar di rincian hari juga merah.
 - Ringkasan Masuk, Keluar, Pindah dana, Selisih, dan Transaksi (kalender dan rincian hari) diganti satu kartu ringkas dengan pembatas tipis, tanpa ikon. Nilai nol diredupkan.
