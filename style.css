@@ -498,3 +498,13 @@ html,body{touch-action:pan-x pan-y}
 /* Bar vertikal: tumbuh lewat transform saat halaman baru dibuka */
 .pg.in .bars i,.pg.in .tre .pr i{transform-origin:50% 100%;animation:grow .35s cubic-bezier(.22,1,.36,1) both}
 @keyframes grow{from{transform:scaleY(0)}}
+
+.cmpl .hit{fill:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cmpl .sel{stroke:var(--p);stroke-width:1;stroke-dasharray:3 3;opacity:0}
+.cmpi{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:6px;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--p) 8%,transparent);font-size:12.5px;font-weight:600;color:var(--mu);min-height:20px}
+.cmpi b{color:var(--tx);font-weight:800;font-size:13.5px;flex-basis:100%}
+.cmpi strong{color:var(--tx);font-weight:800}
+.nti{display:flex;align-items:center;gap:4px;flex:none}
+.nti input{width:62px;padding:8px 6px;border-radius:12px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);font:inherit;font-weight:800;font-size:16px;text-align:center}
+.nti input[type=time]{width:auto;min-width:96px}
+.nti b{font-weight:800;color:var(--mu)}
