@@ -460,7 +460,7 @@ function calPage(){
     cells+=`<button class="kcd${k==now?' t':''}${k==cdsel?' on':''}" style="--hp:${h}%" data-a="cday" data-d="${k}" ${k>now?'disabled':''} aria-label="${d} ${mlabel(mon)}${b?', keluar '+money(b.o)+', masuk '+money(b.i):''}"><i>${d}</i><u>${b&&b.o?'<b class="o"></b>':''}${b&&b.i?'<b class="i"></b>':''}</u></button>`}
   return`<header class="hd"><h1>Transaksi</h1><button class="ib pr" data-a="add" aria-label="Tambah transaksi">${ic('plus',20,2.6)}</button></header>${monNav()}${wChips(wf,'wfil')}
 <div class="kcs"><div><small>Masuk</small><b class="i" data-k="cI" data-n="${I}" data-f="c"></b></div><div><small>Keluar</small><b class="o" data-k="cO" data-n="${O}" data-f="c"></b></div><div><small>Selisih</small><b data-k="cN" data-n="${I-O}" data-f="c"></b></div></div>
-<div class="kcw">${DOW.map(x=>`<span>${x}</span>`).join('')}</div><div class="kcg">${cells}</div><div class="kcl"><span><i class="o"></i>Ada pengeluaran</span><span><i class="i"></i>Ada pemasukan</span></div><div class="kcdp" id="cdp">${cdHTML(cdsel)}</div>`;
+<div class="kcw">${DOW.map(x=>`<span>${x}</span>`).join('')}</div><div class="kcg">${cells}</div><div class="kcl"><span><i class="o"></i>Keluar</span><span><i class="i"></i>Masuk</span></div><div class="kcdp" id="cdp">${cdHTML(cdsel)}</div>`;
 }
 let FIRSTR=true;
 function applyAnim(){document.documentElement.classList.toggle('lite',S.set.anim!='full')}
@@ -915,15 +915,41 @@ function saveRemind(){
 }
 /* --- Atur urutan Catat cepat --- */
 const QOA=k=>k=='IN'?['Pemasukan','adl','#10B981']:cat(k);
-function qoRows(){const L=qorder();return L.map((k,i)=>{const c=QOA(k);return`<div class="qor" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><b>${esc(c[0])}</b><button data-s="qup" data-k="${esc(k)}" aria-label="Naikkan ${esc(c[0])}" ${i?'':'disabled'}><span class="qar" style="transform:rotate(-90deg)">${ic('cr',18)}</span></button><button data-s="qdn" data-k="${esc(k)}" aria-label="Turunkan ${esc(c[0])}" ${i==L.length-1?'disabled':''}><span class="qar" style="transform:rotate(90deg)">${ic('cr',18)}</span></button></div>`}).join('')}
+function qoRows(){const L=qorder();return L.map((k,i)=>{const c=QOA(k);return`<div class="qor" data-k="${esc(k)}" style="--c:${c[2]}"><span class="qgrip" role="img" aria-label="Geser untuk memindah ${esc(c[0])}"><svg width="14" height="18" viewBox="0 0 14 18" fill="currentColor" aria-hidden="true"><circle cx="4" cy="3" r="1.5"/><circle cx="10" cy="3" r="1.5"/><circle cx="4" cy="9" r="1.5"/><circle cx="10" cy="9" r="1.5"/><circle cx="4" cy="15" r="1.5"/><circle cx="10" cy="15" r="1.5"/></svg></span><span class="cico sm">${ic(c[1],18)}</span><b>${esc(c[0])}</b><button data-s="qup" data-k="${esc(k)}" aria-label="Naikkan ${esc(c[0])}" ${i?'':'disabled'}><span class="qar" style="transform:rotate(-90deg)">${ic('cr',18)}</span></button><button data-s="qdn" data-k="${esc(k)}" aria-label="Turunkan ${esc(c[0])}" ${i==L.length-1?'disabled':''}><span class="qar" style="transform:rotate(90deg)">${ic('cr',18)}</span></button></div>`}).join('')}
 function openQord(){
   openSheet(`<div class="sheet" role="dialog" aria-modal="true" aria-label="Atur Catat cepat" tabindex="-1" style="--c:var(--p)"><div class="tint"></div><div class="grab"></div>
 <div class="sh-top"><div class="sh-t">Atur Catat cepat</div><div class="sh-act"><button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div>
-<p class="hint" style="margin:6px 4px 8px">Urutan dari atas ke bawah = kiri ke kanan, baris demi baris di Beranda.</p>
+<p class="hint" style="margin:6px 4px 8px">Tahan dan geser titik-titik di kiri, atau pakai tombol panah. Urutan dari atas ke bawah = kiri ke kanan, baris demi baris di Beranda.</p>
 <div id="qol">${qoRows()}</div>
 <button class="btn2" data-s="qreset" style="width:100%;margin-top:12px">Kembalikan urutan awal</button></div>`);
 }
 function qmove(k,d){const L=qorder(),i=L.indexOf(k),j=i+d;if(i<0||j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];S.set.qo=L;save();$('#qol').innerHTML=qoRows();if(tab=='home')render(false);vib()}
+/* Geser untuk mengurutkan: hanya aktif dari pegangan (.qgrip) supaya scroll daftar tetap normal */
+let QD=null;
+function qdStart(e,g){
+  const rows=[...$('#qol').children],row=g.closest('.qor'),i=rows.indexOf(row);if(i<0)return;
+  const h=rows.length>1?rows[1].getBoundingClientRect().top-rows[0].getBoundingClientRect().top:52;
+  QD={row,rows,i,j:i,y:e.clientY,h,id:e.pointerId,keys:rows.map(x=>x.dataset.k)};
+  try{g.setPointerCapture(e.pointerId)}catch(x){}
+  row.classList.add('drag');rows.forEach(x=>{if(x!=row)x.classList.add('qs')});vib();
+}
+function qdMove(e){
+  if(!QD||e.pointerId!=QD.id)return;
+  const{rows,i,h,row}=QD,dy=Math.max(-i*h,Math.min((rows.length-1-i)*h,e.clientY-QD.y));
+  row.style.transform='translateY('+dy+'px)';
+  const j=Math.max(0,Math.min(rows.length-1,i+Math.round(dy/h)));
+  if(j!=QD.j){QD.j=j;rows.forEach((x,k)=>{if(x!=row)x.style.transform=k>i&&k<=j?'translateY('+(-h)+'px)':k<i&&k>=j?'translateY('+h+'px)':''});vib()}
+}
+function qdEnd(e){
+  if(!QD||e.pointerId!=QD.id)return;
+  const{keys,i,j}=QD;QD=null;
+  if(e.type=='pointerup'&&j!=i){const L=keys.slice(),k=L.splice(i,1)[0];L.splice(j,0,k);S.set.qo=L;save();if(tab=='home')render(false)}
+  const l=$('#qol');if(l)l.innerHTML=qoRows();
+}
+document.addEventListener('pointerdown',e=>{const g=e.target.closest&&e.target.closest('.qgrip');if(g){e.preventDefault();qdStart(e,g)}});
+document.addEventListener('pointermove',qdMove);
+document.addEventListener('pointerup',qdEnd);
+document.addEventListener('pointercancel',qdEnd);
 function qreset(){delete S.set.qo;save();$('#qol').innerHTML=qoRows();if(tab=='home')render(false)}
 function openBudget(){
   const sp=spentBy(curM());
