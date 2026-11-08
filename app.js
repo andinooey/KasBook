@@ -208,7 +208,11 @@ function migrate(){ // dari versi lama (kasku_tx)
 function load(){try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&Array.isArray(j.tx))return norm(j)}catch(e){}return migrate()}
 let S=load();rebuild();
 let warned=false;
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(!warned){warned=true;toast('Data belum bisa disimpan: penyimpanan browser penuh atau diblokir',{c:'var(--exp)'})}}}
+function write(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(!warned){warned=true;toast('Data belum bisa disimpan: penyimpanan browser penuh atau diblokir',{c:'var(--exp)'})}}}
+let svT=null;
+function flush(){if(svT==null)return;clearTimeout(svT);svT=null;write()}
+function save(){clearTimeout(svT);svT=setTimeout(()=>{svT=null;write()},300)}
+addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
 const sortTx=()=>S.tx.sort((a,b)=>b.ts-a.ts||(a.id<b.id?1:-1));
 const snap=()=>({tx:S.tx.map(t=>({...t})),rec:S.rec.map(r=>({...r}))});
 const snapAll=()=>({...snap(),wal:S.wal.map(w=>({...w})),bud:JSON.parse(JSON.stringify(S.bud))});
@@ -302,7 +306,7 @@ function wdPage(){
   const tm=inMonth(cm).filter(t=>t.ty=='tf'),ti=tm.reduce((s,t)=>t.w2==id?s+t.a:s,0),to=tm.reduce((s,t)=>t.w==id?s+t.a:s,0);
   const v=bal30(id),ch=r2(v[v.length-1]-v[0]),L=inMonth(mon).filter(t=>t.w==id||t.w2==id);
   return`<header class="hd"><button class="ib" data-a="wdback" aria-label="Kembali ke Beranda">${ic('cl',20)}</button><h1 class="wdh">${esc(w.i)} ${esc(w.n)}</h1><span class="wds"></span></header>
-<section class="hero" style="--h:${w.c}"><i class="bl bl1"></i><i class="bl bl2"></i><div class="hl">Saldo ${esc(w.n)}</div><div class="bigb${h}" data-n="${bal}" data-k="wdb">${money(bal)}</div>${bal<0?`<div class="negb">${ic('alert',14,2.6)}Saldo minus</div>`:''}
+<section class="hero" style="--h:${w.c}"><div class="hl">Saldo ${esc(w.n)}</div><div class="bigb${h}" data-n="${bal}" data-k="wdb">${money(bal)}</div>${bal<0?`<div class="negb">${ic('alert',14,2.6)}Saldo minus</div>`:''}
 <div class="pills"><div class="pill"><span class="pc in">${ic('adl',15,2.6)}</span><div style="min-width:0"><small>Masuk bulan ini</small><b class="${hc}" data-n="${f.i}" data-k="wdi">${money(f.i)}</b></div></div><div class="pill"><span class="pc out">${ic('aur',15,2.6)}</span><div style="min-width:0"><small>Keluar bulan ini</small><b class="${hc}" data-n="${f.o}" data-k="wdo">${money(f.o)}</b></div></div></div>
 ${ti||to?`<p class="hh wdtf">Transfer bulan ini: masuk ${money(ti)}, keluar ${money(to)}</p>`:''}</section>
 <div class="wact" style="--c:${w.c}"><button data-a="wdadd">${ic('plus',20,2.6)}<span>Catat</span></button><button data-a="wdtf" ${S.wal.length<2?'disabled':''}>${ic('swap',20,2.2)}<span>Transfer</span></button><button data-a="wdadj">${ic('coins',20)}<span>Sesuaikan</span></button><button data-a="wdedit">${ic('pen',20)}<span>Ubah</span></button></div>
@@ -317,8 +321,8 @@ function home(anim){
   const dot=insights().some(x=>x.w==1),hide=S.set.hide?' blur':'',Cc=2*Math.PI*34,col=pct>=100?'var(--exp)':pct>=80?'var(--amb)':'var(--p)';
   const sp=spentBy(curM()),anyB=OUT.some(id=>S.bud.cats[id]>0);
   const tiles=OUT.map((id,i)=>{const bg=S.bud.cats[id],bp=bg?(sp[id]||0)/bg*100:0;
-    return`<button class="qt${anim?' stag':''}" style="--c:${cat(id)[2]};--i:${i}" data-a="quick" data-c="${id}"><span class="cico">${ic(cat(id)[1],28)}</span><span class="ql">${esc(cat(id)[0])}</span>${bg?`<i class="qb${bp>=100?' o':bp>=80?' w':''}" role="img" aria-label="Budget ${esc(cat(id)[0])} terpakai ${Math.round(bp)} persen"><b data-t="w" data-k="qb${id}" data-z="0" data-v="${Math.min(100,bp)}" style="width:0"></b></i>`:''}</button>`}).join('')
-   +`<button class="qt${anim?' stag':''}" style="--c:#10B981;--i:${OUT.length}" data-a="quick" data-c="${INC[0]}" data-ty="in"><span class="cico">${ic('adl',24,2.4)}</span><span class="ql">Pemasukan</span></button>`+(anyB?'<p class="qh">Garis di bawah kategori = budget bulan ini yang sudah terpakai.</p>':'');
+    return`<button class="qt" style="--c:${cat(id)[2]};--i:${i}" data-a="quick" data-c="${id}"><span class="cico">${ic(cat(id)[1],28)}</span><span class="ql">${esc(cat(id)[0])}</span>${bg?`<i class="qb${bp>=100?' o':bp>=80?' w':''}" role="img" aria-label="Budget ${esc(cat(id)[0])} terpakai ${Math.round(bp)} persen"><b data-t="w" data-k="qb${id}" data-z="0" data-v="${Math.min(100,bp)}" style="transform:translateX(-100%)"></b></i>`:''}</button>`}).join('')
+   +`<button class="qt" style="--c:#10B981;--i:${OUT.length}" data-a="quick" data-c="${INC[0]}" data-ty="in"><span class="cico">${ic('adl',24,2.4)}</span><span class="ql">Pemasukan</span></button>`+(anyB?'<p class="qh">Garis di bawah kategori = budget bulan ini yang sudah terpakai.</p>':'');
   const nudge=bkDue()?`<button class="nudge" data-a="bkjson"><span class="si">${ic('dl',18)}</span><span class="st"><b>Cadangkan datamu</b><small>${S.set.bk?'Cadangan terakhir sudah lebih dari 2 minggu':'Belum pernah dicadangkan. Data hanya ada di perangkat ini.'}</small></span>${ic('cr',16)}</button>`:'';
   const rc=S.tx.slice(0,5);
   return`<header class="hd"><div><div class="gr">${g}</div><div class="dt">${n.toLocaleDateString(DL,{weekday:'long',day:'numeric',month:'long'})}</div></div>
@@ -356,6 +360,22 @@ function txList(){
 <div id="txl">${listHTML()}</div>`;
 }
 
+
+/* Grafik garis: biaya per kategori, bulan ini vs bulan lalu (statis, tanpa animasi) */
+function cmpLine(by,pby,m){
+  const ks=[...new Set([...Object.keys(by),...Object.keys(pby)])].sort((a,b)=>Math.max(by[b]||0,pby[b]||0)-Math.max(by[a]||0,pby[a]||0)).slice(0,6);
+  if(ks.length<2)return'';
+  const W=340,H=210,L=44,R=14,T=14,B=48,iw=W-L-R,ih=H-T-B;
+  const mx=Math.max(...ks.flatMap(k=>[by[k]||0,pby[k]||0]),1)*1.1;
+  const X=i=>L+iw*i/(ks.length-1),Y=v=>T+ih-v/mx*ih;
+  const line=(src,cls)=>{const pts=ks.map((k,i)=>[X(i),Y(src[k]||0)]);return`<polyline class="${cls}" fill="none" points="${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}"/>`+pts.map(p=>`<circle class="${cls}d" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5"/>`).join('')};
+  const grid=[0,.5,1].map(f=>{const v=mx/1.1*f,y=Y(v);return`<line class="gl" x1="${L}" x2="${W-R}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/><text class="gt" x="${L-6}" y="${(y+3.5).toFixed(1)}" text-anchor="end">${compact(v)}</text>`}).join('');
+  const lbl=ks.map((k,i)=>{const n=cat(k)[0];return`<text class="gt" x="${X(i).toFixed(1)}" y="${H-B+16}" text-anchor="middle">${esc(n.length>7?n.slice(0,6)+'…':n)}</text>`}).join('');
+  const sum=ks.map(k=>`${cat(k)[0]}: ${money(by[k]||0)} vs ${money(pby[k]||0)}`).join('; ');
+  return`<div class="sec">Per kategori: ${esc(mshort(m))} vs ${esc(mshort(madd(m,-1)))}</div><div class="card"><svg class="cmpl" viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik garis biaya per kategori, bulan ini dibanding bulan lalu. ${esc(sum)}">${grid}${line(pby,'lp')}${line(by,'lc')}${lbl}</svg>
+<div class="lg"><span><i class="lgc"></i>${esc(mlabel(m))}</span><span><i class="lgp"></i>${esc(mlabel(madd(m,-1)))}</span></div></div>`;
+}
+
 function repPage(){
   const mt=rin(mon),I=sum(mt,'in'),O=sum(mt,'out'),by={};
   mt.filter(t=>t.ty==rep&&!t.adj).forEach(t=>by[t.c]=(by[t.c]||0)+t.a);
@@ -372,8 +392,9 @@ function repPage(){
 <div class="card"><small>Selisih</small><b>${I-O>0?'+':''}${money(I-O)}</b></div><div class="card"><small>Rata-rata keluar/hari</small><b>${money(O/el)}</b></div>${isCur?`<p class="cmpn">Perbandingan memakai tanggal 1–${cut} bulan lalu, supaya adil dengan bulan yang masih berjalan.</p>`:''}${rwf?`<p class="cmpn">Hanya transaksi di ${esc(walOf(rwf).n)}. Transfer antar dompet tidak dihitung, dan budget berlaku untuk semua dompet.</p>`:''}</div>
 <div class="card"><div class="seg" role="tablist"><button class="${rep=='out'?'on':''}" data-a="rep" data-r="out">Pengeluaran</button><button class="${rep=='in'?'on':''}" data-a="rep" data-r="in">Pemasukan</button></div>
 <div class="donut"><svg viewBox="0 0 200 200" role="img" aria-label="Diagram ${rep=='out'?'pengeluaran':'pemasukan'} per kategori"><circle class="trk" cx="100" cy="100" r="${R}"/>${segs}</svg><div class="dc" id="dcc"><small>${rep=='out'?'Pengeluaran':'Pemasukan'}</small><b data-n="${tot}" data-k="dn">${money(tot)}</b></div></div></div>
-${ent.length?`<div class="sec">Per kategori</div><div class="list">${ent.map(([k,v],i)=>{const c=cat(k),l=rep=='out'&&!rwf?S.bud.cats[k]:0,p=l?v/l*100:0,dc=dl(v,pby[k]||0,rep);return`<div class="cr" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><div class="m"><div class="t"><span>${c[0]}</span><span>${money(v)}</span></div><div class="pb"><i data-t="w" data-k="cp${i}" data-z="0" data-v="${v/tot*100}" style="width:0"></i></div><small><span>${Math.round(v/tot*100)}% dari total</span>${l?`<span class="${p>=100?'over':p>=80?'warn':''}">Budget ${Math.round(p)}%</span>`:''}</small>${dc}</div></div>`}).join('')}</div>`
+${ent.length?`<div class="sec">Per kategori</div><div class="list">${ent.map(([k,v],i)=>{const c=cat(k),l=rep=='out'&&!rwf?S.bud.cats[k]:0,p=l?v/l*100:0,dc=dl(v,pby[k]||0,rep);return`<div class="cr" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><div class="m"><div class="t"><span>${c[0]}</span><span>${money(v)}</span></div><div class="pb"><i data-t="w" data-k="cp${i}" data-z="0" data-v="${v/tot*100}" style="transform:translateX(-100%)"></i></div><small><span>${Math.round(v/tot*100)}% dari total</span>${l?`<span class="${p>=100?'over':p>=80?'warn':''}">Budget ${Math.round(p)}%</span>`:''}</small>${dc}</div></div>`}).join('')}</div>`
   :`<div class="list" style="margin-top:14px">${empty('pie','Belum ada data','Catat transaksi bulan ini untuk melihat laporan.')}</div>`}
+${cmpLine(by,pby,mon)}
 <div class="sec">6 bulan terakhir</div><div class="card"><div class="tre">${ms.map((x,i)=>`<button data-a="monset" data-m="${x.m}" class="${x.m==mon?'on':''}" aria-label="${mlabel(x.m)}"><div class="pr"><i data-t="h" data-k="ti${i}" data-z="0" data-v="${x.i/mx*100}" style="height:0"></i><i data-t="h" data-k="to${i}" data-z="0" data-v="${x.o/mx*100}" style="height:0"></i></div><em>${mshort(x.m)}</em></button>`).join('')}</div>
 <div class="lg"><span><i style="background:var(--inc)"></i>Masuk</span><span><i style="background:var(--exp)"></i>Keluar</span></div></div>`;
 }
@@ -438,17 +459,16 @@ function render(anim){
   if(tab=='wd'&&!S.wal.some(w=>w.id==WD)){setTab('home',false);return}
   OPEN=null;const p=$('#page');p.className='pg'+(anim?' in':'');p.innerHTML=pages[tab](anim);NEW=null;after(anim);
 }
-function setv(el,v){const t=el.dataset.t;if(t=='h')el.style.height=v+'%';else if(t=='w')el.style.width=v+'%';else el.style.strokeDashoffset=v}
+function setv(el,v){const t=el.dataset.t;if(t=='h')el.style.height=v+'%';else if(t=='w')el.style.transform='translateX('+(v-100)+'%)';else el.style.strokeDashoffset=v}
+const HIO=typeof IntersectionObserver!='undefined'?new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('off',!e.isIntersecting))):null;
+document.addEventListener('visibilitychange',()=>document.documentElement.classList.toggle('bgp',document.hidden));
 function after(anim){
+  if(HIO){HIO.disconnect();const h=$('#page .hero');if(h)HIO.observe(h)}
   const G=anim?{}:PV;
-  $$('#page [data-n]').forEach(el=>{
-    const k=el.dataset.k,to=+el.dataset.n,from=+(G[k]||0),f=el.dataset.f=='c'?compact:money;PV[k]=to;
-    if(from===to||REDUCE){el.textContent=f(to);return}
-    const t0=performance.now();(function s(now){const p=Math.min(1,(now-t0)/800);el.textContent=f(from+(to-from)*(1-Math.pow(1-p,3)));if(p<1&&el.isConnected)requestAnimationFrame(s)})(t0);
-  });
+  $$('#page [data-n]').forEach(el=>{const k=el.dataset.k,to=+el.dataset.n;PV[k]=to;el.textContent=(el.dataset.f=='c'?compact:money)(to)});
   $$('#page [data-v]').forEach(el=>{
     const k=el.dataset.k,to=+el.dataset.v,from=G[k]!=null?G[k]:+el.dataset.z;PV[k]=to;
-    if(REDUCE){setv(el,to);return}
+    if(REDUCE||el.dataset.t=='h'){setv(el,to);return}
     setv(el,from);requestAnimationFrame(()=>requestAnimationFrame(()=>setv(el,to)));
   });
 }
@@ -956,10 +976,7 @@ tab:el=>{if(el.dataset.t!=tab)setTab(el.dataset.t)},
 hide:()=>{S.set.hide=!S.set.hide;save();render(false)},
 bell:openBell,
 quick:el=>{
-  const c=el.dataset.c,ty=el.dataset.ty||'out';el.classList.remove('go');void el.offsetWidth;el.classList.add('go');
-  const fx=document.createElement('i');fx.className='fx';el.append(fx);vib();
-  setTimeout(()=>{fx.remove();el.classList.remove('go')},650);
-  setTimeout(()=>openTx({c,ty}),REDUCE?0:230);
+  const c=el.dataset.c,ty=el.dataset.ty||'out';vib();openTx({c,ty});
 },
 add:()=>openTx({ty:'out'}),
 row:el=>{if(OPEN===el){closeRow();return}openTx({id:el.dataset.id})},
