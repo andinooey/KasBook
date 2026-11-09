@@ -309,10 +309,10 @@ function wdPage(){
   const w=walOf(WD),id=w.id,bal=wb(id),cm=curM(),f=wflow(id,cm),h=S.set.hide?' mk':'',hc=h.trim();
   const tm=inMonth(cm).filter(t=>t.ty=='tf'),ti=tm.reduce((s,t)=>t.w2==id?s+t.a:s,0),to=tm.reduce((s,t)=>t.w==id?s+t.a:s,0);
   const v=bal30(id),ch=r2(v[v.length-1]-v[0]),L=inMonth(mon).filter(t=>t.w==id||t.w2==id);
-  return`<header class="hd"><button class="ib" data-a="wdback" aria-label="Kembali ke Beranda">${ic('cl',20)}</button><h1 class="wdh">${esc(w.i)} ${esc(w.n)}</h1><span class="wds"></span></header>
+  return`<header class="hd"><button class="ib" data-a="wdback" aria-label="Kembali ke Beranda">${ic('cl',20)}</button><h1 class="wdh">${esc(w.i)} ${esc(w.n)}</h1><button class="ib" data-a="hide" aria-label="${S.set.hide?'Tampilkan':'Sembunyikan'} saldo">${ic(S.set.hide?'eyeoff':'eye',19)}</button></header>
 <section class="hero" style="--h:${w.c}"><div class="hl">Saldo ${esc(w.n)}</div><div class="bigb${h}" data-n="${bal}" data-k="wdb">${money(bal)}</div>${bal<0?`<div class="negb">${ic('alert',14,2.6)}Saldo minus</div>`:''}
 <div class="pills"><div class="pill"><span class="pc in">${ic('adl',15,2.6)}</span><div style="min-width:0"><small>Masuk bulan ini</small><b class="${hc}" data-n="${f.i}" data-k="wdi">${money(f.i)}</b></div></div><div class="pill"><span class="pc out">${ic('aur',15,2.6)}</span><div style="min-width:0"><small>Keluar bulan ini</small><b class="${hc}" data-n="${f.o}" data-k="wdo">${money(f.o)}</b></div></div></div>
-${ti||to?`<p class="hh wdtf">Pindah dana bulan ini: masuk ${money(ti)}, keluar ${money(to)}</p>`:''}</section>
+</section>
 <div class="wact" style="--c:${w.c}"><button data-a="wdadd">${ic('plus',20,2.6)}<span>Catat</span></button><button data-a="wdtf" ${S.wal.length<2?'disabled':''}>${ic('swap',20,2.2)}<span>Pindah dana</span></button><button data-a="wdadj">${ic('coins',20)}<span>Sesuaikan</span></button><button data-a="wdedit">${ic('pen',20)}<span>Ubah</span></button></div>
 <div class="card wdc" style="--c:${w.c}"><div class="wdct"><b>Saldo 30 hari</b><span class="${ch>0?'up':ch<0?'dn':''}${h}">${ch==0?'Tidak berubah':(ch>0?'+':'−')+money(Math.abs(ch))}</span></div>${spark(v,w.c)}<div class="wdax"><span>30 hari lalu</span><span>Hari ini</span></div></div>
 <div class="sec" style="margin-bottom:0">Transaksi</div>${monNav()}
@@ -370,20 +370,14 @@ function txList(){
 
 
 /* Grafik garis: biaya per kategori, bulan ini vs bulan lalu (statis, tanpa animasi) */
-function cmpLine(by,pby,m,ty){
-  const ks=[...new Set([...Object.keys(by),...Object.keys(pby)])].sort((a,b)=>Math.max(by[b]||0,pby[b]||0)-Math.max(by[a]||0,pby[a]||0)).slice(0,6);
-  if(ks.length<2)return'';
-  const W=340,H=210,L=44,R=14,T=14,B=48,iw=W-L-R,ih=H-T-B,st=iw/(ks.length-1);
-  const mx=Math.max(...ks.flatMap(k=>[by[k]||0,pby[k]||0]),1)*1.1;
-  const X=i=>L+st*i,Y=v=>T+ih-v/mx*ih;
-  const line=(src,cls)=>{const pts=ks.map((k,i)=>[X(i),Y(src[k]||0)]);return`<polyline class="${cls}" fill="none" points="${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}"/>`+pts.map((p,i)=>`<circle class="${cls}d" data-i="${i}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5"/>`).join('')};
-  const grid=[0,.5,1].map(f=>{const v=mx/1.1*f,y=Y(v);return`<line class="gl" x1="${L}" x2="${W-R}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/><text class="gt" x="${L-6}" y="${(y+3.5).toFixed(1)}" text-anchor="end">${compact(v)}</text>`}).join('');
-  const lbl=ks.map((k,i)=>{const n=cat(k)[0];return`<text class="gt" x="${X(i).toFixed(1)}" y="${H-B+16}" text-anchor="middle">${esc(n.length>7?n.slice(0,6)+'…':n)}</text>`}).join('');
-  const hit=ks.map((k,i)=>`<rect class="hit" data-a="cmpt" data-i="${i}" data-x="${X(i).toFixed(1)}" data-ty="${ty}" data-n="${esc(cat(k)[0])}" data-c="${by[k]||0}" data-p="${pby[k]||0}" x="${(X(i)-st/2).toFixed(1)}" y="0" width="${st.toFixed(1)}" height="${H-B+24}"/>`).join('');
-  const sum=ks.map(k=>`${cat(k)[0]}: ${money(by[k]||0)} vs ${money(pby[k]||0)}`).join('; ');
-  return`<div class="sec">Per kategori: ${esc(mshort(m))} vs ${esc(mshort(madd(m,-1)))}</div><div class="card"><svg class="cmpl" viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik garis biaya per kategori, bulan ini dibanding bulan lalu. ${esc(sum)}">${grid}<line id="cmpg" class="sel" x1="0" x2="0" y1="${T}" y2="${T+ih}"/>${line(pby,'lp')}${line(by,'lc')}${lbl}${hit}</svg>
-<div class="cmpi" id="cmpi" aria-live="polite">Ketuk grafik untuk lihat angkanya</div>
-<div class="lg"><span><i class="lgc"></i>${esc(mlabel(m))}</span><span><i class="lgp"></i>${esc(mlabel(madd(m,-1)))}</span></div></div>`;
+function cmpLine(by,pby,m,ty,cut){
+  const ks=[...new Set([...Object.keys(by),...Object.keys(pby)])].sort((a,b)=>Math.max(by[b]||0,pby[b]||0)-Math.max(by[a]||0,pby[a]||0));
+  if(!ks.length)return'';
+  const pm=madd(m,-1),a=mlabel(m),b=mlabel(pm)+(cut?' (tgl 1–'+cut+')':'');
+  const row=k=>{const c=cat(k),n=by[k]||0,p=pby[k]||0,d=p?Math.round((n-p)/p*100):null,bad=ty=='out'?n>p:n<p;
+    const dt=d===null?'<em class="dlt nw">Baru</em>':d==0?'<em class="dlt">Sama</em>':`<em class="dlt ${bad?'bad':'good'}">${d>0?'▲':'▼'} ${Math.abs(d)>999?'>999':Math.abs(d)}%</em>`;
+    return`<div class="cmr" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><div class="m"><b>${esc(c[0])}</b><div class="cmv"><span><small>${esc(mshort(m))}</small>${money(n)}</span><span class="pv"><small>${esc(mshort(pm))}</small>${money(p)}</span></div></div>${dt}</div>`};
+  return`<div class="sec">Per kategori: ${esc(a)} vs ${esc(b)}</div><div class="list cmrl">${ks.map(row).join('')}</div>`;
 }
 function repPage(){
   const mt=rin(mon),I=sum(mt,'in'),O=sum(mt,'out'),by={};
@@ -403,7 +397,7 @@ function repPage(){
 <div class="donut"><svg viewBox="0 0 200 200" role="img" aria-label="Diagram ${rep=='out'?'pengeluaran':'pemasukan'} per kategori"><circle class="trk" cx="100" cy="100" r="${R}"/>${segs}</svg><div class="dc" id="dcc"><small>${rep=='out'?'Pengeluaran':'Pemasukan'}</small><b data-n="${tot}" data-k="dn">${money(tot)}</b></div></div></div>
 ${ent.length?`<div class="sec">Per kategori</div><div class="list">${ent.map(([k,v],i)=>{const c=cat(k),l=rep=='out'&&!rwf?BG().cats[k]:0,p=l?v/l*100:0,dc=dl(v,pby[k]||0,rep);return`<div class="cr" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><div class="m"><div class="t"><span>${c[0]}</span><span>${money(v)}</span></div><div class="pb"><i data-t="w" data-k="cp${i}" data-z="0" data-v="${v/tot*100}" style="transform:translateX(-100%)"></i></div><small><span>${Math.round(v/tot*100)}% dari total</span>${l?`<span class="${p>=100?'over':p>=80?'warn':''}">Budget ${Math.round(p)}%</span>`:''}</small>${dc}</div></div>`}).join('')}</div>`
   :`<div class="list" style="margin-top:14px">${empty('pie','Belum ada data','Catat transaksi bulan ini untuk melihat laporan.')}</div>`}
-${cmpLine(by,pby,mon,rep)}
+${cmpLine(by,pby,mon,rep,isCur?cut:0)}
 <div class="sec">6 bulan terakhir</div><div class="card"><div class="tre">${ms.map((x,i)=>`<button data-a="monset" data-m="${x.m}" class="${x.m==mon?'on':''}" aria-label="${mlabel(x.m)}"><div class="pr"><i data-t="h" data-k="ti${i}" data-z="0" data-v="${x.i/mx*100}" style="height:0"></i><i data-t="h" data-k="to${i}" data-z="0" data-v="${x.o/mx*100}" style="height:0"></i></div><em>${mshort(x.m)}</em></button>`).join('')}</div>
 <div class="lg"><span><i style="background:var(--inc)"></i>Masuk</span><span><i style="background:var(--exp)"></i>Keluar</span></div></div>`;
 }
@@ -554,7 +548,7 @@ function buildCats(){
 }
 function updTx(init){
   const c=E.ty=='tf'?TFC:cat(E.c),sh=$('.sheet');if(!sh)return;
-  sh.style.setProperty('--c',c[2]);
+  sh.style.setProperty('--c',c[2]);sh.classList.toggle('tfs',E.ty=='tf');
   $$('[data-s=ty]',sh).forEach(b=>b.classList.toggle('on',b.dataset.v==E.ty));
   $$('.cb',sh).forEach(b=>{const on=b.dataset.c==E.c;if(on&&!b.classList.contains('on')&&!init)b.scrollIntoView({inline:'center',block:'nearest',behavior:REDUCE?'auto':'smooth'});b.classList.toggle('on',on)});
   if(init){const b=$('.cb.on',sh);if(b)setTimeout(()=>b.scrollIntoView({inline:'center',block:'nearest'}),30)}
@@ -1154,7 +1148,7 @@ bell:openBell,
 quick:el=>{
   const c=el.dataset.c,ty=el.dataset.ty||'out';vib();openTx({c,ty});
 },
-add:()=>openTx({ty:'out'}),
+add:()=>openTx(tab=='wd'&&WD?{ty:'out',w:WD}:{ty:'out'}),
 row:el=>{if(OPEN===el){closeRow();return}openTx({id:el.dataset.id})},
 rdel:el=>{OPEN=null;rmTx(el.dataset.id)},
 rng:openRange,

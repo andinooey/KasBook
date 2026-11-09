@@ -611,3 +611,31 @@ html.lite .ab,html.lite .ahb .chv{transition:none}
 .pill b.mk::after,.wc b.mk::after{letter-spacing:.1em}
 .ahb{width:auto;flex:1 1 0}.swb{display:flex;align-items:center}.swb .tg{display:block}
 @media(max-width:380px){.pills{gap:8px}.pill{gap:7px;padding:7px 10px 7px 7px}.pill .pc{width:24px;height:24px}.pill b{font-size:13px}.pill small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bigb{font-size:34px}}
+
+/* v21 */
+.wds{display:none}
+.wact button{font-size:11.5px;text-align:center;white-space:nowrap;padding:13px 2px 11px}
+.wact button span{display:block;width:100%;text-align:center}
+.cmr{display:flex;align-items:center;gap:12px;padding:12px 14px}
+.cmr+.cmr{border-top:1px solid var(--ln)}
+.cmr .m{flex:1;min-width:0}.cmr .m b{display:block;font-size:14px}
+.cmv{display:flex;gap:16px;margin-top:4px;font-size:13px;font-weight:800;flex-wrap:wrap}
+.cmv small{display:block;font-size:11.5px;font-weight:600;color:var(--mu)}
+.cmv .pv{color:var(--mu)}
+.cmr .dlt{flex:none;font-size:12px}
+.sheet.tfs .cats.tfm{padding-bottom:0}
+.sheet.tfs .amt{padding:0}
+.sheet.tfs .ex{height:14px;margin-top:2px}
+.sheet.tfs .num{font-size:44px;margin-top:0}
+.sheet.tfs .pad{gap:7px}.sheet.tfs .pad button{height:clamp(40px,6.2vh,52px)}
+.sheet.tfs .nin{height:42px;margin-bottom:8px}
+.sheet.tfs .tfp .sel{height:42px}
+.sheet.tfs .tfh{margin-top:8px;min-height:15px}
+.sheet.tfs .fld{padding:4px 0}
+.sheet.tfs .ch2{margin:0 0 8px}
+.sheet.tfs .svrow{margin-top:8px}
+
+.sheet.tfs .ex:empty{display:none}
+.sheet.tfs .num{line-height:1.05;margin-top:4px}
+.sheet.tfs .cats.tfm{padding-top:12px}
+.sheet.tfs .fld{padding:2px 0 0}

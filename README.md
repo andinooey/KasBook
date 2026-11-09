@@ -29,6 +29,12 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 `app.js` di root adalah hasil minify. Sumber yang bisa dibaca ada di `src/app.js`. Setelah mengubah sumber, jalankan `sh build.sh` lalu naikkan versi cache di `sw.js`.
 SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast "Versi baru tersedia" setelah rilis baru.
 
+## Versi 21 (tambahan di atas v20)
+- Detail dompet: ikon mata untuk sembunyikan/tampilkan saldo; keterangan "Pindah dana bulan ini" dihapus; tombol "Pindah dana" satu baris dan rata tengah.
+- Tombol + saat berada di dalam dompet langsung memakai dompet itu.
+- Laporan: grafik garis per kategori diganti daftar teks "kategori, bulan ini vs bulan lalu".
+- Form pindah dana dirapatkan sehingga keypad dan tombol simpan muat di layar.
+
 ## Versi 20 (tambahan di atas v19)
 - Notifikasi digabung jadi satu: Profil > Notifikasi. Saklar perangkat di atas, lalu Pengingat catat dan Peringatan budget sebagai accordion (buka-tutup), masing-masing punya saklar on/off.
 - Budget bulanan bisa dimatikan (saklar di sheet Budget). Saat mati, ring budget, peringatan, dan batas per kategori disembunyikan; angka tetap tersimpan.
