@@ -320,6 +320,7 @@ ${L.length?groupHTML(L,{wid:id}):`<div class="list">${empty('inbox','Belum ada t
 }
 
 /* Urutan Catat cepat: S.set.qo berisi id kategori keluar dan 'IN' (tombol Pemasukan). Id yang sudah tidak ada dibuang, yang baru ditaruh di akhir. */
+document.addEventListener('scroll',e=>{const t=e.target;if(t&&t.id=='bento'){const i=Math.round(t.scrollLeft/Math.max(1,t.clientWidth));$$('.bdots i').forEach((d,k)=>d.classList.toggle('on',k==i))}},true);
 function qorder(){const all=[...OUT,'IN'],o=Array.isArray(S.set.qo)?S.set.qo:[],r=o.filter((k,i)=>all.includes(k)&&o.indexOf(k)==i);all.forEach(k=>{if(!r.includes(k))r.push(k)});return r}
 function home(anim){
   const n=new Date(),mt=inMonth(curM()),I=sum(mt,'in'),O=sum(mt,'out'),bal=balance(),b=BG().total,pct=b?O/b*100:0,w=week(),wt=w.reduce((s,x)=>s+x.v,0),mx=Math.max(...w.map(x=>x.v),1);
@@ -340,13 +341,15 @@ function home(anim){
 <button class="pill" data-a="gotx" data-f="out"><span class="pc out">${ic('aur',15,2.6)}</span><div style="min-width:0"><small>Keluar</small><b class="${hide.trim()}" data-n="${O}" data-k="out">${money(O)}</b></div></button></div></section>${nudge}
 ${walStrip(hide)}${dueCard()}
 <h3 class="sec">Catat cepat<button class="more" data-a="qord">Atur</button></h3><div class="card qg">${tiles}</div>
-<div class="bento">
+<div class="sec">Terbaru${S.tx.length>5?'<button class="more" data-a="tab" data-t="tx">Lihat semua</button>':''}</div>
+${rc.length?`<div class="list">${rc.map(t=>row(t,{date:1})).join('')}</div>`:`<div class="list">${empty('inbox','Belum ada transaksi','Ketuk salah satu kategori di atas untuk mencatat.')}</div>`}
+<div class="bento" id="bento">
 <button class="card" data-a="budget" aria-label="Atur budget"><div class="bt">Budget</div><div class="ringw"><svg width="84" height="84" viewBox="0 0 84 84"><circle class="trk" cx="42" cy="42" r="34"/><circle class="prg" cx="42" cy="42" r="34" stroke="${col}" stroke-dasharray="${Cc}" data-t="o" data-k="ring" data-z="${Cc}" data-v="${Cc*(1-Math.min(1,pct/100))}" style="stroke-dashoffset:${Cc}"/></svg><b>${b?Math.round(pct)+'%':'–'}</b></div>
 <div class="bs">${b?(O>b?'Lewat '+money(O-b):'Sisa '+money(b-O)):budOn()?'Ketuk untuk atur budget':'Budget nonaktif'}</div></button>
 <div class="card"><div class="bt">7 hari</div><div class="wk" data-n="${wt}" data-k="w7" data-f="c">${compact(wt)}</div>
 <div class="bars">${w.map((x,i)=>`<div class="${x.t?'t':''}"><i data-t="h" data-k="b${i}" data-z="0" data-v="${x.v?Math.max(8,x.v/mx*100):0}" style="height:0"></i><em>${x.l}</em></div>`).join('')}</div></div></div>
-<div class="sec">Terbaru${S.tx.length>5?'<button class="more" data-a="tab" data-t="tx">Lihat semua</button>':''}</div>
-${rc.length?`<div class="list">${rc.map(t=>row(t,{date:1})).join('')}</div>`:`<div class="list">${empty('inbox','Belum ada transaksi','Ketuk salah satu kategori di atas untuk mencatat.')}</div>`}`;
+<div class="bdots" aria-hidden="true"><i class="on"></i><i></i></div>
+`;
 }
 
 function monNav(){return`<div class="mon"><button data-a="mon" data-d="-1" aria-label="Bulan lalu">${ic('cl',18)}</button><button class="mtl" data-a="mpick" aria-label="Pilih bulan dan tahun"><h2>${mlabel(mon)}</h2>${ic("cr",15)}</button><button data-a="mon" data-d="1" aria-label="Bulan depan" ${mon>=curM()?'disabled':''}>${ic('cr',18)}</button></div>`}
@@ -486,7 +489,7 @@ function after(anim){
 /* ---------- Navigasi ---------- */
 const TABS=[['home','Beranda','home'],['tx','Transaksi','list'],['rep','Laporan','pie'],['me','Profil','user']];
 const tabBtn=t=>`<button data-a="tab" data-t="${t[0]}" aria-label="${t[1]}">${ic(t[2],22)}<span>${t[1]}</span></button>`;
-$('#nav').innerHTML=TABS.slice(0,2).map(tabBtn).join('')+`<button class="fab" data-a="add" aria-label="Tambah transaksi">${ic('plus',22,2.6)}</button>`+TABS.slice(2).map(tabBtn).join('');
+$('#nav').innerHTML=TABS.slice(0,2).map(tabBtn).join('')+`<button class="fab" data-a="add" aria-label="Tambah transaksi">${ic('plus',27,2.6)}</button>`+TABS.slice(2).map(tabBtn).join('');
 function setTab(t,anim=true){
   tab=t;const nt=t=='wd'?'home':t;$$('#nav button').forEach(b=>{const on=b.dataset.t==nt;b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});
   if(anim)scrollTo({top:0});render(anim);

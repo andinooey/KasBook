@@ -29,6 +29,11 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 `app.js` di root adalah hasil minify. Sumber yang bisa dibaca ada di `src/app.js`. Setelah mengubah sumber, jalankan `sh build.sh` lalu naikkan versi cache di `sw.js`.
 SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast "Versi baru tersedia" setelah rilis baru.
 
+## Versi 22 (tambahan di atas v21)
+- Beranda lebih pendek: urutan Catat cepat, Terbaru, lalu Budget dan 7 hari digabung jadi satu kartu yang bisa digeser (dengan titik penanda).
+- Kategori berbentuk kapsul, di Catat cepat (ring budget tetap ada di sekeliling ikon) dan di Catat transaksi. Pil kategori di atas nominal dihapus karena kategori terpilih sudah terlihat di kapsul.
+- Tombol + di navigasi lebih besar dan menonjol sedikit di atas kapsul.
+
 ## Versi 21 (tambahan di atas v20)
 - Detail dompet: ikon mata untuk sembunyikan/tampilkan saldo; keterangan "Pindah dana bulan ini" dihapus; tombol "Pindah dana" satu baris dan rata tengah.
 - Tombol + saat berada di dalam dompet langsung memakai dompet itu.
