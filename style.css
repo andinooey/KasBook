@@ -683,3 +683,19 @@ html.lite .ab,html.lite .ahb .chv{transition:none}
 @media(max-width:360px){.qg .qt{padding:3px 12px 3px 3px}.qg .qt .qr .cico{width:24px;height:24px}}
 .sheet #cpill{display:none!important}
 .qg .qt{flex-direction:row;text-align:left}
+
+/* v23: skala radius dan jarak, tombol nonaktif terbaca, daftar satu baris */
+:root{--r-xl:28px;--r-lg:24px;--r-md:18px;--gap:16px}
+.card,.list,.wc,.nudge{border-radius:var(--r-lg)}
+.hero{border-radius:var(--r-xl)}
+.qg.card{border-radius:0}
+.save,.save2,.btn2{border-radius:var(--r-md)}
+.nudge{margin-top:var(--gap)}
+.sec{margin:var(--gap) 4px 12px;margin-top:calc(var(--gap) + 8px)}
+.save[disabled]{opacity:1;background-color:color-mix(in srgb,var(--tx) 10%,var(--sf));color:var(--mu);box-shadow:none}
+.save2[disabled]{opacity:1;background:color-mix(in srgb,var(--tx) 6%,transparent);color:var(--mu)}
+.svrow .save2{flex:0 0 auto;padding:0 16px;white-space:nowrap;font-size:13.5px}
+.svrow .save{font-size:15px;white-space:nowrap}
+.tm small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.svrow{gap:8px}.svrow .save{min-width:0;padding:0 8px}
+@media(max-width:380px){.svrow .save2{padding:0 10px;font-size:12.5px}.svrow .save{font-size:14px}}

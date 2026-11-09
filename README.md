@@ -29,6 +29,12 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 `app.js` di root adalah hasil minify. Sumber yang bisa dibaca ada di `src/app.js`. Setelah mengubah sumber, jalankan `sh build.sh` lalu naikkan versi cache di `sw.js`.
 SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast "Versi baru tersedia" setelah rilis baru.
 
+## Versi 23 (tambahan di atas v22)
+- Tombol Simpan nonaktif kini terbaca (abu-abu solid, bukan pudar); "Simpan & tambah lagi" satu baris.
+- Jarak bawah halaman dicek: konten berhenti 20px di atas tombol +.
+- Baris pindah dana satu baris (jam dihilangkan); semua keterangan baris dipotong dengan elipsis.
+- Skala radius (28/24/18) dan jarak (16) disatukan untuk kartu, daftar, dompet, tombol.
+
 ## Versi 22 (tambahan di atas v21)
 - Beranda lebih pendek: urutan Catat cepat, Terbaru, lalu Budget dan 7 hari digabung jadi satu kartu yang bisa digeser (dengan titik penanda).
 - Kategori berbentuk kapsul, di Catat cepat (ring budget tetap ada di sekeliling ikon) dan di Catat transaksi. Pil kategori di atas nominal dihapus karena kategori terpilih sudah terlihat di kapsul.
