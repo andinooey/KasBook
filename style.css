@@ -699,3 +699,28 @@ html.lite .ab,html.lite .ahb .chv{transition:none}
 .tm small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .svrow{gap:8px}.svrow .save{min-width:0;padding:0 8px}
 @media(max-width:380px){.svrow .save2{padding:0 10px;font-size:12.5px}.svrow .save{font-size:14px}}
+
+/* v24: Laporan Minggu/Bulan/Tahun, kartu verdict, sorotan; rapikan Beranda */
+.hero .hh{font-size:11.5px;opacity:.6;margin:0 0 14px}
+.bento>.card{padding:14px 18px}
+.bento .ringw{width:68px;height:68px}
+.bento .ringw b{font-size:15px}
+.bento .bars{height:46px}
+.seg.rpt{margin:0 0 14px}
+.seg.rpt button{padding:9px 8px;font-size:13.5px}
+.tre>div{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end;opacity:1}
+.tre.t12{gap:3px}.tre.t12 .pr i{width:44%;max-width:9px}.tre.t12 em{font-size:10.5px;letter-spacing:-.02em}
+.vd{margin:0 0 14px;padding:16px 18px;border-radius:var(--r-lg);background:var(--sf);box-shadow:var(--sh);display:flex;flex-direction:column;gap:4px}
+.vd.good{background:color-mix(in srgb,var(--inc) 12%,var(--sf))}
+.vd.bad{background:color-mix(in srgb,var(--exp) 11%,var(--sf))}
+.vd .vk{font-size:12.5px;font-weight:700;color:var(--mu)}
+.vd .vb{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.vd.good .vb{color:var(--inc)}.vd.bad .vb{color:var(--exp)}
+.vd small{font-size:12.5px;font-weight:600;color:var(--mu)}
+.list.hl{padding:4px 16px}
+.sr{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0}
+.sr+.sr{border-top:1px solid var(--ln)}
+.sr .sl{min-width:0}.sr .sl b{display:block;font-size:14px}
+.sr .sl small{display:block;font-size:12.5px;color:var(--mu);font-weight:600;margin-top:2px}
+.sr>span{font-weight:800;font-size:14px;white-space:nowrap}
+.qg .qt,.cb{min-height:36px}

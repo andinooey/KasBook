@@ -239,6 +239,10 @@ function stats(){
 /* ---------- Status UI ---------- */
 let tab='home',mon=curM(),flt='all',wf=null,rwf=null,WD=null,AJ=null,WM=null,WE=null,q='',rep='out',NEW=null,UNDO=null,E=null,rng=null,CT='out',CE=null,RE=null,HT=null,HI=null,SW=null,DRAGGED=false,OPEN=null;
 const wvis=t=>!wf||t.w==wf||t.w2==wf;
+const wkS=d=>{const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));return ymd(x)};
+const addD=(k,n)=>ymd(new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8)+n));
+const dFmt=(k,o)=>new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8)).toLocaleDateString(DL,o);
+let RP='m',WK=wkS(Date.now()),YR=curM().slice(0,4);
 const rin=m=>inMonth(m).filter(t=>!rwf||t.w==rwf); // data Laporan, bisa disaring per dompet
 const base=()=>(rng?S.tx.filter(t=>{const k=ymd(t.ts);return k>=rng.f&&k<=rng.t}):inMonth(mon)).filter(wvis);
 const bkDue=()=>S.tx.length>=10&&(!S.set.bk||Date.now()-S.set.bk>14*864e5);
@@ -275,8 +279,8 @@ const eff=(t,id)=>t.ty=='tf'?(t.w==id?-t.a:t.w2==id?t.a:0):t.w!=id?0:t.ty=='in'?
 const wflow=(id,m)=>{const a=inMonth(m).filter(t=>t.w==id);return{i:sum(a,'in'),o:sum(a,'out')}};
 function walStrip(hide){
   const h=hide.trim(),one=S.wal.length==1;
-  const cards=S.wal.map(w=>{const b=wb(w.id),f=wflow(w.id,curM());
-    return`<button class="wc${b<0?' neg':''}" style="--c:${w.c}" data-a="wopen" data-id="${esc(w.id)}" aria-label="${esc(w.n)}, saldo ${money(b)}${b<0?' (minus)':''}. Buka detail"><span class="cico sm">${ic(w.i,20)}</span><span class="wn">${esc(w.n)}</span><b class="${h}">${money(b)}</b><span class="wf ${h}"><i class="in">↓ ${NFC.format(f.i)}</i><i class="out">↑ ${NFC.format(f.o)}</i></span></button>`}).join('');
+  const cards=S.wal.map(w=>{const b=wb(w.id);
+    return`<button class="wc${b<0?' neg':''}" style="--c:${w.c}" data-a="wopen" data-id="${esc(w.id)}" aria-label="${esc(w.n)}, saldo ${money(b)}${b<0?' (minus)':''}. Buka detail"><span class="cico sm">${ic(w.i,20)}</span><span class="wn">${esc(w.n)}</span><b class="${h}">${money(b)}</b></button>`}).join('');
   const tf=one?'':`<button class="wc tfc" data-a="wtf" aria-label="Pindah dana antar dompet"><span class="wp">${ic('swap',20,2.4)}</span><span class="wn">Pindah dana</span></button>`;
   const add=one?'':`<button class="wc add" data-a="wadd" aria-label="Tambah dompet"><span class="wp">${ic('plus',20,2.6)}</span><span class="wn">Dompet</span></button>`;
   return`<div class="sec">Dompet<button class="more" data-a="wals">Kelola</button></div><div class="wr">${cards}${tf}${add}</div>${one?wNudge():''}`;
@@ -372,36 +376,89 @@ function txList(){
 }
 
 
-/* Grafik garis: biaya per kategori, bulan ini vs bulan lalu (statis, tanpa animasi) */
-function cmpLine(by,pby,m,ty,cut){
+/* ---------- Laporan: Minggu, Bulan, Tahun ---------- */
+function rdata(){
+  const rf=t=>!rwf||t.w==rwf,all=S.tx.filter(rf),td=ymd(Date.now()),K=t=>ymd(t.ts),now=curM(),Y=td.slice(0,4);
+  const dd=k=>new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8));
+  const o={cur:[],prev:[],el:1,live:false,pl:'',la:'',lb:'',title:'',nav:'',tr:[],trT:'',pn:''};
+  const mb=m=>{const a=all.filter(t=>K(t).slice(0,7)==m);return{m,i:sum(a,'in'),o:sum(a,'out')}};
+  if(RP=='w'){
+    const f=WK,t=addD(f,6),pf=addD(f,-7);o.live=f==wkS(Date.now());
+    o.el=o.live?Math.round((dd(td)-dd(f))/864e5)+1:7;const pt=addD(pf,o.el-1);
+    o.cur=all.filter(x=>K(x)>=f&&K(x)<=t);o.prev=all.filter(x=>K(x)>=pf&&K(x)<=pt);
+    const sh={day:'numeric',month:'short'};
+    o.pl='minggu lalu';o.title=o.live?'Minggu ini':dFmt(f,sh)+' – '+dFmt(t,sh);
+    o.la=o.live?'Mgg ini':dFmt(f,sh);o.lb=o.live?'Mgg lalu':dFmt(pf,sh);
+    o.nav=pNav(dFmt(f,sh)+' – '+dFmt(t,{day:'numeric',month:'short',year:'numeric'}),!o.live,'Minggu');
+    o.trT='Per hari';for(let i=0;i<7;i++){const k=addD(f,i),a=all.filter(x=>K(x)==k);o.tr.push({l:dFmt(k,{weekday:'short'}),i:sum(a,'in'),o:sum(a,'out'),on:1,k})}
+    o.pn=o.live?'Perbandingan memakai '+o.el+' hari pertama minggu lalu, supaya adil dengan minggu yang masih berjalan.':'';
+  }else if(RP=='y'){
+    o.live=YR==Y;const doy=Math.round((dd(td)-new Date(+Y,0,1))/864e5)+1,py=String(+YR-1);
+    o.el=o.live?doy:(new Date(+YR,1,29).getMonth()==1?366:365);
+    o.cur=all.filter(x=>K(x).slice(0,4)==YR);o.prev=all.filter(x=>K(x).slice(0,4)==py&&(!o.live||K(x).slice(5)<=td.slice(5)));
+    o.pl='tahun lalu';o.title=o.live?'Tahun ini':YR;o.la=YR;o.lb=py;o.nav=pNav(YR,!o.live,'Tahun');
+    o.trT='Per bulan, '+YR;for(let i=1;i<=12;i++){const m=YR+'-'+String(i).padStart(2,'0'),b=mb(m);o.tr.push({l:mshort(m),i:b.i,o:b.o,on:1,m})}
+    o.pn=o.live?'Perbandingan memakai 1 Januari sampai '+dFmt(td,{day:'numeric',month:'long'})+' tahun lalu, supaya adil dengan tahun yang masih berjalan.':'';
+  }else{
+    o.live=mon==now;const cut=o.live?new Date().getDate():99,dm=new Date(+mon.slice(0,4),+mon.slice(5),0).getDate(),pm=madd(mon,-1);
+    o.el=o.live?new Date().getDate():mon>now?1:dm;
+    o.cur=all.filter(x=>K(x).slice(0,7)==mon);o.prev=all.filter(x=>K(x).slice(0,7)==pm&&+K(x).slice(8)<=cut);
+    o.pl='bulan lalu';o.title=o.live?'Bulan ini':mlabel(mon);o.la=mshort(mon);o.lb=mshort(pm);o.nav=monNav();o.dm=dm;
+    o.trT='6 bulan terakhir';for(let i=5;i>=0;i--){const m=madd(mon,-i),b=mb(m);o.tr.push({l:mshort(m),i:b.i,o:b.o,on:m==mon,m})}
+    o.pn=o.live?'Perbandingan memakai tanggal 1–'+cut+' bulan lalu, supaya adil dengan bulan yang masih berjalan.':'';
+  }
+  return o;
+}
+const pNav=(label,canNext,w)=>`<div class="mon"><button data-a="rpn" data-d="-1" aria-label="${w} sebelumnya">${ic('cl',18)}</button><div class="mtl"><h2>${esc(label)}</h2></div><button data-a="rpn" data-d="1" aria-label="${w} berikutnya" ${canNext?'':'disabled'}>${ic('cr',18)}</button></div>`;
+function cmpLine(by,pby,ty,P){
   const ks=[...new Set([...Object.keys(by),...Object.keys(pby)])].sort((a,b)=>Math.max(by[b]||0,pby[b]||0)-Math.max(by[a]||0,pby[a]||0));
   if(!ks.length)return'';
-  const pm=madd(m,-1),a=mlabel(m),b=mlabel(pm)+(cut?' (tgl 1–'+cut+')':'');
   const row=k=>{const c=cat(k),n=by[k]||0,p=pby[k]||0,d=p?Math.round((n-p)/p*100):null,bad=ty=='out'?n>p:n<p;
     const dt=d===null?'<em class="dlt nw">Baru</em>':d==0?'<em class="dlt">Sama</em>':`<em class="dlt ${bad?'bad':'good'}">${d>0?'▲':'▼'} ${Math.abs(d)>999?'>999':Math.abs(d)}%</em>`;
-    return`<div class="cmr" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><div class="m"><b>${esc(c[0])}</b><div class="cmv"><span><small>${esc(mshort(m))}</small>${money(n)}</span><span class="pv"><small>${esc(mshort(pm))}</small>${money(p)}</span></div></div>${dt}</div>`};
-  return`<div class="sec">Per kategori: ${esc(a)} vs ${esc(b)}</div><div class="list cmrl">${ks.map(row).join('')}</div>`;
+    return`<div class="cmr" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><div class="m"><b>${esc(c[0])}</b><div class="cmv"><span><small>${esc(P.la)}</small>${money(n)}</span><span class="pv"><small>${esc(P.lb)}</small>${money(p)}</span></div></div>${dt}</div>`};
+  return`<div class="sec">Per kategori: ${esc(P.la)} vs ${esc(P.lb)}</div><div class="list cmrl">${ks.map(row).join('')}</div>`;
+}
+function sorotan(P,O,mt){
+  const rows=[],out=mt.filter(t=>t.ty=='out'&&!t.adj),td=ymd(Date.now());
+  const byDay={};out.forEach(t=>{const k=ymd(t.ts);byDay[k]=(byDay[k]||0)+t.a});
+  const topDay=()=>{const e=Object.entries(byDay).sort((a,b)=>b[1]-a[1])[0];return e?[dFmt(e[0],{weekday:'long',day:'numeric',month:'short'}),money(e[1])]:null};
+  if(RP=='w'){
+    const f=WK,days=[...Array(7).keys()].map(i=>addD(f,i)).filter(k=>k<=td),z=days.filter(k=>!byDay[k]).length,t=topDay();
+    if(t)rows.push(['Hari paling boros',t[0],t[1]]);
+    if(days.length)rows.push(['Hari tanpa pengeluaran',z+' dari '+days.length+' hari','']);
+  }else if(RP=='m'){
+    const big=out.slice().sort((a,b)=>b.a-a.a)[0],t=topDay();
+    if(big)rows.push(['Transaksi terbesar',esc(big.n||cat(big.c)[0]),money(big.a)]);
+    if(t)rows.push(['Hari paling boros',t[0],t[1]]);
+    if(P.live&&P.el>=3&&O>0)rows.push(['Proyeksi keluar akhir bulan','jika pola pengeluaran sama',money(Math.round(O/P.el*P.dm))]);
+  }else{
+    const nowM=curM(),ms=P.tr.filter(x=>x.m<=nowM&&x.o>0);
+    if(ms.length){const hi=ms.reduce((a,b)=>b.o>a.o?b:a),lo=ms.reduce((a,b)=>b.o<a.o?b:a);
+      rows.push(['Bulan paling boros',mlabel(hi.m),money(hi.o)]);
+      if(ms.length>1)rows.push(['Bulan paling hemat',mlabel(lo.m),money(lo.o)]);
+      rows.push(['Rata-rata keluar per bulan','',money(Math.round(O/(P.live?+nowM.slice(5):12)))])}
+  }
+  return rows.length?`<div class="sec">Sorotan</div><div class="list hl">${rows.map(r=>`<div class="sr"><div class="sl"><b>${r[0]}</b>${r[1]?`<small>${r[1]}</small>`:''}</div><span>${r[2]}</span></div>`).join('')}</div>`:'';
 }
 function repPage(){
-  const mt=rin(mon),I=sum(mt,'in'),O=sum(mt,'out'),by={};
+  const P=rdata(),mt=P.cur,I=sum(mt,'in'),O=sum(mt,'out'),pI=sum(P.prev,'in'),pO=sum(P.prev,'out'),by={},pby={};
   mt.filter(t=>t.ty==rep&&!t.adj).forEach(t=>by[t.c]=(by[t.c]||0)+t.a);
-  const isCur=mon==curM(),cut=isCur?new Date().getDate():99,pt=rin(madd(mon,-1)).filter(t=>+ymd(t.ts).slice(8)<=cut),pI=sum(pt,'in'),pO=sum(pt,'out'),pby={};
-  pt.filter(t=>t.ty==rep&&!t.adj).forEach(t=>pby[t.c]=(pby[t.c]||0)+t.a);
-  const dl=(c,p,ty)=>{if(!p)return c?'<em class="dlt nw">Baru, bulan lalu 0</em>':'';const d=Math.round((c-p)/p*100);if(!d)return'<em class="dlt">Sama dengan bulan lalu</em>';return`<em class="dlt ${(d>0)==(ty=='out')?'bad':'good'}">${d>0?'▲':'▼'} ${Math.abs(d)>999?'>999':Math.abs(d)}% vs bulan lalu</em>`};
+  P.prev.filter(t=>t.ty==rep&&!t.adj).forEach(t=>pby[t.c]=(pby[t.c]||0)+t.a);
+  const dl=(c,p,ty)=>{if(!p)return c?`<em class="dlt nw">Baru, ${P.pl} 0</em>`:'';const d=Math.round((c-p)/p*100);if(!d)return`<em class="dlt">Sama dengan ${P.pl}</em>`;return`<em class="dlt ${(d>0)==(ty=='out')?'bad':'good'}">${d>0?'▲':'▼'} ${Math.abs(d)>999?'>999':Math.abs(d)}% vs ${P.pl}</em>`};
   const ent=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=ent.reduce((s,e)=>s+e[1],0),R=76,Cc=2*Math.PI*R,gap=ent.length>1?3:0;
   let cum=0;const segs=ent.map(([k,v])=>{const len=v/tot*Cc,s=`<circle class="sg" data-a="seg" data-k="${k}" cx="100" cy="100" r="${R}" stroke="${cat(k)[2]}" stroke-dasharray="${Math.max(0,len-gap)} ${Cc-Math.max(0,len-gap)}" stroke-dashoffset="${-cum}" transform="rotate(-90 100 100)"/>`;cum+=len;return s}).join('');
-  const now=curM(),dm=new Date(+mon.slice(0,4),+mon.slice(5),0).getDate(),el=mon==now?new Date().getDate():mon>now?1:dm;
-  const ms=[];for(let i=5;i>=0;i--){const m=madd(mon,-i),a=rin(m);ms.push({m,i:sum(a,'in'),o:sum(a,'out')})}
-  const mx=Math.max(...ms.flatMap(x=>[x.i,x.o]),1),sp=spentBy(mon);
-  return`<header class="hd"><h1>Laporan</h1></header>${monNav()}${wChips(rwf,'rwf')}
+  const mx=Math.max(...P.tr.flatMap(x=>[x.i,x.o]),1),useBud=RP=='m'&&!rwf;
+  const tl=P.live?P.title.toLowerCase():P.title,diff=O-pO,ver=!mt.length&&!P.prev.length?'':!pO?`<div class="vd"><span class="vk">Pengeluaran ${esc(tl)}</span><b class="vb">${money(O)}</b><small>Belum ada data ${P.pl} untuk dibandingkan</small></div>`
+    :`<div class="vd ${diff>0?'bad':'good'}"><span class="vk">Pengeluaran ${esc(tl)}</span><b class="vb">${diff>0?'Lebih boros':diff<0?'Lebih hemat':'Sama'} ${diff?money(Math.abs(diff)):''}</b><small>${diff?(diff>0?'▲ ':'▼ ')+Math.abs(Math.round(diff/pO*100))+'% ':''}dibanding ${P.pl} (${money(pO)})</small></div>`;
+  return`<header class="hd"><h1>Laporan</h1></header><div class="seg rpt" role="tablist">${[['w','Minggu'],['m','Bulan'],['y','Tahun']].map(x=>`<button role="tab" aria-selected="${RP==x[0]}" class="${RP==x[0]?'on':''}" data-a="rptab" data-p="${x[0]}">${x[1]}</button>`).join('')}</div>${P.nav}${wChips(rwf,'rwf')}${ver}
 <div class="sum2"><div class="card"><small>Masuk</small><b class="in">${money(I)}</b>${dl(I,pI,'in')}</div><div class="card"><small>Keluar</small><b class="out">${money(O)}</b>${dl(O,pO,'out')}</div>
-<div class="card"><small>Selisih</small><b>${I-O>0?'+':''}${money(I-O)}</b></div><div class="card"><small>Rata-rata keluar/hari</small><b>${money(Math.round(O/el))}</b></div>${isCur?`<p class="cmpn">Perbandingan memakai tanggal 1–${cut} bulan lalu, supaya adil dengan bulan yang masih berjalan.</p>`:''}${rwf?`<p class="cmpn">Hanya transaksi di ${esc(walOf(rwf).n)}. Pindah dana antar dompet tidak dihitung, dan budget berlaku untuk semua dompet.</p>`:''}</div>
+<div class="card"><small>Selisih</small><b>${I-O>0?'+':''}${money(I-O)}</b></div><div class="card"><small>Rata-rata keluar/hari</small><b>${money(Math.round(O/P.el))}</b></div>${P.pn?`<p class="cmpn">${P.pn}</p>`:''}${rwf?`<p class="cmpn">Hanya transaksi di ${esc(walOf(rwf).n)}. Pindah dana antar dompet tidak dihitung, dan budget berlaku untuk semua dompet.</p>`:''}</div>
 <div class="card"><div class="seg" role="tablist"><button class="${rep=='out'?'on':''}" data-a="rep" data-r="out">Pengeluaran</button><button class="${rep=='in'?'on':''}" data-a="rep" data-r="in">Pemasukan</button></div>
 <div class="donut"><svg viewBox="0 0 200 200" role="img" aria-label="Diagram ${rep=='out'?'pengeluaran':'pemasukan'} per kategori"><circle class="trk" cx="100" cy="100" r="${R}"/>${segs}</svg><div class="dc" id="dcc"><small>${rep=='out'?'Pengeluaran':'Pemasukan'}</small><b data-n="${tot}" data-k="dn">${money(tot)}</b></div></div></div>
-${ent.length?`<div class="sec">Per kategori</div><div class="list">${ent.map(([k,v],i)=>{const c=cat(k),l=rep=='out'&&!rwf?BG().cats[k]:0,p=l?v/l*100:0,dc=dl(v,pby[k]||0,rep);return`<div class="cr" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><div class="m"><div class="t"><span>${c[0]}</span><span>${money(v)}</span></div><div class="pb"><i data-t="w" data-k="cp${i}" data-z="0" data-v="${v/tot*100}" style="transform:translateX(-100%)"></i></div><small><span>${Math.round(v/tot*100)}% dari total</span>${l?`<span class="${p>=100?'over':p>=80?'warn':''}">Budget ${Math.round(p)}%</span>`:''}</small>${dc}</div></div>`}).join('')}</div>`
-  :`<div class="list" style="margin-top:14px">${empty('pie','Belum ada data','Catat transaksi bulan ini untuk melihat laporan.')}</div>`}
-${cmpLine(by,pby,mon,rep,isCur?cut:0)}
-<div class="sec">6 bulan terakhir</div><div class="card"><div class="tre">${ms.map((x,i)=>`<button data-a="monset" data-m="${x.m}" class="${x.m==mon?'on':''}" aria-label="${mlabel(x.m)}"><div class="pr"><i data-t="h" data-k="ti${i}" data-z="0" data-v="${x.i/mx*100}" style="height:0"></i><i data-t="h" data-k="to${i}" data-z="0" data-v="${x.o/mx*100}" style="height:0"></i></div><em>${mshort(x.m)}</em></button>`).join('')}</div>
+${ent.length?`<div class="sec">Per kategori</div><div class="list">${ent.map(([k,v],i)=>{const c=cat(k),l=rep=='out'&&useBud?BG().cats[k]:0,p=l?v/l*100:0,dc=dl(v,pby[k]||0,rep);return`<div class="cr" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><div class="m"><div class="t"><span>${c[0]}</span><span>${money(v)}</span></div><div class="pb"><i data-t="w" data-k="cp${i}" data-z="0" data-v="${v/tot*100}" style="transform:translateX(-100%)"></i></div><small><span>${Math.round(v/tot*100)}% dari total</span>${l?`<span class="${p>=100?'over':p>=80?'warn':''}">Budget ${Math.round(p)}%</span>`:''}</small>${dc}</div></div>`}).join('')}</div>`
+  :`<div class="list" style="margin-top:14px">${empty('pie','Belum ada data','Catat transaksi untuk melihat laporan periode ini.')}</div>`}
+${cmpLine(by,pby,rep,P)}${sorotan(P,O,mt)}
+<div class="sec">${P.trT}</div><div class="card"><div class="tre${RP=='y'?' t12':''}">${P.tr.map((x,i)=>`<${x.m?'button data-a="monset" data-m="'+x.m+'"':'div'} class="${x.on?'on':''}" aria-label="${esc(x.m?mlabel(x.m):x.l)}"><div class="pr"><i data-t="h" data-k="ti${i}" data-z="0" data-v="${x.i/mx*100}" style="height:0"></i><i data-t="h" data-k="to${i}" data-z="0" data-v="${x.o/mx*100}" style="height:0"></i></div><em>${esc(x.l)}</em></${x.m?'button':'div'}>`).join('')}</div>
 <div class="lg"><span><i style="background:var(--inc)"></i>Masuk</span><span><i style="background:var(--exp)"></i>Keluar</span></div></div>`;
 }
 
@@ -1143,7 +1200,7 @@ mpick:()=>openMonthPicker(),
 gotx:el=>{flt=el.dataset.f;q='';rng=null;txv='list';mon=curM();setTab('tx')},
 segx:()=>{const x=$('.sg.on');x&&x.dispatchEvent(new Event('click',{bubbles:true}))},
 seg:el=>{const k=el.dataset.k,d=$('.donut'),c=$('#dcc');if(!d)return;const was=el.classList.contains('on');$$('.sg').forEach(x=>x.classList.remove('on'));if(c.dataset.o===undefined)c.dataset.o=c.innerHTML;if(was){d.classList.remove('hl');c.innerHTML=c.dataset.o;return}
-const L=rin(mon).filter(t=>t.ty==rep&&!t.adj),M=L.filter(t=>t.c==k),v=M.reduce((s,t)=>s+t.a,0),T=L.reduce((s,t)=>s+t.a,0),x=cat(k),b=BG().cats[k],bp=rep=='out'&&b&&!rwf?' · '+Math.round(v/b*100)+'% budget':'';
+const L=rdata().cur.filter(t=>t.ty==rep&&!t.adj),M=L.filter(t=>t.c==k),v=M.reduce((s,t)=>s+t.a,0),T=L.reduce((s,t)=>s+t.a,0),x=cat(k),b=BG().cats[k],bp=rep=='out'&&RP=='m'&&b&&!rwf?' · '+Math.round(v/b*100)+'% budget':'';
 el.classList.add('on');d.classList.add('hl');c.innerHTML=`<div class="sgi" data-a="segx" style="--c:${x[2]}"><b><i class="sgd"></i><span>${esc(x[0])}</span></b><strong>${money(v)}</strong><small>${Math.round(v/T*100)}% · ${M.length} transaksi</small>${bp?`<small class="sgb">Budget ${Math.round(v/b*100)}%</small>`:''}</div>`;vib()},
 tab:el=>{if(el.dataset.t!=tab)setTab(el.dataset.t)},
 hide:()=>{S.set.hide=!S.set.hide;save();render(false)},
@@ -1185,7 +1242,9 @@ mon:el=>{mon=madd(mon,+el.dataset.d);if(mon>curM())mon=curM();render(false)},
 txv:el=>{txv=el.dataset.v;render(false)},
 cday:el=>{cdsel=el.dataset.d;$$('.kcd').forEach(b=>b.classList.toggle('on',b.dataset.d==cdsel));const p=$('#cdp');p.innerHTML=cdHTML(cdsel);p.classList.remove('kin2');void p.offsetWidth;p.classList.add('kin2');vib&&vib()},
 cadd:el=>{const d=new Date(),[Y,M,D]=el.dataset.d.split('-');d.setFullYear(+Y,+M-1,+D);openTx({ts:d.getTime()})},
-monset:el=>{mon=el.dataset.m;render(false)},
+monset:el=>{mon=el.dataset.m;RP='m';render(false)},
+rptab:el=>{if(RP!=el.dataset.p){RP=el.dataset.p;render(false)}},
+rpn:el=>{const d=+el.dataset.d;if(RP=='w'){WK=addD(WK,7*d);if(WK>wkS(Date.now()))WK=wkS(Date.now())}else{YR=String(Math.min(+YR+d,+curM().slice(0,4)))}render(false)},
 flt:el=>{flt=el.dataset.f;$$('#fl .chip').forEach(b=>b.classList.toggle('on',b.dataset.f==flt));$('#txl').innerHTML=listHTML()},
 rep:el=>{rep=el.dataset.r;render(false)},
 pal:el=>{S.set.pal=el.dataset.p;save();theme(true);render(false)},

@@ -29,6 +29,12 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 `app.js` di root adalah hasil minify. Sumber yang bisa dibaca ada di `src/app.js`. Setelah mengubah sumber, jalankan `sh build.sh` lalu naikkan versi cache di `sw.js`.
 SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast "Versi baru tersedia" setelah rilis baru.
 
+## Versi 24 (tambahan di atas v23)
+- Laporan punya tab Minggu, Bulan, Tahun. Tiap periode: navigasi sendiri, perbandingan dengan periode sebelumnya (adil untuk periode yang masih berjalan), diagram dan daftar per kategori, grafik (7 hari, 6 bulan, 12 bulan; klik bulan di tab Tahun membuka tab Bulan).
+- Kartu ringkasan di atas Laporan: lebih hemat atau lebih boros dibanding periode lalu.
+- Kartu Sorotan: Minggu (hari paling boros, hari tanpa pengeluaran), Bulan (transaksi terbesar, hari paling boros, proyeksi akhir bulan), Tahun (bulan paling boros dan hemat, rata-rata per bulan).
+- Beranda: kartu dompet hanya menampilkan saldo, keterangan hero diredupkan, kartu ringkasan dirapatkan, kapsul kategori tinggi 36px.
+
 ## Versi 23 (tambahan di atas v22)
 - Tombol Simpan nonaktif kini terbaca (abu-abu solid, bukan pudar); "Simpan & tambah lagi" satu baris.
 - Jarak bawah halaman dicek: konten berhenti 20px di atas tombol +.
