@@ -10,9 +10,9 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 - Sesuaikan saldo: ketik saldo asli di rekening, app mencatat selisihnya sebagai penyesuaian (tidak dihitung sebagai pemasukan atau pengeluaran di Beranda dan Laporan).
 - Transfer: pindah uang antar dompet tanpa dihitung sebagai pemasukan atau pengeluaran. Biaya admin opsional dicatat sebagai pengeluaran terpisah (kategori Lainnya) di dompet asal.
 - Catat: keypad dengan tombol 000, tahan ⌫ untuk hapus cepat, kalkulator `+` `−`, "Simpan & tambah lagi", opsi Ulangi tiap bulan.
-- Transaksi: cari, filter jenis, chip filter dompet berwarna (titik warna dompet di tiap baris), filter rentang tanggal, geser baris ke kiri untuk menghapus (ada Urungkan).
+- Transaksi: kolom cari (catatan, kategori, nama dompet, nominal) plus satu tombol Filter dengan angka filter aktif. Sheet Filter berisi Jenis, Kategori (pilih banyak), Dompet (pilih banyak), Nominal (min/maks dan chip < 50 rb, 50–200 rb, > 200 rb), dan Tanggal. Filter aktif tampil sebagai chip yang bisa dihapus satu per satu. Baris hasil menampilkan jumlah transaksi, total Keluar dan Masuk, tombol Hapus filter, dan urutan Terbaru/Terbesar. Hasil kosong menampilkan tombol Reset filter. Geser baris ke kiri untuk menghapus (ada Urungkan).
 - Transaksi > Kalender: tampilan bulan dengan titik merah (ada pengeluaran) dan titik hijau (ada pemasukan) per hari, nominal ada di rincian saat tanggal diketuk, geser untuk ganti bulan, ketuk tanggal untuk rincian dan catat di tanggal itu.
-- Laporan: bisa disaring per dompet, donat per kategori, tren 6 bulan, perbandingan dengan bulan lalu (bulan berjalan dibandingkan di tanggal yang sama), grafik garis biaya per kategori bulan ini vs bulan lalu (ketuk grafik untuk lihat angkanya).
+- Laporan (v27, minimalis): tab Minggu/Bulan/Tahun, bisa disaring per dompet. Isinya: ringkasan (pengeluaran, pembanding periode lalu, masuk, sisa, proyeksi), grafik line interaktif, donat dan daftar kategori, Budget (tab Bulan), dan Sorotan 2 baris.
 - Profil: 7 palet (termasuk pink), mode terang/gelap, animasi Hemat (default) atau Penuh, mata uang (Rupiah atau tanpa), budget, master kategori (tambah, ubah, hapus; kategori yang sudah dipakai transaksi tidak bisa dihapus), transaksi berulang bulanan, cadangan JSON (bisa dibagikan lewat Web Share ke WhatsApp atau Files), ekspor/impor CSV.
 - Keamanan: kunci aplikasi dengan PIN 6 angka (PIN 4 angka lama tetap berfungsi sampai diganti) (kunci otomatis, pembatasan percobaan), biometrik opsional lewat WebAuthn, tampilan disamarkan di pratinjau multitasking. PIN hanya mengunci tampilan, data di localStorage tidak dienkripsi. Lupa PIN berarti data dihapus.
 - Budget: total dan batas per kategori diatur di lembar Budget. Pengingat budget (Profil > Pengingat budget) punya saklar aktif/mati; saat aktif muncul pengaturan batas persen, notifikasi perangkat, dan jam 24 jam. Saat mati, peringatan budget tidak muncul di lonceng, toast, maupun notifikasi perangkat. Pengingat catat: Profil > Pengingat catat untuk mengatur jeda hari (1 sampai 30) dan jam 24 jam. Notifikasi perangkat muncul saat aplikasi dibuka pada atau setelah jam itu, dilewati kalau hari itu sudah ada catatan.
@@ -28,6 +28,14 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 ## Build
 `app.js` di root adalah hasil minify. Sumber yang bisa dibaca ada di `src/app.js`. Setelah mengubah sumber, jalankan `sh build.sh` lalu naikkan versi cache di `sw.js`.
 SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast "Versi baru tersedia" setelah rilis baru.
+
+## Versi 27 (tambahan di atas v26)
+- Transaksi: tombol Filter tunggal (lembar berisi Jenis, Kategori, Dompet, Nominal, Tanggal), chip filter aktif yang bisa dihapus, baris hasil (jumlah, Keluar, Masuk), Hapus filter, urutan Terbaru/Terbesar, pesan kosong dengan Reset filter. Pencarian juga cocok dengan nominal (mis. 25000 atau 25.000) dan nama dompet. Chip Semua/Keluar/Masuk/Pindah dana, tombol Tanggal, dan chip dompet di daftar dihapus (pindah ke lembar Filter; Kalender tetap memakai chip dompet).
+- Laporan dirombak dari 14 blok menjadi 4: Ringkasan, Grafik, Kategori, Budget (+ Sorotan 2 baris). Dihapus: Rasio tabungan, "Per kategori: A vs B", "Naik paling banyak", "Per dompet", kartu Selisih dan Rata-rata/hari (rata-rata pindah ke Sorotan), persen budget di daftar kategori, dan grafik batang.
+- Grafik line interaktif (sentuh dan geser): Bulan = total berjalan harian vs bulan lalu (putus-putus) dengan sakelar Harian/6 bulan; Minggu = total berjalan vs minggu lalu; Tahun = Masuk, Keluar, dan Keluar tahun lalu. Angka tiap titik tampil di atas grafik; di Tahun dan 6 bulan ada tombol "Buka bulan".
+- Donat: ketuk baris kategori untuk menyalakan irisannya. Budget: ketuk baris untuk membuka Transaksi yang sudah terfilter kategori itu.
+- Catatan perbandingan panjang dipindah ke ikon i di kartu Ringkasan. "Mgg ini/Mgg lalu" ditulis penuh, "Baru, bulan lalu 0" menjadi "Baru".
+- Build: app.js di root sudah diminify dengan esbuild (154 KB menjadi 136 KB). `build.sh` memakai esbuild kalau tersedia, kalau tidak memakai terser lewat npx.
 
 ## Versi 26 (tambahan di atas v25)
 - Urungkan: hapus kategori, hapus dompet, dan hentikan transaksi berulang kini bisa diurungkan lewat toast (sebelumnya langsung hilang).
