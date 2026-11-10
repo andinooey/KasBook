@@ -333,8 +333,8 @@ function home(anim){
   const sp=spentBy(curM()),anyB=OUT.some(id=>BG().cats[id]>0);
   const tile=k=>{
     if(k=='IN')return`<button class="qt" style="--c:#10B981" data-a="quick" data-c="${INC[0]}" data-ty="in"><span class="qr"><span class="cico">${ic('adl',24,2.4)}</span></span><span class="ql">Pemasukan</span></button>`;
-    const id=k,bg=BG().cats[id],bp=bg?(sp[id]||0)/bg*100:0;
-    return`<button class="qt" style="--c:${cat(id)[2]}" data-a="quick" data-c="${id}"><span class="qr${bg?' h'+(bp>=100?' o':bp>=80?' w':''):''}"${bg?` role="img" aria-label="Budget ${esc(cat(id)[0])} terpakai ${Math.round(bp)} persen" data-t="p" data-k="qb${id}" data-z="0" data-v="${Math.min(100,bp)}" style="--bp:0%"`:''}><span class="cico">${ic(cat(id)[1],28)}</span></span><span class="ql">${esc(cat(id)[0])}</span></button>`};
+    const id=k;
+    return`<button class="qt" style="--c:${cat(id)[2]}" data-a="quick" data-c="${id}"><span class="qr"><span class="cico">${ic(cat(id)[1],28)}</span></span><span class="ql">${esc(cat(id)[0])}</span></button>`};
   const tiles=qorder().map(tile).join('');
   const nudge=bkDue()?`<button class="nudge" data-a="bkjson"><span class="si">${ic('dl',18)}</span><span class="st"><b>Cadangkan datamu</b><small>${S.set.bk?'Cadangan terakhir sudah lebih dari 2 minggu':'Belum pernah dicadangkan. Data hanya ada di perangkat ini.'}</small></span>${ic('cr',16)}</button>`:'';
   const rc=S.tx.slice(0,5);
@@ -344,7 +344,7 @@ function home(anim){
 <div class="pills"><button class="pill" data-a="gotx" data-f="in"><span class="pc in">${ic('adl',15,2.6)}</span><div style="min-width:0"><small>Masuk</small><b class="${hide.trim()}" data-n="${I}" data-k="in">${money(I)}</b></div></button>
 <button class="pill" data-a="gotx" data-f="out"><span class="pc out">${ic('aur',15,2.6)}</span><div style="min-width:0"><small>Keluar</small><b class="${hide.trim()}" data-n="${O}" data-k="out">${money(O)}</b></div></button></div></section>${nudge}
 ${walStrip(hide)}${dueCard()}
-<h3 class="sec">Catat cepat<button class="more" data-a="qord">Atur</button></h3><div class="card qg">${tiles}</div>
+<h3 class="sec">Catat per kategori<button class="more" data-a="qord">Atur</button></h3><div class="card qg">${tiles}</div>
 <div class="sec">Terbaru${S.tx.length>5?'<button class="more" data-a="tab" data-t="tx">Lihat semua</button>':''}</div>
 ${rc.length?`<div class="list">${rc.map(t=>row(t,{date:1})).join('')}</div>`:`<div class="list">${empty('inbox','Belum ada transaksi','Ketuk salah satu kategori di atas untuk mencatat.')}</div>`}
 <div class="bento" id="bento">
@@ -1033,8 +1033,8 @@ function bgToggle(){
 const QOA=k=>k=='IN'?['Pemasukan','adl','#10B981']:cat(k);
 function qoRows(){const L=qorder();return L.map((k,i)=>{const c=QOA(k);return`<div class="qor" data-k="${esc(k)}" style="--c:${c[2]}"><span class="qgrip" role="img" aria-label="Geser untuk memindah ${esc(c[0])}"><svg width="14" height="18" viewBox="0 0 14 18" fill="currentColor" aria-hidden="true"><circle cx="4" cy="3" r="1.5"/><circle cx="10" cy="3" r="1.5"/><circle cx="4" cy="9" r="1.5"/><circle cx="10" cy="9" r="1.5"/><circle cx="4" cy="15" r="1.5"/><circle cx="10" cy="15" r="1.5"/></svg></span><span class="cico sm">${ic(c[1],18)}</span><b>${esc(c[0])}</b><button data-s="qup" data-k="${esc(k)}" aria-label="Naikkan ${esc(c[0])}" ${i?'':'disabled'}><span class="qar" style="transform:rotate(-90deg)">${ic('cr',18)}</span></button><button data-s="qdn" data-k="${esc(k)}" aria-label="Turunkan ${esc(c[0])}" ${i==L.length-1?'disabled':''}><span class="qar" style="transform:rotate(90deg)">${ic('cr',18)}</span></button></div>`}).join('')}
 function openQord(){
-  openSheet(`<div class="sheet" role="dialog" aria-modal="true" aria-label="Atur Catat cepat" tabindex="-1" style="--c:var(--p)"><div class="tint"></div><div class="grab"></div>
-<div class="sh-top"><div class="sh-t">Atur Catat cepat</div><div class="sh-act"><button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div>
+  openSheet(`<div class="sheet" role="dialog" aria-modal="true" aria-label="Atur urutan kategori" tabindex="-1" style="--c:var(--p)"><div class="tint"></div><div class="grab"></div>
+<div class="sh-top"><div class="sh-t">Atur urutan kategori</div><div class="sh-act"><button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div>
 <p class="hint" style="margin:6px 4px 8px">Tahan dan geser titik-titik di kiri, atau pakai tombol panah. Urutan dari atas ke bawah = kiri ke kanan, baris demi baris di Beranda.</p>
 <div id="qol">${qoRows()}</div>
 <button class="btn2" data-s="qreset" style="width:100%;margin-top:12px">Kembalikan urutan awal</button></div>`);
