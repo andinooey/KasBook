@@ -851,3 +851,41 @@ html.lite .ab,html.lite .ahb .chv{transition:none}
 .ob-skip{min-height:46px;font-weight:700;color:var(--mu);text-align:center}
 
 .hero .bigb+.pills{margin-top:16px}
+
+/* ---------- Poles v29: lebih rapi dan berdimensi, tanpa animasi tambahan ---------- */
+:root{--hair:color-mix(in srgb,var(--tx) 7%,transparent);--sh:0 1px 2px color-mix(in srgb,var(--tx) 5%,transparent),0 16px 32px -16px color-mix(in srgb,var(--tx) 24%,transparent)}
+body{background:var(--bg) linear-gradient(180deg,color-mix(in srgb,var(--p) 10%,var(--bg)),var(--bg) 340px) no-repeat}
+.hd h1{font-size:27px;letter-spacing:-.03em}
+.hero{background-image:radial-gradient(90% 130% at 100% 0%,rgba(255,255,255,.2),rgba(255,255,255,0) 58%),linear-gradient(165deg,rgba(255,255,255,.07),rgba(0,0,0,.2));box-shadow:0 24px 40px -18px color-mix(in srgb,var(--h) 85%,transparent),inset 0 1px 0 rgba(255,255,255,.28),inset 0 0 0 1px rgba(255,255,255,.12)}
+.hero::before{background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,0) 45%)}
+.bigb{font-size:40px;letter-spacing:-.045em}
+.pill{background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
+.pill .pc{box-shadow:0 2px 6px rgba(0,0,0,.14)}
+.card,.list,.grp,.wc{box-shadow:var(--sh),0 0 0 1px var(--hair)}
+.wc.tfc,.wc.add{box-shadow:none}
+.sec{font-size:16px;letter-spacing:-.015em}
+.sec .more{font-size:13px;font-weight:700;color:var(--p);padding:7px 13px;margin:-7px -4px -7px 0;border-radius:999px;background:color-mix(in srgb,var(--p) 10%,transparent)}
+.sec .more:active{background:color-mix(in srgb,var(--p) 18%,transparent)}
+.qg .qt .qr .cico{width:50px;height:50px;border-radius:18px;background-image:linear-gradient(150deg,color-mix(in srgb,var(--c) 30%,var(--sf)),color-mix(in srgb,var(--c) 10%,var(--sf)));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 20%,transparent),0 8px 14px -10px var(--c)}
+.qg .qt[data-ty=in] .qr .cico{background-image:linear-gradient(150deg,color-mix(in srgb,var(--c) 85%,#fff),var(--c));color:#fff;box-shadow:0 10px 16px -10px var(--c)}
+.qg .qt:active .qr .cico{transform:scale(.92)}
+.wc{border-radius:24px;padding:14px 16px 15px}
+.wc b{font-size:16px}
+.tr{padding:11px 12px;border-radius:22px}
+.tr .tm b,.tr .am{font-size:15px}
+.tr .am{letter-spacing:-.015em}
+.tr .cico{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 16%,transparent)}
+.nudge{box-shadow:0 0 0 1px color-mix(in srgb,var(--amb) 28%,transparent)}
+#nav{box-shadow:0 20px 40px -14px color-mix(in srgb,var(--tx) 38%,transparent),0 0 0 1px var(--hair)}
+#nav button.on{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--p) 22%,transparent)}
+.sheet{box-shadow:0 -28px 70px -24px rgba(0,0,0,.45)}
+.num{font-size:54px;letter-spacing:-.05em}
+.ch2 .chip{box-shadow:inset 0 0 0 1px var(--hair);background:color-mix(in srgb,var(--tx) 5%,var(--sf))}
+.nin{box-shadow:inset 0 0 0 1px var(--hair);background:color-mix(in srgb,var(--tx) 4%,var(--sf))}
+.pad button{background:color-mix(in srgb,var(--tx) 4.5%,var(--sf));box-shadow:inset 0 0 0 1px var(--hair);font-size:23px}
+.pad button.op,.pad button.dl{background:color-mix(in srgb,var(--c) 13%,var(--sf));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 16%,transparent)}
+.pad button.eq{background-image:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0));box-shadow:0 10px 18px -10px var(--c),inset 0 1px 0 rgba(255,255,255,.3)}
+.save{height:56px;background-image:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0));box-shadow:0 16px 26px -12px var(--c),inset 0 1px 0 rgba(255,255,255,.3)}
+.save:active{transform:scale(.985)}
+.save[disabled]{background-image:none;box-shadow:inset 0 0 0 1px var(--hair)}
+.seg{box-shadow:inset 0 0 0 1px var(--hair)}

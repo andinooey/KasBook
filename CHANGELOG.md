@@ -2,6 +2,9 @@
 
 Versi terbaru di atas. Penjelasan fitur terkini ada di README.md.
 
+## Versi 29 (tambahan di atas v28)
+- Poles tampilan, hanya CSS (`style.css`), tanpa animasi baru dan tanpa perubahan perilaku. Kartu saldo lebih berdimensi (sorot cahaya, tepi halus), kartu dan dompet memakai bayangan dua lapis dengan garis tipis, ikon kategori bergradasi lembut dengan bayangan berwarna, tautan "Lihat semua/Atur/Kelola" jadi kapsul, tombol Simpan dan keypad lebih timbul, nominal Catat lebih besar. Mode terang dan gelap sudah dicek.
+
 ## Versi 28 (tambahan di atas v27)
 - Beranda: pengingat cadangan jadi satu baris ringkas yang bisa ditunda 7 hari (tombol ×). Teks "Total saldo = jumlah semua dompet" dihapus. Kapsul Masuk/Keluar diberi label "bulan ini".
 - Transaksi: tombol + di header dihapus (tombol + di navigasi tetap). Placeholder pencarian jadi "Cari transaksi". Baris transaksi menampilkan nama dompet (bila punya lebih dari satu) dan pengeluaran diberi tanda minus.
