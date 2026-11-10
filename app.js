@@ -216,7 +216,7 @@ function save(){clearTimeout(svT);svT=setTimeout(()=>{svT=null;write()},300)}
 addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
 const sortTx=()=>S.tx.sort((a,b)=>b.ts-a.ts||(a.id<b.id?1:-1));
 const snap=()=>({tx:S.tx.map(t=>({...t})),rec:S.rec.map(r=>({...r}))});
-const snapAll=()=>({...snap(),wal:S.wal.map(w=>({...w})),bud:JSON.parse(JSON.stringify(S.bud))});
+const snapAll=()=>({...snap(),wal:S.wal.map(w=>({...w})),bud:JSON.parse(JSON.stringify(S.bud)),cats:S.cats.map(c=>({...c}))});
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 sortTx();
 const inMonth=m=>S.tx.filter(t=>ymd(t.ts).startsWith(m));
@@ -440,6 +440,36 @@ function sorotan(P,O,mt){
   }
   return rows.length?`<div class="sec">Sorotan</div><div class="list hl">${rows.map(r=>`<div class="sr"><div class="sl"><b>${r[0]}</b>${r[1]?`<small>${r[1]}</small>`:''}</div><span>${r[2]}</span></div>`).join('')}</div>`:'';
 }
+
+/* Laporan tambahan: budget vs realisasi, rasio tabungan, kategori naik, per dompet */
+function bvr(P,mt){
+  if(RP!='m'||rwf||!budOn())return'';
+  const sp={};mt.filter(t=>t.ty=='out'&&!t.adj).forEach(t=>sp[t.c]=(sp[t.c]||0)+t.a);
+  const items=OUT.filter(k=>S.bud.cats[k]>0).map(k=>({k,v:sp[k]||0,l:S.bud.cats[k]})).sort((a,b)=>b.v/b.l-a.v/a.l);
+  const tot=S.bud.total>0?{v:Object.values(sp).reduce((a,b)=>a+b,0),l:S.bud.total}:null;
+  if(!items.length&&!tot)return'';
+  const left=P.live?P.dm-new Date().getDate():0;
+  const row=(ico,col,name,v,l)=>{const p=v/l*100,r=l-v,cls=p>=100?'over':p>=80?'warn':'';
+    return`<div class="cr" style="--c:${col}"><span class="cico sm">${ico}</span><div class="m"><div class="t"><span>${esc(name)}</span><span>${money(v)} / ${money(l)}</span></div><div class="pb"><i style="transform:translateX(${-(100-Math.min(100,p))}%)"></i></div><small><span class="${cls}">${Math.round(p)}%</span><span class="${cls}">${r>=0?'Sisa '+money(r):'Lewat '+money(-r)}</span></small></div></div>`};
+  return`<div class="sec">Budget vs realisasi${P.live?`<small class="sub">Sisa ${left} hari</small>`:''}</div><div class="list">${tot?row(ic('target',18),'var(--p)','Total bulan ini',tot.v,tot.l):''}${items.map(x=>{const c=cat(x.k);return row(ic(c[1],18),c[2],c[0],x.v,x.l)}).join('')}</div>`;
+}
+function rasio(I,O,pI,pO,P){
+  if(I<=0)return'';
+  const r=Math.round((I-O)/I*100),pr=pI>0?Math.round((pI-pO)/pI*100):null,w=Math.max(0,Math.min(100,r));
+  return`<div class="card rs"><div class="t"><small>Rasio tabungan</small><b class="${r<0?'out':'in'}">${r}%</b></div><div class="pb"><i style="transform:translateX(${-(100-w)}%)"></i></div><small class="cmpn" style="margin:6px 0 0">${r<0?'Pengeluaran lebih besar dari pemasukan.':'Dari pemasukan, '+r+'% belum terpakai.'}${pr!==null?' '+P.pl[0].toUpperCase()+P.pl.slice(1)+': '+pr+'%.':''}</small></div>`;
+}
+function naikList(by,pby,P){
+  if(rep!='out')return'';
+  const a=Object.keys(by).map(k=>({k,d:by[k]-(pby[k]||0),p:pby[k]||0,n:by[k]})).filter(x=>x.d>0).sort((a,b)=>b.d-a.d).slice(0,3);
+  if(!a.length)return'';
+  return`<div class="sec">Naik paling banyak</div><div class="list hl">${a.map(x=>{const c=cat(x.k);return`<div class="sr"><div class="sl"><b>${esc(c[0])}</b><small>${x.p?'▲ '+Math.round(x.d/x.p*100)+'% dari '+money(x.p):'Baru, '+P.pl+' 0'}</small></div><span class="bad">+${money(x.d)}</span></div>`}).join('')}</div>`;
+}
+function perDompet(P){
+  if(S.wal.length<2||rwf)return'';
+  const rows=S.wal.map(w=>{const a=P.cur.filter(t=>t.w==w.id);return{w,i:sum(a,'in'),o:sum(a,'out')}}).filter(x=>x.i||x.o);
+  if(!rows.length)return'';
+  return`<div class="sec">Per dompet</div><div class="list hl">${rows.map(x=>`<div class="sr"><div class="sl"><b><i class="wdt" style="--c:${x.w.c};display:inline-block;margin-right:8px"></i>${esc(x.w.n)}</b><small>Masuk ${money(x.i)}</small></div><span class="out">−${money(x.o)}</span></div>`).join('')}</div>`;
+}
 function repPage(){
   const P=rdata(),mt=P.cur,I=sum(mt,'in'),O=sum(mt,'out'),pI=sum(P.prev,'in'),pO=sum(P.prev,'out'),by={},pby={};
   mt.filter(t=>t.ty==rep&&!t.adj).forEach(t=>by[t.c]=(by[t.c]||0)+t.a);
@@ -453,11 +483,12 @@ function repPage(){
   return`<header class="hd"><h1>Laporan</h1></header><div class="seg rpt" role="tablist">${[['w','Minggu'],['m','Bulan'],['y','Tahun']].map(x=>`<button role="tab" aria-selected="${RP==x[0]}" class="${RP==x[0]?'on':''}" data-a="rptab" data-p="${x[0]}">${x[1]}</button>`).join('')}</div>${P.nav}${wChips(rwf,'rwf')}${ver}
 <div class="sum2"><div class="card"><small>Masuk</small><b class="in">${money(I)}</b>${dl(I,pI,'in')}</div><div class="card"><small>Keluar</small><b class="out">${money(O)}</b>${dl(O,pO,'out')}</div>
 <div class="card"><small>Selisih</small><b>${I-O>0?'+':''}${money(I-O)}</b></div><div class="card"><small>Rata-rata keluar/hari</small><b>${money(Math.round(O/P.el))}</b></div>${P.pn?`<p class="cmpn">${P.pn}</p>`:''}${rwf?`<p class="cmpn">Hanya transaksi di ${esc(walOf(rwf).n)}. Pindah dana antar dompet tidak dihitung, dan budget berlaku untuk semua dompet.</p>`:''}</div>
+${rasio(I,O,pI,pO,P)}${bvr(P,mt)}
 <div class="card"><div class="seg" role="tablist"><button class="${rep=='out'?'on':''}" data-a="rep" data-r="out">Pengeluaran</button><button class="${rep=='in'?'on':''}" data-a="rep" data-r="in">Pemasukan</button></div>
 <div class="donut"><svg viewBox="0 0 200 200" role="img" aria-label="Diagram ${rep=='out'?'pengeluaran':'pemasukan'} per kategori"><circle class="trk" cx="100" cy="100" r="${R}"/>${segs}</svg><div class="dc" id="dcc"><small>${rep=='out'?'Pengeluaran':'Pemasukan'}</small><b data-n="${tot}" data-k="dn">${money(tot)}</b></div></div></div>
 ${ent.length?`<div class="sec">Per kategori</div><div class="list">${ent.map(([k,v],i)=>{const c=cat(k),l=rep=='out'&&useBud?BG().cats[k]:0,p=l?v/l*100:0,dc=dl(v,pby[k]||0,rep);return`<div class="cr" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><div class="m"><div class="t"><span>${c[0]}</span><span>${money(v)}</span></div><div class="pb"><i data-t="w" data-k="cp${i}" data-z="0" data-v="${v/tot*100}" style="transform:translateX(-100%)"></i></div><small><span>${Math.round(v/tot*100)}% dari total</span>${l?`<span class="${p>=100?'over':p>=80?'warn':''}">Budget ${Math.round(p)}%</span>`:''}</small>${dc}</div></div>`}).join('')}</div>`
   :`<div class="list" style="margin-top:14px">${empty('pie','Belum ada data','Catat transaksi untuk melihat laporan periode ini.')}</div>`}
-${cmpLine(by,pby,rep,P)}${sorotan(P,O,mt)}
+${cmpLine(by,pby,rep,P)}${naikList(by,pby,P)}${perDompet(P)}${sorotan(P,O,mt)}
 <div class="sec">${P.trT}</div><div class="card"><div class="tre${RP=='y'?' t12':''}">${P.tr.map((x,i)=>`<${x.m?'button data-a="monset" data-m="'+x.m+'"':'div'} class="${x.on?'on':''}" aria-label="${esc(x.m?mlabel(x.m):x.l)}"><div class="pr"><i data-t="h" data-k="ti${i}" data-z="0" data-v="${x.i/mx*100}" style="height:0"></i><i data-t="h" data-k="to${i}" data-z="0" data-v="${x.o/mx*100}" style="height:0"></i></div><em>${esc(x.l)}</em></${x.m?'button':'div'}>`).join('')}</div>
 <div class="lg"><span><i style="background:var(--inc)"></i>Masuk</span><span><i style="background:var(--exp)"></i>Keluar</span></div></div>`;
 }
@@ -757,7 +788,7 @@ function saveRec(){
   save();render(false);openRecs();toast('Transaksi berulang disimpan');
 }
 function delRec(){
-  S.rec=S.rec.filter(r=>r.id!=RE.id);save();render(false);openRecs();toast('Transaksi berulang dihentikan',{c:'var(--exp)'});
+  const b=snap();S.rec=S.rec.filter(r=>r.id!=RE.id);save();render(false);openRecs();toast('Transaksi berulang dihentikan',{c:'var(--exp)',undo:b});
 }
 
 
@@ -797,8 +828,8 @@ function saveWal(){
 }
 function delWal(){
   const x=S.wal.find(w=>w.id==WE.id);if(!x||S.wal.length<2)return;if(wUse(x.id)){openWalMove(x.id);return}
-  S.wal=S.wal.filter(w=>w.id!=x.id);if(wf==x.id)wf=null;if(S.set.lw==x.id)S.set.lw=null;
-  save();if(WE.from=='wd')closeSheet();render(false);if(WE.from!='wd')openWals();toast('Dompet dihapus',{c:'var(--exp)'});
+  const b=snapAll();S.wal=S.wal.filter(w=>w.id!=x.id);if(wf==x.id)wf=null;if(S.set.lw==x.id)S.set.lw=null;
+  save();if(WE.from=='wd')closeSheet();render(false);if(WE.from!='wd')openWals();toast('Dompet dihapus',{c:'var(--exp)',undo:b});
 }
 
 /* --- Sesuaikan saldo --- */
@@ -899,7 +930,7 @@ function saveCat(){
 function delCat(){
   const x=S.cats.find(c=>c.id==CE.id);if(!x||x.sys)return;
   const n=usage(x.id);if(n){toast(`Masih dipakai ${n} data, tidak bisa dihapus`,{c:'var(--exp)'});return}
-  S.cats=S.cats.filter(c=>c.id!=x.id);delete S.bud.cats[x.id];CT=x.ty;save();rebuild();render(false);openCats();toast('Kategori dihapus',{c:'var(--exp)'});
+  const b=snapAll();S.cats=S.cats.filter(c=>c.id!=x.id);delete S.bud.cats[x.id];CT=x.ty;save();rebuild();render(false);openCats();toast('Kategori dihapus',{c:'var(--exp)',undo:b});
 }
 
 /* --- Filter tanggal --- */
@@ -1253,7 +1284,7 @@ notif:openNotif,
 export:exportCSV,
 import:()=>$('#file').click(),
 reset:()=>confirmSheet('Hapus semua data?','Semua transaksi, dompet, budget, dan transaksi berulang di perangkat ini akan dihapus. Kategori, kunci aplikasi, dan tampilan tetap.','Hapus',()=>{const b=snapAll();S.tx=[];S.rec=[];S.bud={total:0,cats:{}};S.wal=[DEFW()];wf=null;S.set.lw=null;save();closeSheet();render(false);toast('Semua data dihapus',{c:'var(--exp)',undo:b})}),
-undo:()=>{if(!UNDO)return;S.tx=UNDO.tx;S.rec=UNDO.rec;if(UNDO.wal){S.wal=UNDO.wal;S.bud=UNDO.bud}UNDO=null;sortTx();save();$('#toast').className='';render(false);setTimeout(()=>toast('Dibatalkan'),250)}
+undo:()=>{if(!UNDO)return;S.tx=UNDO.tx;S.rec=UNDO.rec;if(UNDO.wal){S.wal=UNDO.wal;S.bud=UNDO.bud}if(UNDO.cats){S.cats=UNDO.cats;rebuild()}UNDO=null;sortTx();save();$('#toast').className='';render(false);setTimeout(()=>toast('Dibatalkan'),250)}
 };
 document.addEventListener('click',e=>{
   const s=e.target.closest('[data-s]');

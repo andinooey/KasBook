@@ -736,3 +736,36 @@ html.lite .ab,html.lite .ahb .chv{transition:none}
 @media(max-width:360px){.qg .qt .qr .cico{width:42px;height:42px}}
 .qg.card{gap:12px 0}
 .qg .qt .ql{font-size:11.5px;letter-spacing:-.015em;overflow:visible;text-overflow:clip}
+
+/* v26: rasio tabungan, budget vs realisasi */
+.card.rs{margin-top:12px}
+.rs .t{display:flex;align-items:baseline;justify-content:space-between}
+.rs .t small{font-size:12.5px;font-weight:700;color:var(--mu)}
+.rs .t b{font-size:22px;font-weight:800}
+.rs .pb{margin-top:8px}
+.rs .pb i{background:var(--inc)}
+.sec .sub{font-size:12.5px;font-weight:700;color:var(--mu)}
+.sr>span.bad{color:var(--exp)}.sr>span.out{color:var(--exp)}
+.sr .sl small.bad{color:var(--exp)}
+.list .cr+.cr{border-top:1px solid var(--ln)}
+
+/* v26: aksesibilitas - kontras teks dan area ketuk */
+:root{--inct:color-mix(in srgb,var(--inc) 78%,var(--tx));--ambt:color-mix(in srgb,var(--amb) 55%,var(--tx))}
+.am.in,.dh .in,.sum2 .in,.wc .wf .in,.rs .t b.in{color:var(--inct)}
+.warn,.cr small .warn{color:var(--ambt)}
+.hero .hl{opacity:.95}
+.hero .hh{opacity:.82}
+.pill small{color:rgba(255,255,255,.94);font-size:11.5px}
+.sh-top .seg button.on{color:color-mix(in srgb,var(--c) 68%,var(--tx))}
+.pad .op{color:color-mix(in srgb,var(--c) 72%,var(--tx))}
+.ib{width:44px;height:44px}
+.mon button{width:42px;height:42px}
+.chip{padding:10px 15px}
+.more,.mon button,.seg button,.cb{position:relative}
+.ib::after,.chip::after,.mon button::after,.seg button::after,.cb::after{content:'';position:absolute;inset:-4px}
+.more::after{content:'';position:absolute;inset:-9px -7px}
+.seg button::after{inset:-6px 0}
+.hero .hh{opacity:1;color:#fff}
+.pill small{color:#fff}
+.pad .op{color:color-mix(in srgb,var(--c) 55%,var(--tx))}
+.sheet .sh-act .ib{width:42px;height:42px}

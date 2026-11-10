@@ -29,6 +29,11 @@ Hubungkan repo GitHub. Build command dikosongkan, output directory `/`.
 `app.js` di root adalah hasil minify. Sumber yang bisa dibaca ada di `src/app.js`. Setelah mengubah sumber, jalankan `sh build.sh` lalu naikkan versi cache di `sw.js`.
 SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast "Versi baru tersedia" setelah rilis baru.
 
+## Versi 26 (tambahan di atas v25)
+- Urungkan: hapus kategori, hapus dompet, dan hentikan transaksi berulang kini bisa diurungkan lewat toast (sebelumnya langsung hilang).
+- Laporan: Rasio tabungan, Budget vs realisasi per kategori (tab Bulan, dengan sisa hari), Naik paling banyak, dan Per dompet.
+- Aksesibilitas: kontras teks diperbaiki (hijau, amber, hero, keypad, segmen) berdasarkan pengukuran WCAG; tombol kecil mendapat area ketuk lebih besar.
+
 ## Versi 25 (tambahan di atas v24)
 - Beranda: "Catat cepat" diganti "Catat per kategori", berupa grid rata 5 kolom (ikon di atas, nama di bawah), tanpa ring budget.
 
