@@ -59,6 +59,7 @@ zap:'<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1
 repeat:'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
 tag:'<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>'
 ,lock:'<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
+,filter:'<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>'
 ,grid:'<rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/>'
 ,swap:'<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>'
 ,face:'<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/>'
@@ -90,7 +91,7 @@ const K=['p','pc','bg','sf','tx','mu','ln','h'];
 const PAL={
 tosca:['Tosca Laut',['0B7983','FFFFFF','F2F8F8','FFFFFF','0F2A2D','587276','DCEAEA','0E7C86'],['43CCD6','04262A','0A191B','11272A','E4F4F5','8BADB1','1D3A3E','0B6770']],
 biru:['Biru Tinta',['3451C7','FFFFFF','F3F5FD','FFFFFF','141A3A','5F6892','E0E4F5','2E48B0'],['8EA2FF','0E1647','0D1020','161B34','E8EBFA','98A0C8','262D52','3249B8']],
-hijau:['Hijau Hutan',['277A4D','FFFFFF','F2F8F4','FFFFFF','11261A','5A7565','DCEBE2','1F6E45'],['5FD590','06210F','0A1710','11261A','E4F5EA','8CAF9A','1C3A29','1B5F3C']],
+pink:['Mawar Muda',['BE185D','FFFFFF','FDF3F7','FFFFFF','2D1019','86596A','F5DCE6','BE185D'],['FF8FB7','3A0519','1A0D13','2A1620','FBE9F1','C9A0B1','43202F','9D1A4C']],
 ungu:['Ungu Anggur',['6D28D9','FFFFFF','F7F4FE','FFFFFF','1E1233','6E6188','E6DDF7','5B21B6'],['B39CFF','1A0B3B','130C22','1D1333','EFE9FB','A99BC7','2D2150','4C1D95']],
 jingga:['Jingga Senja',['C2490A','FFFFFF','FFF5F1','FFFFFF','2B1408','8A6652','F6DFD3','D9500A'],['FF9A5C','3A1500','1A0E08','2A1810','FBEDE4','C4A18C','44281A','9A3608']]};
 const SEM={l:['#16895A','#D63B45'],d:['#4BDA9B','#FF8A90']};
@@ -229,11 +230,6 @@ function week(off=0){
   const o=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i-off*7);o.push({k:ymd(d),l:d.toLocaleDateString(DL,{weekday:'narrow'}),v:0,t:i==0&&!off})}
   S.tx.forEach(t=>{if(t.ty=='out'&&!t.adj){const x=o.find(z=>z.k==ymd(t.ts));if(x)x.v+=t.a}});return o;
 }
-function stats(){
-  const days=new Set(S.tx.map(t=>ymd(t.ts)));let st=0;const d=new Date();if(!days.has(ymd(d)))d.setDate(d.getDate()-1);
-  while(days.has(ymd(d))){st++;d.setDate(d.getDate()-1)}
-  return{n:S.tx.length,days:days.size,streak:st};
-}
 
 /* ---------- Status UI ---------- */
 let tab='home',mon=curM(),flt='all',wf=null,rwf=null,WD=null,AJ=null,WM=null,WE=null,q='',rep='out',NEW=null,UNDO=null,E=null,rng=null,CT='out',CE=null,RE=null,HT=null,HI=null,SW=null,DRAGGED=false,OPEN=null;
@@ -252,7 +248,7 @@ const PV={};
 function row(t,o={}){
   const tf=t.ty=='tf',c=tf?TFC:cat(t.c),multi=S.wal.length>1,wn=!tf&&multi&&!o.wid?`<i class="wdt" role="img" aria-label="Dompet ${esc(walOf(t.w).n)}" title="${esc(walOf(t.w).n)}" style="--c:${walOf(t.w).c}"></i>`:'',sg=o.wid&&tf?(t.w2==o.wid?1:-1):0;
   const ttl=esc(t.n)||esc(c[0]),pre=tf?esc(walOf(t.w).n)+' → '+esc(walOf(t.w2).n)+' · ':(t.n?esc(c[0])+' · ':'');
-  return`<div class="rw"><button class="rb" data-a="rdel" data-id="${esc(t.id)}" aria-label="Hapus transaksi">${ic('trash',20)}</button><button class="tr${t.id==NEW?' new':''}" data-a="row" data-id="${esc(t.id)}" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><span class="tm"><b>${ttl}</b><small>${wn}${pre}${o.date?dlabel(t.ts)+(tf?'':' · '):''}${tf?'':tlabel(t.ts)}${t.r?' · berulang':''}${t.adj?' · penyesuaian':''}</small></span><b class="am ${sg>0?'in':t.ty}">${t.ty=='in'||sg>0?'+':sg<0?'−':''}${money(t.a)}</b></button></div>`;
+  return`<div class="rw"><button class="rb" data-a="rdel" data-id="${esc(t.id)}" aria-label="Hapus transaksi">${ic('trash',20)}</button><button class="tr${t.id==NEW?' new':''}" data-a="row" data-id="${esc(t.id)}" style="--c:${c[2]}"><span class="cico sm">${ic(c[1],18)}</span><span class="tm"><b>${ttl}</b><small>${wn}${pre}${o.date?dlabel(t.ts)+' · ':''}${tlabel(t.ts)}${t.r?' · berulang':''}${t.adj?' · penyesuaian':''}</small></span><b class="am ${sg>0?'in':t.ty}">${t.ty=='in'||sg>0?'+':sg<0?'−':''}${money(t.a)}</b></button></div>`;
 }
 const empty=(i,a,b)=>`<div class="empty"><div class="ei">${ic(i,26)}</div><b>${a}</b>${b}</div>`;
 
@@ -337,7 +333,7 @@ function home(anim){
   if(qa.length>10){const first=qa.slice(0,9);if(!first.includes('IN')){first.splice(8,1,'IN')}qs=first;more=`<button class="qt" style="--c:var(--mu)" data-a="qall"><span class="qr"><span class="cico">${ic('grid',22,2.2)}</span></span><span class="ql">Semua</span></button>`}
   const tiles=qs.map(tile).join('')+more;
   const nudge=bkDue()?`<button class="nudge" data-a="bkjson"><span class="si">${ic('dl',18)}</span><span class="st"><b>Cadangkan datamu</b><small>${S.set.bk?'Cadangan terakhir sudah lebih dari 2 minggu':'Belum pernah dicadangkan. Data hanya ada di perangkat ini.'}</small></span>${ic('cr',16)}</button>`:'';
-  const tk=ymd(Date.now()),yk=ymd(Date.now()-864e5),rc=S.tx.filter(t=>{const k=ymd(t.ts);return k==tk||k==yk}).slice(0,8);
+  const tk=ymd(Date.now()),yk=ymd(Date.now()-864e5),rc=S.tx.filter(t=>{const k=ymd(t.ts);return k==tk||k==yk}).slice(0,8),rt=rc.filter(t=>ymd(t.ts)==tk),ry=rc.filter(t=>ymd(t.ts)!=tk);
   return`<header class="hd"><div><div class="gr">${g}</div><div class="dt">${n.toLocaleDateString(DL,{weekday:'long',day:'numeric',month:'long'})}</div></div>
 <div class="ha"><button class="ib" data-a="hide" aria-label="${S.set.hide?'Tampilkan':'Sembunyikan'} saldo">${ic(S.set.hide?'eyeoff':'eye',19)}</button><button class="ib" data-a="bell" aria-label="Notifikasi">${ic('bell',19)}${dot?'<i class="dot"></i>':''}</button></div></header>
 <section class="hero"><i class="bl bl1"></i><i class="bl bl2"></i><div class="hl">Total saldo</div><div class="bigb${hide}" data-n="${bal}" data-k="bal">${money(bal)}</div>${heroBud(hide)}
@@ -346,26 +342,66 @@ function home(anim){
 ${walStrip(hide)}${dueCard()}
 <h3 class="sec">Catat per kategori<button class="more" data-a="qord">Atur</button></h3><div class="card qg">${tiles}</div>
 <div class="sec">Terbaru${S.tx.length>rc.length?'<button class="more" data-a="tab" data-t="tx">Lihat semua</button>':''}</div>
-${rc.length?`<div class="list">${rc.map(t=>row(t,{date:1})).join('')}</div>`:`<div class="list">${empty('inbox',S.tx.length?'Belum ada transaksi hari ini':'Belum ada transaksi',S.tx.length?'Transaksi sebelumnya ada di tab Transaksi.':'Ketuk salah satu kategori di atas untuk mencatat.')}</div>`}
+${rc.length?`<div class="list">${rt.length?`<div class="dgl">Hari ini</div>${rt.map(t=>row(t)).join('')}`:''}${ry.map(t=>row(t,{date:1})).join('')}</div>`:`<div class="list">${empty('inbox',S.tx.length?'Belum ada transaksi hari ini':'Belum ada transaksi',S.tx.length?'Transaksi sebelumnya ada di tab Transaksi.':'Ketuk salah satu kategori di atas untuk mencatat.')}</div>`}
 `;
 }
 
 function monNav(){return`<div class="mon"><button data-a="mon" data-d="-1" aria-label="Bulan lalu">${ic('cl',18)}</button><button class="mtl" data-a="mpick" aria-label="Pilih bulan dan tahun"><h2>${mlabel(mon)}</h2>${ic("cr",15)}</button><button data-a="mon" data-d="1" aria-label="Bulan depan" ${mon>=curM()?'disabled':''}>${ic('cr',18)}</button></div>`}
 
-function listHTML(){
-  const ql=q.trim().toLowerCase();
-  const L=base().filter(t=>(flt=='all'||t.ty==flt)&&(!ql||(t.n||'').toLowerCase().includes(ql)||(t.ty=='tf'?'pindah dana transfer':cat(t.c)[0]).toLowerCase().includes(ql)||walOf(t.w).n.toLowerCase().includes(ql)||String(t.a).includes(ql)));
-  if(!L.length)return`<div class="list">${empty('inbox',ql||flt!='all'?'Tidak ada hasil':'Belum ada transaksi',ql||flt!='all'?'Coba ubah filter atau kata kunci.':'Ketuk tombol + untuk mencatat.')}</div>`;
-  return groupHTML(L);
+const FX0=()=>({cats:[],wals:[],min:0,max:0,sort:'new'});
+let FX=FX0(),FD=null;
+const fxN=()=>(FX.cats.length?1:0)+(FX.wals.length?1:0)+(FX.min||FX.max?1:0)+(flt!='all'?1:0)+(rng?1:0);
+const fxOn=()=>fxN()>0||FX.sort!='new'||q.trim()!='';
+const rbase=()=>rng?S.tx.filter(t=>{const k=ymd(t.ts);return k>=rng.f&&k<=rng.t}):inMonth(mon);
+function fxList(){
+  const ql=q.trim().toLowerCase(),qn=ql.replace(/[.\s]/g,'');
+  const L=rbase().filter(t=>(flt=='all'||t.ty==flt)&&(!FX.cats.length||(t.ty!='tf'&&FX.cats.includes(t.c)))&&(!FX.wals.length||FX.wals.includes(t.w)||FX.wals.includes(t.w2))&&(!FX.min||t.a>=FX.min)&&(!FX.max||t.a<=FX.max)&&(!ql||(t.n||'').toLowerCase().includes(ql)||(t.ty=='tf'?'pindah dana transfer':cat(t.c)[0]).toLowerCase().includes(ql)||walOf(t.w).n.toLowerCase().includes(ql)||(t.w2&&walOf(t.w2).n.toLowerCase().includes(ql))||(/^\d+$/.test(qn)&&String(Math.round(t.a)).includes(qn))));
+  if(FX.sort=='big')L.sort((a,b)=>b.a-a.a);
+  return L;
 }
+function fxChips(){
+  const c=[],x=(k,v,l,col)=>c.push(`<button class="chip on fxc" data-a="fxrm" data-k="${k}" data-v="${esc(v)}" aria-label="Hapus filter ${esc(l)}">${col?`<i class="wdt" style="--c:${col}"></i>`:''}${esc(l)}${ic('x',13,2.8)}</button>`);
+  if(flt!='all')x('t','',{out:'Keluar',in:'Masuk',tf:'Pindah dana'}[flt]);
+  FX.cats.forEach(id=>x('c',id,cat(id)[0]));
+  FX.wals.forEach(id=>{const w=S.wal.find(z=>z.id==id);if(w)x('w',id,w.n,w.c)});
+  if(FX.min||FX.max)x('n','',FX.min&&FX.max?ktg(FX.min)+' – '+ktg(FX.max):FX.min?'≥ '+ktg(FX.min):'≤ '+ktg(FX.max));
+  if(rng)x('d','',fmtD(rng.f)+' – '+fmtD(rng.t));
+  return c.length?`<div class="fl fxl">${c.join('')}</div>`:'';
+}
+function listHTML(){
+  const L=fxList(),on=fxOn();
+  const bar=on?`<div class="fxs"><span><b>${NF0.format(L.length)} transaksi</b> · Keluar ${money(sum(L,'out'))} · Masuk ${money(sum(L,'in'))}</span><button data-a="fxclr">Hapus filter</button></div>`:'';
+  if(!L.length)return bar+`<div class="list">${empty('inbox',on?'Tidak ada hasil':'Belum ada transaksi',on?'Coba ubah filter atau kata kunci.':'Ketuk tombol + untuk mencatat.')}${on?`<button class="btn2" data-a="fxclr" style="width:calc(100% - 32px);margin:0 16px 18px">Reset filter</button>`:''}</div>`;
+  return bar+(FX.sort=='big'?`<div class="list" style="margin-top:12px">${L.map(t=>row(t,{date:1})).join('')}</div>`:groupHTML(L));
+}
+const fxHead=()=>`<div class="srch">${ic('search',18)}<input id="q" type="search" placeholder="Cari catatan, kategori, nominal" value="${esc(q)}" aria-label="Cari transaksi"><button class="fxb${fxN()?' on':''}" data-a="fxopen" aria-label="Filter transaksi${fxN()?', '+fxN()+' aktif':''}">${ic('filter',18)}${fxN()?`<em>${fxN()}</em>`:''}</button></div><div id="fxch">${fxChips()}</div>`;
+function fxSheet(){
+  const D=FD,W=S.wal.length>1,td=ymd(Date.now());
+  const cc=id=>`<button class="chip${D.cats.includes(id)?' on':''}" data-s="fxc" data-id="${esc(id)}" aria-pressed="${D.cats.includes(id)}" style="--c:${cat(id)[2]}"><span class="fxi">${ic(cat(id)[1],15)}</span>${esc(cat(id)[0])}</button>`;
+  const pr=[['<50 rb',0,50000],['50–200 rb',50000,200000],['>200 rb',200000,0]];
+  openSheet(`<div class="sheet fxs2" role="dialog" aria-modal="true" aria-label="Filter transaksi" tabindex="-1" style="--c:var(--p)"><div class="tint"></div><div class="grab"></div>
+<div class="sh-top"><div class="sh-t">Filter</div><div class="sh-act"><button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div>
+<div class="fxsc">
+<div class="fxg"><label>Jenis</label><div class="fxw">${[['all','Semua'],['out','Keluar'],['in','Masuk'],['tf','Pindah dana']].map(x=>`<button class="chip${D.t==x[0]?' on':''}" data-s="fxt" data-v="${x[0]}" aria-pressed="${D.t==x[0]}">${x[1]}</button>`).join('')}</div></div>
+<div class="fxg"><label>Kategori keluar</label><div class="fxw">${OUT.map(cc).join('')}</div></div>
+<div class="fxg"><label>Kategori masuk</label><div class="fxw">${INC.map(cc).join('')}</div></div>
+${W?`<div class="fxg"><label>Dompet</label><div class="fxw">${S.wal.map(w=>`<button class="chip wch${D.wals.includes(w.id)?' on':''}" style="--c:${w.c}" data-s="fxw" data-id="${esc(w.id)}" aria-pressed="${D.wals.includes(w.id)}"><i class="wdt"></i>${esc(w.n)}</button>`).join('')}</div></div>`:''}
+<div class="fxg"><label>Nominal</label><div class="fxw">${pr.map(x=>`<button class="chip" data-s="fxn" data-a1="${x[1]}" data-a2="${x[2]}">${x[0]}</button>`).join('')}</div>
+<div class="fxr"><div class="bti"><span>Min</span><input id="fxmin" data-money inputmode="numeric" placeholder="0" value="${D.min?num(D.min):''}" aria-label="Nominal minimum"></div><div class="bti"><span>Maks</span><input id="fxmax" data-money inputmode="numeric" placeholder="∞" value="${D.max?num(D.max):''}" aria-label="Nominal maksimum"></div></div></div>
+<div class="fxg"><label>Tanggal</label><div class="fxw">${[['7','7 hari'],['30','30 hari'],['bm','Bulan ini'],['bl','Bulan lalu']].map(x=>`<button class="chip" data-s="rp" data-v="${x[0]}">${x[1]}</button>`).join('')}</div>
+<div class="fxr"><div class="fld"><label>Dari</label><input type="date" id="rf" max="${td}" value="${D.f||''}" aria-label="Dari tanggal"></div><div class="fld"><label>Sampai</label><input type="date" id="rt2" max="${td}" value="${D.to||''}" aria-label="Sampai tanggal"></div></div></div>
+<div class="fxg"><label>Urutkan</label><div class="fxw">${[['new','Terbaru'],['big','Terbesar']].map(x=>`<button class="chip${D.sort==x[0]?' on':''}" data-s="fxso" data-v="${x[0]}" aria-pressed="${D.sort==x[0]}">${x[1]}</button>`).join('')}</div></div>
+</div>
+<div class="svrow"><button class="btn2" data-s="fxrs">Reset</button><button class="save" data-s="fxok" style="background-color:var(--p);color:var(--pc)">Terapkan</button></div></div>`);
+}
+const mnum=id=>{const v=($(id)||{}).value||'';return Math.max(0,Math.round(parseFloat(v.replace(/\./g,'').replace(',','.'))||0))};
 const fmtD=k=>new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8)).toLocaleDateString(DL,{day:'numeric',month:'short',year:'numeric'});
 const rngBar=()=>`<div class="rngb"><span>${fmtD(rng.f)} – ${fmtD(rng.t)}</span><button data-a="rclr" aria-label="Hapus filter tanggal">${ic('x',16)}</button></div>`;
 function txList(){
-  const mt=base();
-  return`<header class="hd"><h1>Transaksi</h1><button class="ib pr" data-a="add" aria-label="Tambah transaksi">${ic('plus',20,2.6)}</button></header>${rng?rngBar():monNav()}${wChips(wf,'wfil')}
+  const mt=rbase();
+  return`<header class="hd"><h1>Transaksi</h1></header>${rng?rngBar():monNav()}
 <div class="sum2"><div class="card"><small>Masuk</small><b class="in">${money(sum(mt,'in'))}</b></div><div class="card"><small>Keluar</small><b class="out">${money(sum(mt,'out'))}</b></div></div>
-<div class="srch">${ic('search',18)}<input id="q" type="search" placeholder="Cari catatan atau kategori" value="${esc(q)}" aria-label="Cari transaksi"></div>
-<div class="fl" id="fl">${[['all','Semua'],['out','Keluar'],['in','Masuk'],['tf','Pindah dana']].map(x=>`<button class="chip${flt==x[0]?' on':''}" data-a="flt" data-f="${x[0]}">${x[1]}</button>`).join('')}<button class="chip${rng?' on':''}" data-a="rng" style="margin-left:auto">${ic('cal',15)}Tanggal</button></div>
+${fxHead()}
 <div id="txl">${listHTML()}</div>`;
 }
 
@@ -489,9 +525,8 @@ ${cmpLine(by,pby,rep,P)}${naikList(by,pby,P)}${perDompet(P)}${sorotan(P,O,mt)}
 
 const CURS=[['Rp','Rupiah (Rp)'],['','Tanpa mata uang']];
 function mePage(){
-  const st=stats(),d=isDark();
+  const d=isDark();
   return`<header class="hd"><h1>Profil</h1></header>
-<div class="stats"><div class="card"><b>${NF0.format(st.days)}</b><small>Hari mencatat</small></div><div class="card"><b>${NF0.format(st.streak)}</b><small>Hari beruntun</small></div></div>
 <div class="sec">Tampilan</div>
 <div class="grp"><div class="pal2"><div class="pdots" role="group" aria-label="Palet warna">${Object.entries(PAL).map(([k,v])=>{const a=d?v[2]:v[1];return`<button class="${S.set.pal==k?'on':''}" data-a="pal" data-p="${k}" aria-label="${v[0]}" aria-pressed="${S.set.pal==k}" style="--k:#${a[0]}"><i>${ic('check',15,3.2)}</i></button>`}).join('')}</div><div class="pnm">${(PAL[S.set.pal]||PAL.tosca)[0]}</div></div>
 <div style="padding:4px 10px 12px"><div class="seg">${[['auto','Otomatis',null],['light','Terang','sun'],['dark','Gelap','moon']].map(m=>`<button class="${S.set.mode==m[0]?'on':''}" data-a="mode" data-m="${m[0]}">${m[1]}</button>`).join('')}</div></div>
@@ -542,7 +577,7 @@ function calPage(){
   let cells='';for(let i=0;i<off;i++)cells+='<span class="kcd e"></span>';
   for(let d=1;d<=dim;d++){const k=mon+'-'+pad(d),b=by[k],h=b&&b.o&&mx?Math.round((.03+.1*b.o/mx)*100):0;
     cells+=`<button class="kcd${k==now?' t':''}${k==cdsel?' on':''}${k==mk?' mxd':''}" style="--hp:${h}%" data-a="cday" data-d="${k}" ${k>now?'disabled':''} aria-label="${d} ${mlabel(mon)}${b?', keluar '+money(b.o)+', masuk '+money(b.i)+(b.f?', pindah dana '+money(b.f):''):''}${k==mk?', pengeluaran terbesar bulan ini':''}"><u>${b&&b.i?'<b class="i"></b>':''}${b&&b.f?'<b class="f"></b>':''}</u><i>${d}</i><em>${b&&b.o?ktg(b.o):''}</em></button>`}
-  return`<header class="hd"><h1>Transaksi</h1><button class="ib pr" data-a="add" aria-label="Tambah transaksi">${ic('plus',20,2.6)}</button></header>${monNav()}${wChips(wf,'wfil')}
+  return`<header class="hd"><h1>Transaksi</h1></header>${monNav()}${wChips(wf,'wfil')}
 <div class="kst">${kbox('i','Masuk',`<b data-k="cI" data-n="${I}"></b>`,!I)}${kbox('o','Keluar',`<b data-k="cO" data-n="${O}"></b>`,!O)}${kbox('f','Pindah dana',`<b data-k="cF" data-n="${F}"></b>`,!F)}${kbox(I-O>=0?'i':'o','Selisih',`<b data-k="cN" data-n="${I-O}"></b>`,!(I-O))}</div>
 <div class="kcw">${DOW.map(x=>`<span>${x}</span>`).join('')}</div><div class="kcg">${cells}</div><div class="kcl"><span><i class="i"></i>Masuk</span><span><i class="f"></i>Pindah dana</span></div><div class="kcdp" id="cdp">${cdHTML(cdsel)}</div>`;
 }
@@ -1243,7 +1278,7 @@ bell:openBell,
 quick:el=>{
   const c=el.dataset.c,ty=el.dataset.ty||'out';vib();openTx({c,ty});
 },
-add:()=>openTx(tab=='wd'&&WD?{ty:'out',w:WD}:{ty:'out'}),
+add:()=>{const o={ty:'out'};if(tab=='wd'&&WD)o.w=WD;else if(tab=='tx'&&txv=='cal'&&cdsel&&cdsel<=ymd(Date.now())){const d=new Date(),[Y,M,D]=cdsel.split('-');d.setFullYear(+Y,+M-1,+D);o.ts=d.getTime()}openTx(o)},
 row:el=>{if(OPEN===el){closeRow();return}openTx({id:el.dataset.id})},
 rdel:el=>{OPEN=null;rmTx(el.dataset.id)},
 rng:openRange,
@@ -1281,6 +1316,9 @@ monset:el=>{mon=el.dataset.m;RP='m';render(false)},
 rptab:el=>{if(RP!=el.dataset.p){RP=el.dataset.p;render(false)}},
 rpn:el=>{const d=+el.dataset.d;if(RP=='w'){WK=addD(WK,7*d);if(WK>wkS(Date.now()))WK=wkS(Date.now())}else{YR=String(Math.min(+YR+d,+curM().slice(0,4)))}render(false)},
 flt:el=>{flt=el.dataset.f;$$('#fl .chip').forEach(b=>b.classList.toggle('on',b.dataset.f==flt));$('#txl').innerHTML=listHTML()},
+fxopen:()=>{FD={t:flt,cats:[...FX.cats],wals:[...FX.wals],min:FX.min,max:FX.max,sort:FX.sort,f:rng?rng.f:'',to:rng?rng.t:''};fxSheet()},
+fxrm:el=>{const k=el.dataset.k,v=el.dataset.v;if(k=='t')flt='all';else if(k=='c')FX.cats=FX.cats.filter(x=>x!=v);else if(k=='w')FX.wals=FX.wals.filter(x=>x!=v);else if(k=='n'){FX.min=0;FX.max=0}else if(k=='d')rng=null;render(false)},
+fxclr:()=>{FX=FX0();flt='all';rng=null;q='';render(false)},
 rep:el=>{rep=el.dataset.r;render(false)},
 pal:el=>{S.set.pal=el.dataset.p;save();theme(true);render(false)},
 mode:el=>{S.set.mode=el.dataset.m;save();theme(true);render(false)},
@@ -1297,6 +1335,13 @@ document.addEventListener('click',e=>{
     if(v=='close')closeSheet();
     else if(v=='quick'){const c=s.dataset.c,ty=s.dataset.ty||'out';vib();openTx({c,ty})}
     else if(v=='ty')setType(s.dataset.v);
+    else if(v=='fxt'){FD.t=s.dataset.v;$$('#sheet [data-s=fxt]').forEach(b=>{const o=b.dataset.v==FD.t;b.classList.toggle('on',o);b.setAttribute('aria-pressed',o)})}
+    else if(v=='fxc'||v=='fxw'){const L=v=='fxc'?FD.cats:FD.wals,i=L.indexOf(s.dataset.id);i<0?L.push(s.dataset.id):L.splice(i,1);s.classList.toggle('on',i<0);s.setAttribute('aria-pressed',i<0)}
+    else if(v=='fxso'){FD.sort=s.dataset.v;$$('#sheet [data-s=fxso]').forEach(b=>{const o=b.dataset.v==FD.sort;b.classList.toggle('on',o);b.setAttribute('aria-pressed',o)})}
+    else if(v=='fxn'){$('#fxmin').value=+s.dataset.a1?num(+s.dataset.a1):'';$('#fxmax').value=+s.dataset.a2?num(+s.dataset.a2):''}
+    else if(v=='fxrs'){FD={t:'all',cats:[],wals:[],min:0,max:0,sort:'new',f:'',to:''};fxSheet()}
+    else if(v=='fxok'){const mn=mnum('#fxmin'),mx=mnum('#fxmax'),f=$('#rf').value,t=$('#rt2').value;if(mx&&mn>mx){toast('Nominal minimum lebih besar dari maksimum');return}if(f&&t&&f>t){toast('Tanggal awal setelah tanggal akhir');return}
+      flt=FD.t;FX={cats:FD.cats,wals:FD.wals,min:mn,max:mx,sort:FD.sort};rng=f||t?{f:f||t,t:t||f}:null;closeSheet();render(false)}
     else if(v=='cat'){E.c=s.dataset.c;updTx();vib()}
     else if(v=='k'){if(s.dataset.k=='del'&&e.detail>0)return;key(s.dataset.k)}
     else if(v=='save')saveTx();

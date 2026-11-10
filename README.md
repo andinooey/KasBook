@@ -92,3 +92,10 @@ SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast 
 - Strip dompet dikecilkan (ikon di kiri, nama dan saldo di kanan).
 - Saran "Pisahkan biar tahu saldo tiap rekening" hanya muncul di awal (belum ada transaksi, satu dompet) dan bisa ditutup dengan tombol silang.
 - Profil: kartu hitungan Transaksi, pengaturan Mata uang (selalu Rupiah), dan pengaturan Animasi (selalu hemat) dihapus. Pilihan warna jadi 5: Tosca, Biru, Hijau, Ungu, Jingga.
+
+## Versi 27 (lanjutan)
+- Profil: kartu Hari mencatat dan Hari beruntun dihapus beserta kode perhitungannya.
+- Warna Hijau Hutan diganti Mawar Muda (pink).
+- Transaksi: tombol + di kanan atas dihapus. Tombol + di navigasi mencatat sesuai tanggal yang dipilih di Kalender.
+- Transaksi: tombol Filter (dengan badge jumlah filter aktif) membuka sheet berisi Jenis, Kategori, Dompet (multi-pilih), Nominal (min/maks dan pilihan cepat), Tanggal, dan Urutkan (Terbaru/Terbesar). Filter aktif tampil sebagai chip yang bisa dihapus, ada ringkasan hasil, dan state kosong dengan Reset filter. Pencarian juga mencocokkan nominal dan nama dompet.
+- Pindah dana sekarang menampilkan jam. Di Beranda, "Hari ini" jadi label di atas daftar, bukan di tiap baris.
