@@ -832,3 +832,22 @@ html.lite .ab,html.lite .ahb .chv{transition:none}
 .cr .rr{flex:none;text-align:right}
 .cr .rr b{display:block;font-size:14px;font-weight:800}
 .cr .m>b{font-size:14px}
+
+/* ---------- Pengingat cadangan ringkas ---------- */
+.nudge2{display:flex;align-items:center;margin-top:var(--gap);border-radius:18px;background:color-mix(in srgb,var(--amb) 14%,var(--sf))}
+.nudge2 .nb{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:46px;padding:0 6px 0 14px;font-size:13px;font-weight:600;color:var(--tx);text-align:left}
+.nudge2 .nb svg{flex:none;color:var(--amb)}
+.nudge2 .nb span{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.nudge2 .nb b{flex:none;font-weight:800;color:var(--p)}
+.nudge2 .nx{flex:none;width:46px;height:46px;display:grid;place-items:center;color:var(--mu)}
+/* ---------- Pengaturan awal ---------- */
+.ob-dots{display:flex;gap:6px;margin:6px 0 18px}
+.ob-dots i{width:6px;height:6px;border-radius:99px;background:color-mix(in srgb,var(--tx) 18%,transparent)}
+.ob-dots i.on{width:22px;background:var(--p)}
+.ob-t{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.25;margin:0 0 8px}
+.ob-s{font-size:13.5px;line-height:1.5;color:var(--mu);margin:0 0 18px}
+.ob-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ob-act{display:flex;flex-direction:column;gap:4px;margin-top:20px}
+.ob-skip{min-height:46px;font-weight:700;color:var(--mu);text-align:center}
+
+.hero .bigb+.pills{margin-top:16px}
