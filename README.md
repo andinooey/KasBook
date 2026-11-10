@@ -89,3 +89,6 @@ SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast 
 - Beranda: kategori maksimal 10 slot (5×2). Lebih dari 10 → 9 kategori + tile "Semua" yang membuka sheet berisi semua kategori. Pemasukan selalu tampil.
 - Hero: bar budget (hanya jika budget aktif) dengan teks terpakai dan sisa; ketuk untuk atur budget. Teks "Total saldo = jumlah semua dompet" dihapus.
 - Kartu Budget dan 7 hari dihapus dari Beranda. Terbaru hanya menampilkan transaksi hari ini dan kemarin.
+- Strip dompet dikecilkan (ikon di kiri, nama dan saldo di kanan).
+- Saran "Pisahkan biar tahu saldo tiap rekening" hanya muncul di awal (belum ada transaksi, satu dompet) dan bisa ditutup dengan tombol silang.
+- Profil: kartu hitungan Transaksi, pengaturan Mata uang (selalu Rupiah), dan pengaturan Animasi (selalu hemat) dihapus. Pilihan warna jadi 5: Tosca, Biru, Hijau, Ungu, Jingga.

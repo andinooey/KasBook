@@ -92,9 +92,7 @@ tosca:['Tosca Laut',['0B7983','FFFFFF','F2F8F8','FFFFFF','0F2A2D','587276','DCEA
 biru:['Biru Tinta',['3451C7','FFFFFF','F3F5FD','FFFFFF','141A3A','5F6892','E0E4F5','2E48B0'],['8EA2FF','0E1647','0D1020','161B34','E8EBFA','98A0C8','262D52','3249B8']],
 hijau:['Hijau Hutan',['277A4D','FFFFFF','F2F8F4','FFFFFF','11261A','5A7565','DCEBE2','1F6E45'],['5FD590','06210F','0A1710','11261A','E4F5EA','8CAF9A','1C3A29','1B5F3C']],
 ungu:['Ungu Anggur',['6D28D9','FFFFFF','F7F4FE','FFFFFF','1E1233','6E6188','E6DDF7','5B21B6'],['B39CFF','1A0B3B','130C22','1D1333','EFE9FB','A99BC7','2D2150','4C1D95']],
-pink:['Mawar Muda',['BE185D','FFFFFF','FDF3F7','FFFFFF','2D1019','86596A','F5DCE6','BE185D'],['FF8FB7','3A0519','1A0D13','2A1620','FBE9F1','C9A0B1','43202F','9D1A4C']],
-jingga:['Jingga Senja',['C2490A','FFFFFF','FFF5F1','FFFFFF','2B1408','8A6652','F6DFD3','D9500A'],['FF9A5C','3A1500','1A0E08','2A1810','FBEDE4','C4A18C','44281A','9A3608']],
-emas:['Hitam Emas',['8A6410','FFFFFF','F6F5F2','FFFFFF','19181A','6C6A66','E6E4DF','1D1D20'],['E9C25C','241A00','0E0E10','18181B','F4F2EC','A19E95','2A2A2E','26262B']]};
+jingga:['Jingga Senja',['C2490A','FFFFFF','FFF5F1','FFFFFF','2B1408','8A6652','F6DFD3','D9500A'],['FF9A5C','3A1500','1A0E08','2A1810','FBEDE4','C4A18C','44281A','9A3608']]};
 const SEM={l:['#16895A','#D63B45'],d:['#4BDA9B','#FF8A90']};
 const dq=matchMedia('(prefers-color-scheme: dark)');
 const isDark=()=>S.set.mode=='dark'||(S.set.mode=='auto'&&dq.matches);
@@ -112,7 +110,7 @@ const NF0=new Intl.NumberFormat(LANG,{maximumFractionDigits:0}),NF2=new Intl.Num
 const DEC=NF2.formatToParts(1.1).find(x=>x.type=='decimal')?.value||'.',GRP=NF0.formatToParts(10000).find(x=>x.type=='group')?.value||',';
 const r2=n=>Math.round(n*100)/100;
 const num=n=>{n=r2(n);return Number.isInteger(n)?NF0.format(n):NF2.format(n)};
-const cur=()=>S.set.cur?S.set.cur+' ':'';
+const cur=()=>'Rp ';
 const money=n=>(n<0?'−':'')+cur()+num(Math.abs(n));
 const compact=n=>cur()+NFC.format(n);
 function parseNum(s){
@@ -284,11 +282,11 @@ function walStrip(hide){
     return`<button class="wc${b<0?' neg':''}" style="--c:${w.c}" data-a="wopen" data-id="${esc(w.id)}" aria-label="${esc(w.n)}, saldo ${money(b)}${b<0?' (minus)':''}. Buka detail"><span class="cico sm">${ic(w.i,20)}</span><span class="wn">${esc(w.n)}</span><b class="${h}">${money(b)}</b></button>`}).join('');
   const tf=one?'':`<button class="wc tfc" data-a="wtf" aria-label="Pindah dana antar dompet"><span class="wp">${ic('swap',20,2.4)}</span><span class="wn">Pindah dana</span></button>`;
   const add=one?'':`<button class="wc add" data-a="wadd" aria-label="Tambah dompet"><span class="wp">${ic('plus',20,2.6)}</span><span class="wn">Dompet</span></button>`;
-  return`<div class="sec">Dompet<button class="more" data-a="wals">Kelola</button></div><div class="wr">${cards}${tf}${add}</div>${one?wNudge():''}`;
+  return`<div class="sec">Dompet<button class="more" data-a="wals">Kelola</button></div><div class="wr">${cards}${tf}${add}</div>${one&&!S.set.wnx&&!S.tx.length?wNudge():''}`;
 }
 function wNudge(){
   const have=S.wal[0].n.toLowerCase();
-  return`<div class="wnd"><b>Pisahkan biar tahu saldo tiap rekening</b><div class="wnc">${WPRE.filter(x=>x[0].toLowerCase()!=have).map(x=>`<button class="chip" style="--c:${x[2]}" data-a="wquick" data-pw="${x[0]}"><i class="wdt"></i>${x[0]}</button>`).join('')}<button class="chip" data-a="wadd">${ic('plus',14,2.6)}Lainnya</button></div></div>`;
+  return`<div class="wnd"><button class="wnx" data-a="wnx" aria-label="Tutup saran">${ic('x',16)}</button><b>Pisahkan biar tahu saldo tiap rekening</b><div class="wnc">${WPRE.filter(x=>x[0].toLowerCase()!=have).map(x=>`<button class="chip" style="--c:${x[2]}" data-a="wquick" data-pw="${x[0]}"><i class="wdt"></i>${x[0]}</button>`).join('')}<button class="chip" data-a="wadd">${ic('plus',14,2.6)}Lainnya</button></div></div>`;
 }
 function wChips(cur,act){
   if(S.wal.length<2)return'';
@@ -493,14 +491,13 @@ const CURS=[['Rp','Rupiah (Rp)'],['','Tanpa mata uang']];
 function mePage(){
   const st=stats(),d=isDark();
   return`<header class="hd"><h1>Profil</h1></header>
-<div class="stats"><div class="card"><b>${NF0.format(st.n)}</b><small>Transaksi</small></div><div class="card"><b>${NF0.format(st.days)}</b><small>Hari mencatat</small></div><div class="card"><b>${NF0.format(st.streak)}</b><small>Hari beruntun</small></div></div>
+<div class="stats"><div class="card"><b>${NF0.format(st.days)}</b><small>Hari mencatat</small></div><div class="card"><b>${NF0.format(st.streak)}</b><small>Hari beruntun</small></div></div>
 <div class="sec">Tampilan</div>
 <div class="grp"><div class="pal2"><div class="pdots" role="group" aria-label="Palet warna">${Object.entries(PAL).map(([k,v])=>{const a=d?v[2]:v[1];return`<button class="${S.set.pal==k?'on':''}" data-a="pal" data-p="${k}" aria-label="${v[0]}" aria-pressed="${S.set.pal==k}" style="--k:#${a[0]}"><i>${ic('check',15,3.2)}</i></button>`}).join('')}</div><div class="pnm">${(PAL[S.set.pal]||PAL.tosca)[0]}</div></div>
 <div style="padding:4px 10px 12px"><div class="seg">${[['auto','Otomatis',null],['light','Terang','sun'],['dark','Gelap','moon']].map(m=>`<button class="${S.set.mode==m[0]?'on':''}" data-a="mode" data-m="${m[0]}">${m[1]}</button>`).join('')}</div></div>
-<div style="padding:0 10px 12px"><div class="amh">Animasi</div><div class="seg">${[['lite','Hemat'],['full','Penuh']].map(m=>`<button class="${(S.set.anim=='full'?'full':'lite')==m[0]?'on':''}" data-a="anim" data-v="${m[0]}">${m[1]}</button>`).join('')}</div></div></div>
+</div>
 <div class="sec s2">Umum</div>
-<div class="grp"><label class="set"><span class="si">${ic('coins',19)}</span><span class="st">Mata uang<small>Hanya tampilan, tanpa konversi</small></span><select class="sel" id="cur" aria-label="Mata uang">${(CURS.some(c=>c[0]==S.set.cur)?CURS:[...CURS,[S.set.cur,S.set.cur]]).map(c=>`<option value="${esc(c[0])}" ${S.set.cur==c[0]?'selected':''}>${esc(c[1])}</option>`).join('')}</select></label>
-<button class="set" data-a="wals"><span class="si">${ic('wallet',19)}</span><span class="st">Dompet<small>${S.wal.length} dompet · total ${money(balance())}</small></span>${ic('cr',18)}</button>
+<div class="grp"><button class="set" data-a="wals"><span class="si">${ic('wallet',19)}</span><span class="st">Dompet<small>${S.wal.length} dompet · total ${money(balance())}</small></span>${ic('cr',18)}</button>
 <button class="set" data-a="budget"><span class="si">${ic('target',19)}</span><span class="st">Budget bulanan<small>${!budOn()?'Nonaktif':S.bud.total?money(S.bud.total):'Belum diatur'}</small></span>${ic('cr',18)}</button>
 <button class="set" data-a="notif"><span class="si">${ic('bell',19)}</span><span class="st">Notifikasi<small>${notifSum()}</small></span>${ic('cr',18)}</button>
 <button class="set" data-a="cats"><span class="si">${ic('tag',19)}</span><span class="st">Kategori<small>${OUT.length} keluar · ${INC.length} masuk</small></span>${ic('cr',18)}</button>
@@ -550,11 +547,11 @@ function calPage(){
 <div class="kcw">${DOW.map(x=>`<span>${x}</span>`).join('')}</div><div class="kcg">${cells}</div><div class="kcl"><span><i class="i"></i>Masuk</span><span><i class="f"></i>Pindah dana</span></div><div class="kcdp" id="cdp">${cdHTML(cdsel)}</div>`;
 }
 let FIRSTR=true;
-function applyAnim(){document.documentElement.classList.toggle('lite',S.set.anim!='full')}
+function applyAnim(){document.documentElement.classList.add('lite')}
 function render(anim){
   if(rwf&&!S.wal.some(w=>w.id==rwf))rwf=null;if(wf&&!S.wal.some(w=>w.id==wf))wf=null;
   if(tab=='wd'&&!S.wal.some(w=>w.id==WD)){setTab('home',false);return}
-  OPEN=null;const a=anim&&(FIRSTR||S.set.anim=='full');FIRSTR=false;const p=$('#page');p.className='pg'+(anim?' in':'')+(a?' gr':'');p.innerHTML=pages[tab](a);NEW=null;after(a);
+  OPEN=null;const a=anim&&FIRSTR;FIRSTR=false;const p=$('#page');p.className='pg'+(anim?' in':'')+(a?' gr':'');p.innerHTML=pages[tab](a);NEW=null;after(a);
 }
 function setv(el,v){const t=el.dataset.t;if(t=='p')el.style.setProperty('--bp',v+'%');else if(t=='h')el.style.height=v+'%';else if(t=='w')el.style.transform='translateX('+(v-100)+'%)';else el.style.strokeDashoffset=v}
 const HIO=typeof IntersectionObserver!='undefined'?new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('off',!e.isIntersecting))):null;
@@ -651,7 +648,7 @@ function updAmt(){
   const b=E.buf,n=$('#num');let t='0',e=!b;
   if(b){const[i,d]=b.split('.');t=NF0.format(+i);if(b.includes('.'))t+=DEC+(d||'')}
   const len=t.length;n.className='num'+(e?' e':'')+(len>13?' xs':len>9?' sm':'');
-  n.innerHTML=(S.set.cur?`<small>${esc(S.set.cur)}</small>`:'')+`<span>${t}</span>`;
+  n.innerHTML=`<small>Rp</small><span>${t}</span>`;
   const x=$('#ex');if(x)x.textContent=E.op&&E.acc!=null?(E.acc<0?'−':'')+NF0.format(Math.abs(E.acc))+' '+E.op:'';
   const q=$('.pad .eq');if(q)q.disabled=!(E.op&&E.acc!=null&&b);
   const ok=curVal()>0&&(E.ty!='tf'||E.w!=E.w2),s=$('#save'),s2=$('#save2');if(s)s.disabled=!ok;if(s2)s2.disabled=!ok;tfHint();
@@ -1261,10 +1258,10 @@ cmpt:el=>{
   let d='';if(p>0){const v=Math.round((c-p)/p*100);d=v?`<em class="dlt ${(v>0)==(el.dataset.ty=='out')?'bad':'good'}">${v>0?'▲':'▼'} ${Math.abs(v)>999?'>999':Math.abs(v)}%</em>`:'<em class="dlt">Sama</em>'}else if(c)d='<em class="dlt nw">Baru</em>';
   $('#cmpi').innerHTML=`<b>${esc(el.dataset.n)}</b><span>Bulan ini <strong>${money(c)}</strong></span><span>Bulan lalu <strong>${money(p)}</strong></span>${d}`;
 },
-budget:openBudget,qord:openQord,qall:openAllCats,anim:el=>{S.set.anim=el.dataset.v;save();applyAnim();render(false)},
+budget:openBudget,qord:openQord,qall:openAllCats,
 reload:()=>location.reload(),
 wals:openWals,
-wadd:()=>openWalForm(),
+wadd:()=>openWalForm(),wnx:()=>{S.set.wnx=1;save();render(false)},
 wfil:el=>{wf=el.dataset.id||null;render(false)},
 rwf:el=>{rwf=el.dataset.id||null;render(false)},
 wopen:el=>{WD=el.dataset.id;mon=curM();setTab('wd')},
@@ -1376,7 +1373,6 @@ document.addEventListener('change',e=>{
   if(E&&id=='winp'){E.w=e.target.value;updTx()}
   else if(E&&(id=='tfa'||id=='tfb')){const v=e.target.value,o=S.wal.find(x=>x.id!=v).id;if(id=='tfa'){E.w=v;if(E.w2==v)E.w2=o}else{E.w2=v;if(E.w==v)E.w=o}buildCats();updTx()}
   else if(id=='lkd'){S.set.lkd=+e.target.value;save()}
-  else if(e.target.id=='cur'){S.set.cur=e.target.value;save();render(false)}
   else if(e.target.id=='file'){const f=e.target.files[0];e.target.value='';if(f)f.text().then(t=>{
     if(/^\s*\{/.test(t)){let j;try{j=JSON.parse(t)}catch(x){toast('File cadangan rusak',{c:'var(--exp)'});return}importJSON(j)}else importCSV(t)
   }).catch(()=>toast('File tidak bisa dibaca',{c:'var(--exp)'}))}
