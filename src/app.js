@@ -507,16 +507,20 @@ function wkDonut(L,tot){
   const n=L.length,big=L.slice(0,Math.ceil(n/2)),sm=L.slice(Math.ceil(n/2)),ord=[];
   for(let i=0;i<big.length;i++){ord.push(big[i]);if(sm[i])ord.push(sm[i])}
   const cx=170,cy=150,R=60,r=40,GAP=n>1?.04:0,P=(rad,a)=>[cx+rad*Math.cos(a),cy+rad*Math.sin(a)];
-  const build=off=>{let a0=-Math.PI/2+off;return ord.map((x,k)=>{const f=x.v/tot,a1=a0+f*2*Math.PI,s=a0+GAP/2,e=a1-GAP/2,m=(a0+a1)/2,[ax,ay]=P(R+3,m),side=Math.cos(m)>=0?1:-1;let d;
+  const RA=R+8;
+  const build=off=>{let a0=-Math.PI/2+off;const ps=ord.map((x,k)=>{const f=x.v/tot,a1=a0+f*2*Math.PI,s=a0+GAP/2,e=a1-GAP/2,m=(a0+a1)/2,[ax,ay]=P(RA,m),side=Math.cos(m)>=0?1:-1;let d;
     if(f>.999)d=`M${cx-R} ${cy}A${R} ${R} 0 1 1 ${cx+R} ${cy}A${R} ${R} 0 1 1 ${cx-R} ${cy}ZM${cx-r} ${cy}A${r} ${r} 0 1 0 ${cx+r} ${cy}A${r} ${r} 0 1 0 ${cx-r} ${cy}Z`;
     else{const [x1,y1]=P(R,s),[x2,y2]=P(R,e),[x3,y3]=P(r,e),[x4,y4]=P(r,s),lg=e-s>Math.PI?1:0;d=`M${x1} ${y1}A${R} ${R} 0 ${lg} 1 ${x2} ${y2}L${x3} ${y3}A${r} ${r} 0 ${lg} 0 ${x4} ${y4}Z`}
-    const o={k,x,f,m,ax,ay,side,ny:cy+(R+16)*Math.sin(m),d};a0=a1;return o})};
-  let parts=null,bs=1e9;for(let o=0;o<Math.PI*2;o+=Math.PI/90){const ps=build(o),nr=ps.filter(p=>p.side>0).length,sc=Math.abs(nr-(ps.length-nr))*1000+o;if(sc<bs){bs=sc;parts=ps}}
-  [-1,1].forEach(sd=>{const arr=parts.filter(p=>p.side==sd).sort((a,b)=>a.ny-b.ny),k=arr.length,g=k>1?Math.min(66,230/(k-1)):0;arr.forEach((o,i)=>o.ly=cy+(i-(k-1)/2)*g)});
+    const o={k,x,f,m,ax,ay,side,ny:cy+(RA+10)*Math.sin(m),d};a0=a1;return o});
+    let bad=0;[-1,1].forEach(sd=>{const arr=ps.filter(p=>p.side==sd).sort((a,b)=>a.ny-b.ny);let mn=34;arr.forEach(o=>{o.ly=Math.max(o.ny,mn);mn=o.ly+38});const ov=arr.length?arr[arr.length-1].ly-286:0;if(ov>0){arr.forEach(o=>o.ly-=ov);for(let i=arr.length-2;i>=0;i--)arr[i].ly=Math.min(arr[i].ly,arr[i+1].ly-38)}
+      arr.forEach(o=>{const ex=sd>0?240:100;for(let t=0;t<=1;t+=.05){const px=o.ax+(ex-o.ax)*t,py=o.ay+(o.ly-o.ay)*t;if(Math.hypot(px-cx,py-cy)<R+5)bad++}})});
+    ps.bad=bad;return ps};
+  let parts=null,bs=1e18;for(let o=0;o<Math.PI*2;o+=Math.PI/90){const ps=build(o),nr=ps.filter(p=>p.side>0).length,sc=Math.abs(nr-(ps.length-nr))*1000+ps.bad*100000+o;if(sc<bs){bs=sc;parts=ps}}
   const cut=s=>s.length>12?s.slice(0,11)+'…':s;
-  let h=`<svg viewBox="0 30 340 240" id="wdn" role="group" aria-label="Pengeluaran per kategori, ketuk potongan untuk detail">`;
+  const ly=parts.map(o=>o.ly),vy=Math.floor(Math.min(cy-R-10,...ly.map(y=>y-18))),vh=Math.ceil(Math.max(cy+R+10,...ly.map(y=>y+22)))-vy;
+  let h=`<svg viewBox="0 ${vy} 340 ${vh}" id="wdn" role="group" aria-label="Pengeluaran per kategori, ketuk potongan untuk detail">`;
   parts.forEach(o=>{const ex=o.side>0?240:100,tx=o.side>0?248:92,an=o.side>0?'start':'end',x=o.x,dx=(6*Math.cos(o.m)).toFixed(1)+'px',dy=(6*Math.sin(o.m)).toFixed(1)+'px',pc=Math.round(o.f*100);
-    h+=`<g class="sl" tabindex="0" role="button" data-a="wseg" data-nm="${esc(x.n)}" data-vl="${ktg(x.v)}" data-pc="${pc}%" aria-label="${esc(x.n)}, ${pc} persen, ${money(x.v)}" style="--i:${o.k};--dx:${dx};--dy:${dy}"><path d="${o.d}" fill="${x.c}" fill-rule="evenodd"/><g class="lb"><polyline points="${o.ax},${o.ay} ${ex},${o.ly} ${ex+(o.side>0?6:-6)},${o.ly}" fill="none" stroke="${x.c}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${o.ax}" cy="${o.ay}" r="2.6" fill="${x.c}"/><text x="${tx}" y="${o.ly-1}" text-anchor="${an}" class="nm">${esc(cut(x.n))}</text><text x="${tx}" y="${o.ly+13}" text-anchor="${an}">${pc}% · ${ktg(x.v)}</text></g></g>`});
+    h+=`<g class="sl" tabindex="0" role="button" data-a="wseg" data-nm="${esc(x.n)}" data-vl="${ktg(x.v)}" data-pc="${pc}%" aria-label="${esc(x.n)}, ${pc} persen, ${money(x.v)}" style="--i:${o.k};--dx:${dx};--dy:${dy}"><path d="${o.d}" fill="${x.c}" fill-rule="evenodd"/><g class="lb"><polyline points="${o.ax},${o.ay} ${ex},${o.ly} ${ex+(o.side>0?6:-6)},${o.ly}" fill="none" stroke="${x.c}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${o.ax}" cy="${o.ay}" r="2" fill="${x.c}"/><text x="${tx}" y="${o.ly-1}" text-anchor="${an}" class="nm">${esc(cut(x.n))}</text><text x="${tx}" y="${o.ly+13}" text-anchor="${an}">${pc}% · ${ktg(x.v)}</text></g></g>`});
   return h+`<g class="cc" id="wcc"><text x="170" y="140" text-anchor="middle" id="wc1" style="font-size:11px">Total keluar</text><text x="170" y="158" text-anchor="middle" id="wc2" style="font-size:16px;font-weight:800;fill:var(--tx)" data-t="${ktg(tot)}">${ktg(tot)}</text><text x="170" y="172" text-anchor="middle" id="wc3" style="font-size:11px" data-t="${n} kategori">${n} kategori</text></g></svg>`}
 function repWeek(){
   const nowK=wkS(Date.now()),live=WK==nowK,td=ymd(Date.now()),K=t=>ymd(t.ts),pf=addD(WK,-7),dd=k=>new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8));
@@ -530,7 +534,7 @@ function repWeek(){
   const diff=O-pO,pc=pO?Math.round(Math.abs(diff)/pO*100):0;
   const cmp=!pO?`<div class="wkc0">Belum ada data minggu lalu untuk dibandingkan</div>`:`<div class="wkc1 ${diff>0?'bad':diff<0?'good':''}">${diff?(diff>0?'▲ ':'▼ ')+pc+'% '+(diff>0?'lebih boros':'lebih hemat'):'Sama'} dari minggu lalu (${money(pO)})</div>${live?`<div class="wkc0">Dibanding ${el} hari pertama minggu lalu</div>`:''}`;
   const hero=`<div class="card wkh"><small>Pengeluaran ${live?'minggu ini':wkLab(WK)}</small><div class="wkbig">${money(O)}</div>${cmp}<div class="wkt"><div><small>Masuk</small><b class="in">${money(I)}</b></div><div><small>Selisih</small><b>${I-O>0?'+':''}${money(I-O)}</b></div><div><small>Rata-rata keluar/hari</small><b>${money(Math.round(O/el))}</b></div></div></div>`;
-  const sec=(k,t,body)=>`<button class="wks" data-a="wfold" data-k="${k}" aria-expanded="${!WKF[k]}"><span>${t}</span><i>${ic('cr',16,2.6)}</i></button><div class="wkb${WKF[k]?' fold':''}">${body}</div>`;
+  const sec=(k,icn,t,body)=>`<button class="wks" data-a="wfold" data-k="${k}" aria-expanded="${!WKF[k]}"><span>${ic(icn,18,2.2)}${t}</span><i>${ic('cr',16,2.6)}</i></button><div class="wkb${WKF[k]?' fold':''}">${body}</div>`;
   /* hari */
   const mx=Math.max(...A,...B,1)*1.18,yy=v=>150-v/mx*118,mxA=Math.max(...A),hot=mxA>0?A.indexOf(mxA):-1;
   let dsv='<svg class="wkcht" viewBox="0 0 340 172" role="img" aria-label="Pengeluaran per hari, minggu ini dibanding minggu lalu">';
@@ -551,13 +555,13 @@ function repWeek(){
   if(ent.length){
     const Lall=ent.map(([k,v])=>({n:cat(k)[0],v,c:cat(k)[2],k})),L=Lall.length>7?[...Lall.slice(0,6),{n:'Lainnya ('+(Lall.length-6)+')',v:Lall.slice(6).reduce((s,x)=>s+x.v,0),c:'#94A3B8'}]:Lall;
     const dl=(k,v)=>{const p=pby[k]||0;if(!p)return`<small class="wd nw">Baru</small>`;const d=Math.round((v-p)/p*100);return d?`<small class="wd ${d>0?'bad':'good'}">${d>0?'▲':'▼'} ${Math.min(Math.abs(d),999)}%</small>`:'<small class="wd">–</small>'};
-    const all=Lall.map(x=>`<div class="wr"><i style="background:${x.c}"></i><b>${esc(x.n)}</b><span>${money(x.v)}${dl(x.k,x.v)}</span><div class="bar"><u style="width:${x.v/Lall[0].v*100}%;background:${x.c}"></u></div></div>`).join('');
+    const all=Lall.map(x=>`<div class="wkr"><i style="background:${x.c}"></i><b>${esc(x.n)}</b><span>${money(x.v)}${dl(x.k,x.v)}</span><div class="bar"><u style="width:${x.v/Lall[0].v*100}%;background:${x.c}"></u></div></div>`).join('');
     cats=`<div class="card">${wkDonut(L,tot)}<button class="wkbtn" data-a="wall" aria-expanded="false">Lihat semua ${Lall.length} kategori</button><div class="wkall" id="wkall" hidden>${all}<p class="wkn0">▲ merah = naik, ▼ hijau = turun dibanding minggu lalu${live?' (periode hari yang sama)':''}.</p></div></div>`}
   else cats=`<div class="card">${empty('pie','Belum ada pengeluaran','Minggu ini belum ada transaksi keluar.')}</div>`;
   /* terbesar */
   const topT=cur.filter(t=>t.ty=='out'&&!t.adj).sort((a,b)=>b.a-a.a).slice(0,3);
   const big=topT.length?`<div class="list">${topT.map(t=>row(t,{date:1})).join('')}</div>`:`<div class="card">${empty('inbox','Belum ada pengeluaran','Transaksi keluar minggu ini muncul di sini.')}</div>`;
-  return head+hero+sec('days','Hari apa paling boros?',days)+sec('cat','Uang paling banyak ke mana?',cats)+sec('top','Transaksi apa yang paling besar?',big);
+  return head+hero+sec('days','cal','Hari apa paling boros?',days)+sec('cat','pie','Uang paling banyak ke mana?',cats)+sec('top','coins','Transaksi apa yang paling besar?',big);
 }
 function repPage(){
   if(RP=='w')return repWeek();
@@ -1375,7 +1379,7 @@ cadd:el=>{const d=new Date(),[Y,M,D]=el.dataset.d.split('-');d.setFullYear(+Y,+M
 monset:el=>{mon=el.dataset.m;RP='m';render(false)},
 wseg:el=>{const sv=$('#wdn');if(!sv)return;const was=el.classList.contains('on');sv.querySelectorAll('.sl').forEach(x=>x.classList.toggle('on',!was&&x===el));sv.classList.toggle('has',!was);const t=(i,v)=>{const n=$('#wc'+i);n.textContent=v};t(1,was?'Total keluar':el.dataset.nm);t(2,was?$('#wc2').dataset.t:el.dataset.vl);t(3,was?$('#wc3').dataset.t:el.dataset.pc);const c=$('#wcc');c.style.animation='none';void c.getBoundingClientRect();c.style.animation=''},
 wfold:el=>{const k=el.dataset.k,o=el.getAttribute('aria-expanded')!='false';WKF[k]=o;el.setAttribute('aria-expanded',!o);el.nextElementSibling.classList.toggle('fold',o)},
-wall:el=>{const b=$('#wkall'),o=b.hidden;b.hidden=!o;el.setAttribute('aria-expanded',o);el.textContent=o?'Sembunyikan':'Lihat semua '+b.querySelectorAll('.wr').length+' kategori'},
+wall:el=>{const b=$('#wkall'),o=b.hidden;b.hidden=!o;el.setAttribute('aria-expanded',o);el.textContent=o?'Sembunyikan':'Lihat semua '+b.querySelectorAll('.wkr').length+' kategori'},
 wkpick:()=>{const n=wkS(Date.now());openSheet(`<div class="sheet" role="dialog" aria-modal="true" aria-label="Pilih minggu" tabindex="-1" style="--c:var(--p)"><div class="tint"></div><div class="grab"></div><div class="sh-top"><div class="sh-t">Pilih minggu</div><div class="sh-act"><button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div><div class="wkpl">${Array.from({length:12},(_,i)=>{const k=addD(n,-7*i);return`<button class="wkpi${k==WK?' on':''}" data-s="wkset" data-k="${k}" aria-pressed="${k==WK}"><b>${wkLab(k,1)}</b><small>${i==0?'Minggu ini':i==1?'Minggu lalu':i+' minggu lalu'}</small></button>`}).join('')}</div></div>`)},
 rptab:el=>{if(RP!=el.dataset.p){RP=el.dataset.p;render(false)}},
 rpn:el=>{const d=+el.dataset.d;if(RP=='w'){WK=addD(WK,7*d);if(WK>wkS(Date.now()))WK=wkS(Date.now())}else{YR=String(Math.min(+YR+d,+curM().slice(0,4)))}render(false)},

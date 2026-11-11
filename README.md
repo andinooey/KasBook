@@ -104,3 +104,6 @@ SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast 
 
 ## Versi 28
 - Laporan tab Minggu dirombak (Bulan dan Tahun belum): pilih minggu lewat tombol ‹ › atau ketuk judul periode, ringkasan pengeluaran dibanding minggu lalu, grafik "Hari apa paling boros?" (dengan bayangan minggu lalu), donut "Uang paling banyak ke mana?" (6 kategori + Lainnya, ketuk potongan untuk detail, daftar lengkap), dan 3 transaksi terbesar. Judul bagian bisa dilipat.
+- Perbaikan v28: nama kelas baris kategori Laporan bentrok dengan strip dompet di Beranda (diganti), garis penunjuk donut tidak lagi menyentuh cincin, kartu donut dirapatkan.
+
+- Judul section Laporan Minggu sekarang pakai ikon (kalender, pie, koin).

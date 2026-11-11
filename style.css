@@ -850,9 +850,9 @@ html.lite .ab,html.lite .ahb .chv{transition:none}
 .wki{display:flex;gap:8px;align-items:flex-start;margin-top:10px;background:var(--bg);border-radius:14px;padding:10px 12px;font-size:13px}.wki svg{flex:none;margin-top:2px;color:var(--p)}
 .wkbtn{width:100%;margin-top:6px;padding:12px;border-radius:14px;background:var(--bg);color:var(--p);font-weight:800;font-size:13px}
 .wkall{margin-top:6px}.wkall[hidden]{display:none}
-.wr{display:grid;grid-template-columns:12px 1fr auto;gap:2px 10px;align-items:center;padding:8px 0;border-top:1px solid var(--ln)}
-.wr i{width:12px;height:12px;border-radius:4px}.wr b{font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wr span{text-align:right;font-weight:700;font-size:13px}
-.wr .bar{grid-column:2/4;height:5px;border-radius:3px;background:var(--bg);overflow:hidden}.wr .bar u{display:block;height:100%;border-radius:3px}
+.wkr{display:grid;grid-template-columns:12px 1fr auto;gap:2px 10px;align-items:center;padding:8px 0;border-top:1px solid var(--ln)}
+.wkr i{width:12px;height:12px;border-radius:4px}.wkr b{font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wkr span{text-align:right;font-weight:700;font-size:13px}
+.wkr .bar{grid-column:2/4;height:5px;border-radius:3px;background:var(--bg);overflow:hidden}.wkr .bar u{display:block;height:100%;border-radius:3px}
 .wd{font-weight:700;margin-left:6px;font-size:12px}.wd.bad{color:var(--exp)}.wd.good{color:var(--inct)}.wd.nw{color:var(--mu)}
 .wkn0{font-size:12px;color:var(--mu);margin:8px 0 0}
 .wkpl{display:flex;flex-direction:column;gap:6px;margin-top:12px;max-height:56dvh;overflow:auto}
@@ -869,3 +869,5 @@ html.lite .ab,html.lite .ahb .chv{transition:none}
 @keyframes went{from{opacity:0;transform:scale(.82) rotate(-12deg)}to{opacity:1;transform:none}}
 @keyframes wcp{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){#wdn .sl,#wdn .cc{animation:none}#wdn .sl path{transition:none}}
+
+.wks span{display:flex;align-items:center;gap:8px;min-width:0}.wks span svg{flex:none;color:var(--p)}
