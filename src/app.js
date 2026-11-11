@@ -500,7 +500,67 @@ function perDompet(P){
   if(!rows.length)return'';
   return`<div class="sec">Per dompet</div><div class="list hl">${rows.map(x=>`<div class="sr"><div class="sl"><b><i class="wdt" style="--c:${x.w.c};display:inline-block;margin-right:8px"></i>${esc(x.w.n)}</b><small>Masuk ${money(x.i)}</small></div><span class="out">−${money(x.o)}</span></div>`).join('')}</div>`;
 }
+/* ===== Laporan Minggu (v28) ===== */
+let WKF={};
+const wkLab=(k,long)=>{const e=addD(k,6),live=k==wkS(Date.now());return long&&live?`${dFmt(k,{weekday:'long'})} ${+k.slice(8)} – ${dFmt(e,{weekday:'long'})} ${dFmt(e,{day:'numeric',month:'short'})}`:`${dFmt(k,{day:'numeric',month:'short'})} – ${dFmt(e,{day:'numeric',month:'short'})}`};
+function wkDonut(L,tot){
+  const n=L.length,big=L.slice(0,Math.ceil(n/2)),sm=L.slice(Math.ceil(n/2)),ord=[];
+  for(let i=0;i<big.length;i++){ord.push(big[i]);if(sm[i])ord.push(sm[i])}
+  const cx=170,cy=150,R=60,r=40,GAP=n>1?.04:0,P=(rad,a)=>[cx+rad*Math.cos(a),cy+rad*Math.sin(a)];
+  const build=off=>{let a0=-Math.PI/2+off;return ord.map((x,k)=>{const f=x.v/tot,a1=a0+f*2*Math.PI,s=a0+GAP/2,e=a1-GAP/2,m=(a0+a1)/2,[ax,ay]=P(R+3,m),side=Math.cos(m)>=0?1:-1;let d;
+    if(f>.999)d=`M${cx-R} ${cy}A${R} ${R} 0 1 1 ${cx+R} ${cy}A${R} ${R} 0 1 1 ${cx-R} ${cy}ZM${cx-r} ${cy}A${r} ${r} 0 1 0 ${cx+r} ${cy}A${r} ${r} 0 1 0 ${cx-r} ${cy}Z`;
+    else{const [x1,y1]=P(R,s),[x2,y2]=P(R,e),[x3,y3]=P(r,e),[x4,y4]=P(r,s),lg=e-s>Math.PI?1:0;d=`M${x1} ${y1}A${R} ${R} 0 ${lg} 1 ${x2} ${y2}L${x3} ${y3}A${r} ${r} 0 ${lg} 0 ${x4} ${y4}Z`}
+    const o={k,x,f,m,ax,ay,side,ny:cy+(R+16)*Math.sin(m),d};a0=a1;return o})};
+  let parts=null,bs=1e9;for(let o=0;o<Math.PI*2;o+=Math.PI/90){const ps=build(o),nr=ps.filter(p=>p.side>0).length,sc=Math.abs(nr-(ps.length-nr))*1000+o;if(sc<bs){bs=sc;parts=ps}}
+  [-1,1].forEach(sd=>{const arr=parts.filter(p=>p.side==sd).sort((a,b)=>a.ny-b.ny),k=arr.length,g=k>1?Math.min(66,230/(k-1)):0;arr.forEach((o,i)=>o.ly=cy+(i-(k-1)/2)*g)});
+  const cut=s=>s.length>12?s.slice(0,11)+'…':s;
+  let h=`<svg viewBox="0 30 340 240" id="wdn" role="group" aria-label="Pengeluaran per kategori, ketuk potongan untuk detail">`;
+  parts.forEach(o=>{const ex=o.side>0?240:100,tx=o.side>0?248:92,an=o.side>0?'start':'end',x=o.x,dx=(6*Math.cos(o.m)).toFixed(1)+'px',dy=(6*Math.sin(o.m)).toFixed(1)+'px',pc=Math.round(o.f*100);
+    h+=`<g class="sl" tabindex="0" role="button" data-a="wseg" data-nm="${esc(x.n)}" data-vl="${ktg(x.v)}" data-pc="${pc}%" aria-label="${esc(x.n)}, ${pc} persen, ${money(x.v)}" style="--i:${o.k};--dx:${dx};--dy:${dy}"><path d="${o.d}" fill="${x.c}" fill-rule="evenodd"/><g class="lb"><polyline points="${o.ax},${o.ay} ${ex},${o.ly} ${ex+(o.side>0?6:-6)},${o.ly}" fill="none" stroke="${x.c}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${o.ax}" cy="${o.ay}" r="2.6" fill="${x.c}"/><text x="${tx}" y="${o.ly-1}" text-anchor="${an}" class="nm">${esc(cut(x.n))}</text><text x="${tx}" y="${o.ly+13}" text-anchor="${an}">${pc}% · ${ktg(x.v)}</text></g></g>`});
+  return h+`<g class="cc" id="wcc"><text x="170" y="140" text-anchor="middle" id="wc1" style="font-size:11px">Total keluar</text><text x="170" y="158" text-anchor="middle" id="wc2" style="font-size:16px;font-weight:800;fill:var(--tx)" data-t="${ktg(tot)}">${ktg(tot)}</text><text x="170" y="172" text-anchor="middle" id="wc3" style="font-size:11px" data-t="${n} kategori">${n} kategori</text></g></svg>`}
+function repWeek(){
+  const nowK=wkS(Date.now()),live=WK==nowK,td=ymd(Date.now()),K=t=>ymd(t.ts),pf=addD(WK,-7),dd=k=>new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8));
+  const el=live?Math.min(7,Math.round((dd(td)-dd(WK))/864e5)+1):7;
+  const cur=S.tx.filter(t=>K(t)>=WK&&K(t)<=addD(WK,6)),prevF=S.tx.filter(t=>K(t)>=pf&&K(t)<=addD(pf,6)),prev=prevF.filter(t=>K(t)<=addD(pf,el-1));
+  const I=sum(cur,'in'),O=sum(cur,'out'),pO=sum(prev,'out');
+  const A=[],B=[];for(let i=0;i<7;i++){A.push(sum(cur.filter(t=>K(t)==addD(WK,i)),'out'));B.push(sum(prevF.filter(t=>K(t)==addD(pf,i)),'out'))}
+  const nav=`<div class="wkn"><button class="nb" data-a="rpn" data-d="-1" aria-label="Minggu sebelumnya">${ic('cl',20,2.4)}</button><button class="nt" data-a="wkpick" aria-haspopup="dialog" aria-label="Pilih minggu, sekarang ${wkLab(WK)}">${wkLab(WK,1)}<i>${ic('cr',14,2.6)}</i></button><button class="nb nx" data-a="rpn" data-d="1" aria-label="Minggu berikutnya"${live?' disabled':''}>${ic('cr',20,2.4)}</button></div>`;
+  const head=`<header class="hd"><h1>Laporan</h1></header><div class="seg rpt" role="tablist">${[['w','Minggu'],['m','Bulan'],['y','Tahun']].map(x=>`<button role="tab" aria-selected="${RP==x[0]}" class="${RP==x[0]?'on':''}" data-a="rptab" data-p="${x[0]}">${x[1]}</button>`).join('')}</div>${nav}`;
+  if(!cur.length&&!prev.length)return head+`<div class="list" style="margin-top:14px">${empty('pie','Belum ada data','Catat transaksi untuk melihat laporan minggu ini.')}</div>`;
+  const diff=O-pO,pc=pO?Math.round(Math.abs(diff)/pO*100):0;
+  const cmp=!pO?`<div class="wkc0">Belum ada data minggu lalu untuk dibandingkan</div>`:`<div class="wkc1 ${diff>0?'bad':diff<0?'good':''}">${diff?(diff>0?'▲ ':'▼ ')+pc+'% '+(diff>0?'lebih boros':'lebih hemat'):'Sama'} dari minggu lalu (${money(pO)})</div>${live?`<div class="wkc0">Dibanding ${el} hari pertama minggu lalu</div>`:''}`;
+  const hero=`<div class="card wkh"><small>Pengeluaran ${live?'minggu ini':wkLab(WK)}</small><div class="wkbig">${money(O)}</div>${cmp}<div class="wkt"><div><small>Masuk</small><b class="in">${money(I)}</b></div><div><small>Selisih</small><b>${I-O>0?'+':''}${money(I-O)}</b></div><div><small>Rata-rata keluar/hari</small><b>${money(Math.round(O/el))}</b></div></div></div>`;
+  const sec=(k,t,body)=>`<button class="wks" data-a="wfold" data-k="${k}" aria-expanded="${!WKF[k]}"><span>${t}</span><i>${ic('cr',16,2.6)}</i></button><div class="wkb${WKF[k]?' fold':''}">${body}</div>`;
+  /* hari */
+  const mx=Math.max(...A,...B,1)*1.18,yy=v=>150-v/mx*118,mxA=Math.max(...A),hot=mxA>0?A.indexOf(mxA):-1;
+  let dsv='<svg class="wkcht" viewBox="0 0 340 172" role="img" aria-label="Pengeluaran per hari, minggu ini dibanding minggu lalu">';
+  for(let i=0;i<7;i++){const bw=30,step=320/7,x=10+i*step+(step-bw)/2,fut=live&&i>=el,h=i==hot,lb=dFmt(addD(WK,i),{weekday:'short'});
+    if(B[i]>0)dsv+=`<rect x="${x-3}" y="${yy(B[i])}" width="${bw+6}" height="${150-yy(B[i])}" rx="10" fill="none" stroke="var(--mu)" stroke-dasharray="3 3" opacity=".55"/>`;
+    if(A[i]>0)dsv+=`<rect x="${x}" y="${yy(A[i])}" width="${bw}" height="${150-yy(A[i])}" rx="9" fill="${h?'var(--exp)':'var(--p)'}" opacity="${h?1:.7}"/>`;
+    else if(!fut)dsv+=`<rect x="${x}" y="146" width="${bw}" height="4" rx="2" fill="var(--ln)"/>`;
+    if(A[i]>0)dsv+=`<text x="${x+bw/2}" y="${yy(Math.max(A[i],B[i]))-6}" text-anchor="middle" ${h?'style="fill:var(--exp)"':''}>${ktg(A[i])}</text>`;
+    dsv+=`<text x="${x+bw/2}" y="168" text-anchor="middle" ${h?'style="fill:var(--tx)"':''}>${esc(lb)}</text>`}
+  dsv+='</svg>';
+  let ins='';if(hot>=0){const dn=dFmt(addD(WK,hot),{weekday:'long'}),sh=Math.round(A[hot]/O*100);const sub=A.slice(0,el).map((v,i)=>[v,i]).filter(x=>x[0]<mxA);const lo=sub.length&&el>1?sub.sort((a,b)=>a[0]-b[0])[0]:null;
+    ins=`<div class="wki">${ic('zap',16)}<span>${esc(dn)} paling boros (${money(A[hot])}, ${sh}% dari minggu ini).${lo?` ${esc(dFmt(addD(WK,lo[1]),{weekday:'long'}))} paling hemat.`:''}</span></div>`}
+  const days=`<div class="card"><div class="wklg"><span><i style="background:var(--p)"></i>${live?'Minggu ini':'Minggu ini'}</span><span><i class="dsh"></i>Minggu lalu</span></div>${dsv}${ins}</div>`;
+  /* kategori */
+  const by={},pby={};cur.filter(t=>t.ty=='out'&&!t.adj).forEach(t=>by[t.c]=(by[t.c]||0)+t.a);prevF.filter(t=>t.ty=='out'&&!t.adj&&K(t)<=addD(pf,el-1)).forEach(t=>pby[t.c]=(pby[t.c]||0)+t.a);
+  const ent=Object.entries(by).sort((a,b)=>b[1]-a[1]),tot=ent.reduce((s,e)=>s+e[1],0);
+  let cats='';
+  if(ent.length){
+    const Lall=ent.map(([k,v])=>({n:cat(k)[0],v,c:cat(k)[2],k})),L=Lall.length>7?[...Lall.slice(0,6),{n:'Lainnya ('+(Lall.length-6)+')',v:Lall.slice(6).reduce((s,x)=>s+x.v,0),c:'#94A3B8'}]:Lall;
+    const dl=(k,v)=>{const p=pby[k]||0;if(!p)return`<small class="wd nw">Baru</small>`;const d=Math.round((v-p)/p*100);return d?`<small class="wd ${d>0?'bad':'good'}">${d>0?'▲':'▼'} ${Math.min(Math.abs(d),999)}%</small>`:'<small class="wd">–</small>'};
+    const all=Lall.map(x=>`<div class="wr"><i style="background:${x.c}"></i><b>${esc(x.n)}</b><span>${money(x.v)}${dl(x.k,x.v)}</span><div class="bar"><u style="width:${x.v/Lall[0].v*100}%;background:${x.c}"></u></div></div>`).join('');
+    cats=`<div class="card">${wkDonut(L,tot)}<button class="wkbtn" data-a="wall" aria-expanded="false">Lihat semua ${Lall.length} kategori</button><div class="wkall" id="wkall" hidden>${all}<p class="wkn0">▲ merah = naik, ▼ hijau = turun dibanding minggu lalu${live?' (periode hari yang sama)':''}.</p></div></div>`}
+  else cats=`<div class="card">${empty('pie','Belum ada pengeluaran','Minggu ini belum ada transaksi keluar.')}</div>`;
+  /* terbesar */
+  const topT=cur.filter(t=>t.ty=='out'&&!t.adj).sort((a,b)=>b.a-a.a).slice(0,3);
+  const big=topT.length?`<div class="list">${topT.map(t=>row(t,{date:1})).join('')}</div>`:`<div class="card">${empty('inbox','Belum ada pengeluaran','Transaksi keluar minggu ini muncul di sini.')}</div>`;
+  return head+hero+sec('days','Hari apa paling boros?',days)+sec('cat','Uang paling banyak ke mana?',cats)+sec('top','Transaksi apa yang paling besar?',big);
+}
 function repPage(){
+  if(RP=='w')return repWeek();
   const P=rdata(),mt=P.cur,I=sum(mt,'in'),O=sum(mt,'out'),pI=sum(P.prev,'in'),pO=sum(P.prev,'out'),by={},pby={};
   mt.filter(t=>t.ty==rep&&!t.adj).forEach(t=>by[t.c]=(by[t.c]||0)+t.a);
   P.prev.filter(t=>t.ty==rep&&!t.adj).forEach(t=>pby[t.c]=(pby[t.c]||0)+t.a);
@@ -1313,6 +1373,10 @@ txv:el=>{txv=el.dataset.v;render(false)},
 cday:el=>{cdsel=el.dataset.d;$$('.kcd').forEach(b=>b.classList.toggle('on',b.dataset.d==cdsel));const p=$('#cdp');p.innerHTML=cdHTML(cdsel);p.classList.remove('kin2');void p.offsetWidth;p.classList.add('kin2');vib&&vib()},
 cadd:el=>{const d=new Date(),[Y,M,D]=el.dataset.d.split('-');d.setFullYear(+Y,+M-1,+D);openTx({ts:d.getTime()})},
 monset:el=>{mon=el.dataset.m;RP='m';render(false)},
+wseg:el=>{const sv=$('#wdn');if(!sv)return;const was=el.classList.contains('on');sv.querySelectorAll('.sl').forEach(x=>x.classList.toggle('on',!was&&x===el));sv.classList.toggle('has',!was);const t=(i,v)=>{const n=$('#wc'+i);n.textContent=v};t(1,was?'Total keluar':el.dataset.nm);t(2,was?$('#wc2').dataset.t:el.dataset.vl);t(3,was?$('#wc3').dataset.t:el.dataset.pc);const c=$('#wcc');c.style.animation='none';void c.getBoundingClientRect();c.style.animation=''},
+wfold:el=>{const k=el.dataset.k,o=el.getAttribute('aria-expanded')!='false';WKF[k]=o;el.setAttribute('aria-expanded',!o);el.nextElementSibling.classList.toggle('fold',o)},
+wall:el=>{const b=$('#wkall'),o=b.hidden;b.hidden=!o;el.setAttribute('aria-expanded',o);el.textContent=o?'Sembunyikan':'Lihat semua '+b.querySelectorAll('.wr').length+' kategori'},
+wkpick:()=>{const n=wkS(Date.now());openSheet(`<div class="sheet" role="dialog" aria-modal="true" aria-label="Pilih minggu" tabindex="-1" style="--c:var(--p)"><div class="tint"></div><div class="grab"></div><div class="sh-top"><div class="sh-t">Pilih minggu</div><div class="sh-act"><button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div><div class="wkpl">${Array.from({length:12},(_,i)=>{const k=addD(n,-7*i);return`<button class="wkpi${k==WK?' on':''}" data-s="wkset" data-k="${k}" aria-pressed="${k==WK}"><b>${wkLab(k,1)}</b><small>${i==0?'Minggu ini':i==1?'Minggu lalu':i+' minggu lalu'}</small></button>`}).join('')}</div></div>`)},
 rptab:el=>{if(RP!=el.dataset.p){RP=el.dataset.p;render(false)}},
 rpn:el=>{const d=+el.dataset.d;if(RP=='w'){WK=addD(WK,7*d);if(WK>wkS(Date.now()))WK=wkS(Date.now())}else{YR=String(Math.min(+YR+d,+curM().slice(0,4)))}render(false)},
 flt:el=>{flt=el.dataset.f;$$('#fl .chip').forEach(b=>b.classList.toggle('on',b.dataset.f==flt));$('#txl').innerHTML=listHTML()},
@@ -1335,6 +1399,7 @@ document.addEventListener('click',e=>{
     if(v=='close')closeSheet();
     else if(v=='quick'){const c=s.dataset.c,ty=s.dataset.ty||'out';vib();openTx({c,ty})}
     else if(v=='ty')setType(s.dataset.v);
+    else if(v=='wkset'){WK=s.dataset.k;closeSheet();render(false)}
     else if(v=='fxt'){FD.t=s.dataset.v;const ho=FD.t=='in'||FD.t=='tf',hi=FD.t=='out'||FD.t=='tf';$('#fxgo').hidden=ho;$('#fxgi').hidden=hi;FD.cats=FD.cats.filter(id=>!((ho&&OUT.includes(id))||(hi&&INC.includes(id))));$$('#sheet [data-s=fxc]').forEach(b=>{const o=FD.cats.includes(b.dataset.id);b.classList.toggle('on',o);b.setAttribute('aria-pressed',o)});$$('#sheet [data-s=fxt]').forEach(b=>{const o=b.dataset.v==FD.t;b.classList.toggle('on',o);b.setAttribute('aria-pressed',o)})}
     else if(v=='fxc'||v=='fxw'){const L=v=='fxc'?FD.cats:FD.wals,i=L.indexOf(s.dataset.id);i<0?L.push(s.dataset.id):L.splice(i,1);s.classList.toggle('on',i<0);s.setAttribute('aria-pressed',i<0)}
     else if(v=='fxso'){FD.sort=s.dataset.v;$$('#sheet [data-s=fxso]').forEach(b=>{const o=b.dataset.v==FD.sort;b.classList.toggle('on',o);b.setAttribute('aria-pressed',o)})}

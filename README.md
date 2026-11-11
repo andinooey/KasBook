@@ -101,3 +101,6 @@ SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast 
 - Pindah dana sekarang menampilkan jam. Di Beranda, "Hari ini" jadi label di atas daftar, bukan di tiap baris.
 - Filter: kolom tanggal dan nominal dirapikan (tidak terpotong), grup kategori mengikuti Jenis (Keluar/Masuk/Pindah dana), ikon tombol filter selalu putih saat aktif.
 - Beranda: Terbaru dikelompokkan per tanggal seperti tab Transaksi.
+
+## Versi 28
+- Laporan tab Minggu dirombak (Bulan dan Tahun belum): pilih minggu lewat tombol ‹ › atau ketuk judul periode, ringkasan pengeluaran dibanding minggu lalu, grafik "Hari apa paling boros?" (dengan bayangan minggu lalu), donut "Uang paling banyak ke mana?" (6 kategori + Lainnya, ketuk potongan untuk detail, daftar lengkap), dan 3 transaksi terbesar. Judul bagian bisa dilipat.
