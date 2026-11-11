@@ -333,7 +333,7 @@ function home(anim){
   if(qa.length>10){const first=qa.slice(0,9);if(!first.includes('IN')){first.splice(8,1,'IN')}qs=first;more=`<button class="qt" style="--c:var(--mu)" data-a="qall"><span class="qr"><span class="cico">${ic('grid',22,2.2)}</span></span><span class="ql">Semua</span></button>`}
   const tiles=qs.map(tile).join('')+more;
   const nudge=bkDue()?`<button class="nudge" data-a="bkjson"><span class="si">${ic('dl',18)}</span><span class="st"><b>Cadangkan datamu</b><small>${S.set.bk?'Cadangan terakhir sudah lebih dari 2 minggu':'Belum pernah dicadangkan. Data hanya ada di perangkat ini.'}</small></span>${ic('cr',16)}</button>`:'';
-  const tk=ymd(Date.now()),yk=ymd(Date.now()-864e5),rc=S.tx.filter(t=>{const k=ymd(t.ts);return k==tk||k==yk}).slice(0,8),rt=rc.filter(t=>ymd(t.ts)==tk),ry=rc.filter(t=>ymd(t.ts)!=tk);
+  const tk=ymd(Date.now()),yk=ymd(Date.now()-864e5),rc=S.tx.filter(t=>{const k=ymd(t.ts);return k==tk||k==yk}).slice(0,8);
   return`<header class="hd"><div><div class="gr">${g}</div><div class="dt">${n.toLocaleDateString(DL,{weekday:'long',day:'numeric',month:'long'})}</div></div>
 <div class="ha"><button class="ib" data-a="hide" aria-label="${S.set.hide?'Tampilkan':'Sembunyikan'} saldo">${ic(S.set.hide?'eyeoff':'eye',19)}</button><button class="ib" data-a="bell" aria-label="Notifikasi">${ic('bell',19)}${dot?'<i class="dot"></i>':''}</button></div></header>
 <section class="hero"><i class="bl bl1"></i><i class="bl bl2"></i><div class="hl">Total saldo</div><div class="bigb${hide}" data-n="${bal}" data-k="bal">${money(bal)}</div>${heroBud(hide)}
@@ -342,7 +342,7 @@ function home(anim){
 ${walStrip(hide)}${dueCard()}
 <h3 class="sec">Catat per kategori<button class="more" data-a="qord">Atur</button></h3><div class="card qg">${tiles}</div>
 <div class="sec">Terbaru${S.tx.length>rc.length?'<button class="more" data-a="tab" data-t="tx">Lihat semua</button>':''}</div>
-${rc.length?`<div class="list">${rt.length?`<div class="dgl">Hari ini</div>${rt.map(t=>row(t)).join('')}`:''}${ry.map(t=>row(t,{date:1})).join('')}</div>`:`<div class="list">${empty('inbox',S.tx.length?'Belum ada transaksi hari ini':'Belum ada transaksi',S.tx.length?'Transaksi sebelumnya ada di tab Transaksi.':'Ketuk salah satu kategori di atas untuk mencatat.')}</div>`}
+${rc.length?groupHTML(rc):`<div class="list">${empty('inbox',S.tx.length?'Belum ada transaksi hari ini':'Belum ada transaksi',S.tx.length?'Transaksi sebelumnya ada di tab Transaksi.':'Ketuk salah satu kategori di atas untuk mencatat.')}</div>`}
 `;
 }
 
@@ -383,13 +383,13 @@ function fxSheet(){
 <div class="sh-top"><div class="sh-t">Filter</div><div class="sh-act"><button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div>
 <div class="fxsc">
 <div class="fxg"><label>Jenis</label><div class="fxw">${[['all','Semua'],['out','Keluar'],['in','Masuk'],['tf','Pindah dana']].map(x=>`<button class="chip${D.t==x[0]?' on':''}" data-s="fxt" data-v="${x[0]}" aria-pressed="${D.t==x[0]}">${x[1]}</button>`).join('')}</div></div>
-<div class="fxg"><label>Kategori keluar</label><div class="fxw">${OUT.map(cc).join('')}</div></div>
-<div class="fxg"><label>Kategori masuk</label><div class="fxw">${INC.map(cc).join('')}</div></div>
+<div class="fxg" id="fxgo" ${D.t=='in'||D.t=='tf'?'hidden':''}><label>Kategori keluar</label><div class="fxw">${OUT.map(cc).join('')}</div></div>
+<div class="fxg" id="fxgi" ${D.t=='out'||D.t=='tf'?'hidden':''}><label>Kategori masuk</label><div class="fxw">${INC.map(cc).join('')}</div></div>
 ${W?`<div class="fxg"><label>Dompet</label><div class="fxw">${S.wal.map(w=>`<button class="chip wch${D.wals.includes(w.id)?' on':''}" style="--c:${w.c}" data-s="fxw" data-id="${esc(w.id)}" aria-pressed="${D.wals.includes(w.id)}"><i class="wdt"></i>${esc(w.n)}</button>`).join('')}</div></div>`:''}
 <div class="fxg"><label>Nominal</label><div class="fxw">${pr.map(x=>`<button class="chip" data-s="fxn" data-a1="${x[1]}" data-a2="${x[2]}">${x[0]}</button>`).join('')}</div>
-<div class="fxr"><div class="bti"><span>Min</span><input id="fxmin" data-money inputmode="numeric" placeholder="0" value="${D.min?num(D.min):''}" aria-label="Nominal minimum"></div><div class="bti"><span>Maks</span><input id="fxmax" data-money inputmode="numeric" placeholder="∞" value="${D.max?num(D.max):''}" aria-label="Nominal maksimum"></div></div></div>
+<div class="fxr"><div class="fxf"><small>Min</small><input id="fxmin" data-money inputmode="numeric" placeholder="0" value="${D.min?num(D.min):''}" aria-label="Nominal minimum"></div><div class="fxf"><small>Maks</small><input id="fxmax" data-money inputmode="numeric" placeholder="∞" value="${D.max?num(D.max):''}" aria-label="Nominal maksimum"></div></div></div>
 <div class="fxg"><label>Tanggal</label><div class="fxw">${[['7','7 hari'],['30','30 hari'],['bm','Bulan ini'],['bl','Bulan lalu']].map(x=>`<button class="chip" data-s="rp" data-v="${x[0]}">${x[1]}</button>`).join('')}</div>
-<div class="fxr"><div class="fld"><label>Dari</label><input type="date" id="rf" max="${td}" value="${D.f||''}" aria-label="Dari tanggal"></div><div class="fld"><label>Sampai</label><input type="date" id="rt2" max="${td}" value="${D.to||''}" aria-label="Sampai tanggal"></div></div></div>
+<div class="fxr"><div class="fxf"><small>Dari</small><input type="date" id="rf" max="${td}" value="${D.f||''}" aria-label="Dari tanggal"></div><div class="fxf"><small>Sampai</small><input type="date" id="rt2" max="${td}" value="${D.to||''}" aria-label="Sampai tanggal"></div></div></div>
 <div class="fxg"><label>Urutkan</label><div class="fxw">${[['new','Terbaru'],['big','Terbesar']].map(x=>`<button class="chip${D.sort==x[0]?' on':''}" data-s="fxso" data-v="${x[0]}" aria-pressed="${D.sort==x[0]}">${x[1]}</button>`).join('')}</div></div>
 </div>
 <div class="svrow"><button class="btn2" data-s="fxrs">Reset</button><button class="save" data-s="fxok" style="background-color:var(--p);color:var(--pc)">Terapkan</button></div></div>`);
@@ -967,7 +967,7 @@ function openRange(){
   openSheet(`<div class="sheet" role="dialog" aria-modal="true" aria-label="Filter tanggal" tabindex="-1" style="--c:var(--p)"><div class="tint"></div><div class="grab"></div>
 <div class="sh-top"><div class="sh-t">Filter tanggal</div><div class="sh-act"><button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div>
 <div class="fl" style="margin-top:12px">${[['7','7 hari'],['30','30 hari'],['bm','Bulan ini'],['bl','Bulan lalu']].map(x=>`<button class="chip" data-s="rp" data-v="${x[0]}">${x[1]}</button>`).join('')}</div>
-<div class="fld"><label>Dari</label><input type="date" id="rf" max="${td}" value="${rng?rng.f:''}" aria-label="Dari tanggal"></div>
+<div class="fxf"><small>Dari</small><input type="date" id="rf" max="${td}" value="${rng?rng.f:''}" aria-label="Dari tanggal"></div>
 <div class="fld"><label>Sampai</label><input type="date" id="rt2" max="${td}" value="${rng?rng.t:''}" aria-label="Sampai tanggal"></div>
 <button class="save" data-s="rok" style="background-color:var(--p);color:var(--pc)">Terapkan</button>
 ${rng?'<button class="btn2" style="width:100%;margin-top:10px" data-s="rno">Hapus filter</button>':''}</div>`);
@@ -1335,7 +1335,7 @@ document.addEventListener('click',e=>{
     if(v=='close')closeSheet();
     else if(v=='quick'){const c=s.dataset.c,ty=s.dataset.ty||'out';vib();openTx({c,ty})}
     else if(v=='ty')setType(s.dataset.v);
-    else if(v=='fxt'){FD.t=s.dataset.v;$$('#sheet [data-s=fxt]').forEach(b=>{const o=b.dataset.v==FD.t;b.classList.toggle('on',o);b.setAttribute('aria-pressed',o)})}
+    else if(v=='fxt'){FD.t=s.dataset.v;const ho=FD.t=='in'||FD.t=='tf',hi=FD.t=='out'||FD.t=='tf';$('#fxgo').hidden=ho;$('#fxgi').hidden=hi;FD.cats=FD.cats.filter(id=>!((ho&&OUT.includes(id))||(hi&&INC.includes(id))));$$('#sheet [data-s=fxc]').forEach(b=>{const o=FD.cats.includes(b.dataset.id);b.classList.toggle('on',o);b.setAttribute('aria-pressed',o)});$$('#sheet [data-s=fxt]').forEach(b=>{const o=b.dataset.v==FD.t;b.classList.toggle('on',o);b.setAttribute('aria-pressed',o)})}
     else if(v=='fxc'||v=='fxw'){const L=v=='fxc'?FD.cats:FD.wals,i=L.indexOf(s.dataset.id);i<0?L.push(s.dataset.id):L.splice(i,1);s.classList.toggle('on',i<0);s.setAttribute('aria-pressed',i<0)}
     else if(v=='fxso'){FD.sort=s.dataset.v;$$('#sheet [data-s=fxso]').forEach(b=>{const o=b.dataset.v==FD.sort;b.classList.toggle('on',o);b.setAttribute('aria-pressed',o)})}
     else if(v=='fxn'){$('#fxmin').value=+s.dataset.a1?num(+s.dataset.a1):'';$('#fxmax').value=+s.dataset.a2?num(+s.dataset.a2):''}

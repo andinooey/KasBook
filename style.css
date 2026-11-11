@@ -817,3 +817,15 @@ html.lite .ab,html.lite .ahb .chv{transition:none}
 .svrow{display:flex;gap:10px;margin-top:14px}
 .svrow .btn2{flex:0 0 auto;padding:0 22px}
 .svrow .save{flex:1}
+
+/* v27d */
+.fxb svg{position:static;margin:0;color:inherit;stroke:currentColor}
+.fxb.on{color:#fff}
+.fxg[hidden]{display:none}
+.fxr .fld input{width:100%;min-width:0;max-width:100%;box-sizing:border-box;font-size:14px;padding-left:10px;padding-right:6px}
+.fxr .fld>label{white-space:nowrap}
+
+.fxf{display:block;min-width:0}
+.fxf small{display:block;font-size:12px;font-weight:700;color:var(--mu);margin:0 2px 5px}
+.fxf input{display:block;width:100%;min-width:0;height:46px;box-sizing:border-box;border-radius:14px;border:1.5px solid var(--ln);background:var(--bg);color:var(--tx);padding:0 12px;font:700 15px inherit;outline-offset:2px}
+.fxf input::placeholder{color:var(--mu);font-weight:600}

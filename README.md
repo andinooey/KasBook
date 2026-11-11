@@ -99,3 +99,5 @@ SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast 
 - Transaksi: tombol + di kanan atas dihapus. Tombol + di navigasi mencatat sesuai tanggal yang dipilih di Kalender.
 - Transaksi: tombol Filter (dengan badge jumlah filter aktif) membuka sheet berisi Jenis, Kategori, Dompet (multi-pilih), Nominal (min/maks dan pilihan cepat), Tanggal, dan Urutkan (Terbaru/Terbesar). Filter aktif tampil sebagai chip yang bisa dihapus, ada ringkasan hasil, dan state kosong dengan Reset filter. Pencarian juga mencocokkan nominal dan nama dompet.
 - Pindah dana sekarang menampilkan jam. Di Beranda, "Hari ini" jadi label di atas daftar, bukan di tiap baris.
+- Filter: kolom tanggal dan nominal dirapikan (tidak terpotong), grup kategori mengikuti Jenis (Keluar/Masuk/Pindah dana), ikon tombol filter selalu putih saat aktif.
+- Beranda: Terbaru dikelompokkan per tanggal seperti tab Transaksi.
