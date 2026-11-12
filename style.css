@@ -895,3 +895,21 @@ html.lite .ab,html.lite .ahb .chv{transition:none}
 .bgmn{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}.bgmn b{font-size:15px;text-align:center}.bgmn small{display:block;color:var(--mu);font-size:11.5px;font-weight:600}
 .bgmn button{width:40px;height:40px;border-radius:50%;background:var(--bg);display:grid;place-items:center;color:var(--tx)}.bgmn button:disabled{opacity:.35}
 .seg.bgt{margin-top:12px}
+
+/* v30 */
+.seg.rpt{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:6;background:var(--sf);box-shadow:var(--sh);margin-bottom:10px}
+.seg.rpt button.on{background:var(--p);color:var(--pc);box-shadow:none}
+.wkq{margin:16px 2px 8px;font-weight:800;font-size:13px;color:var(--mu)}
+.cl{cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}.cl .hit{fill:transparent;transition:fill .2s}.cl:focus-visible .hit{stroke:var(--p);stroke-width:1.5}
+.cl.on .hit{fill:var(--p);fill-opacity:.1}
+.cl .mk,.cl .mkc{display:none}.cl.on .mk{display:block;stroke:var(--mu);stroke-width:1;stroke-dasharray:3 3}.cl.on .mkc{display:block}
+.cl rect:not(.hit){transition:opacity .2s}
+.hdd{animation:wcp .3s cubic-bezier(.2,.9,.3,1.2)}
+#wdn .sl{animation:none}
+#wdn .rv{stroke-dasharray:100;stroke-dashoffset:100;transform:rotate(-90deg);transform-origin:170px 150px;animation:wrv .9s cubic-bezier(.45,0,.2,1) forwards}
+#wdn .ln{stroke-dasharray:1;stroke-dashoffset:1;animation:wln .55s ease-out forwards;animation-delay:calc(.6s + var(--i)*70ms)}
+#wdn .dt{opacity:0;animation:wfd .3s forwards;animation-delay:calc(.55s + var(--i)*70ms)}
+#wdn .lb text{opacity:0;animation:wfd .4s forwards;animation-delay:calc(.8s + var(--i)*70ms)}
+@keyframes wrv{to{stroke-dashoffset:0}}@keyframes wln{to{stroke-dashoffset:0}}@keyframes wfd{to{opacity:1}}
+#wdn .sl:hover path{filter:brightness(1.06)}
+@media(prefers-reduced-motion:reduce){#wdn .rv{animation:none;stroke-dashoffset:0}#wdn .ln{animation:none;stroke-dashoffset:0}#wdn .dt,#wdn .lb text{animation:none;opacity:1}}

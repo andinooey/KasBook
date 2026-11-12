@@ -114,3 +114,10 @@ SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast 
 - **Budget bulanan beda tiap bulan**: di sheet Budget pilih bulan (‹ ›). Yang disimpan berlaku dari bulan itu sampai diubah lagi; ada saklar "Hanya bulan ini". Data: `S.bud.mo['YYYY-MM']`; data lama tetap dipakai untuk bulan sebelum isian pertama.
 - **Budget mingguan** (`S.bud.wk.total`): tab Mingguan di sheet Budget, tampil sebagai bar di kartu atas Laporan Minggu.
 - Budget bulanan juga tampil di kartu atas Laporan Bulan. Jika belum diatur, ada tombol "Atur budget".
+
+## Versi 30
+- Tiap tab Laporan punya judul pertanyaan di atas kartu utama (mis. "Berapa pengeluaranku minggu ini?").
+- Kartu atas Minggu disamakan dengan mockup: total, perbandingan, bar budget mingguan dengan rata-rata per hari dan sisa (tanpa Masuk/Selisih).
+- Tab Minggu/Bulan/Tahun nempel di atas saat scroll.
+- Grafik bisa diketuk untuk detail: batang harian (Minggu), laju pengeluaran dan batang per rentang tanggal (Bulan), masuk vs keluar dan saldo (Tahun).
+- Donut baru: ujung potongan membulat, garis label melengkung, animasi sapuan donut lalu garis dan label muncul bergantian.
