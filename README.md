@@ -130,3 +130,7 @@ SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast 
 ## Versi 32
 - Donut Laporan (Minggu/Bulan/Tahun): animasi diganti ke versi ringan tanpa mask SVG (penyebab kedip di HP), dan baru main saat donut masuk layar. Potongan muncul searah jarum jam, lalu garis dan label.
 - Jarak antar potongan donut dibuat konstan dan sejajar (tidak lagi menyempit di sisi dalam).
+
+## Versi 33
+- Donut: potongan menempel (hanya garis tipis pemisah), potongan terpilih zoom sedikit dari pusat, yang lain memudar.
+- Bagian tengah donut bisa diketuk: saat ada potongan terpilih akan membatalkan pilihan, kalau tidak akan membuka/menutup daftar semua kategori.

@@ -510,7 +510,7 @@ const wkLab=(k,long)=>{const e=addD(k,6),live=k==wkS(Date.now());return long&&li
 function wkDonut(L,tot){
   const n=L.length,big=L.slice(0,Math.ceil(n/2)),sm=L.slice(Math.ceil(n/2)),ord=[];
   for(let i=0;i<big.length;i++){ord.push(big[i]);if(sm[i])ord.push(sm[i])}
-  const cx=170,cy=150,R=62,r=38,GH=n>1?5.5:0,P=(rad,a)=>[cx+rad*Math.cos(a),cy+rad*Math.sin(a)],SW=4;
+  const cx=170,cy=150,R=62,r=38,GH=0,P=(rad,a)=>[cx+rad*Math.cos(a),cy+rad*Math.sin(a)],SW=0;
   const RA=R+8;
   const build=off=>{let a0=-Math.PI/2+off;const ps=ord.map((x,k)=>{const f=x.v/tot,a1=a0+f*2*Math.PI,m=(a0+a1)/2,[ax,ay]=P(RA,m),[qx,qy]=P(R+30,m),side=Math.cos(m)>=0?1:-1;let d;
     if(f>.999)d=`M${cx-R} ${cy}A${R} ${R} 0 1 1 ${cx+R} ${cy}A${R} ${R} 0 1 1 ${cx-R} ${cy}ZM${cx-r} ${cy}A${r} ${r} 0 1 0 ${cx+r} ${cy}A${r} ${r} 0 1 0 ${cx-r} ${cy}Z`;
@@ -522,11 +522,11 @@ function wkDonut(L,tot){
   let parts=null,bs=1e18;for(let o=0;o<Math.PI*2;o+=Math.PI/90){const ps=build(o),nr=ps.filter(p=>p.side>0).length,sc=Math.abs(nr-(ps.length-nr))*1000+ps.bad*100000+o;if(sc<bs){bs=sc;parts=ps}}
   const cut=s=>s.length>12?s.slice(0,11)+'…':s;
   const ly=parts.map(o=>o.ly),vy=Math.floor(Math.min(cy-R-10,...ly.map(y=>y-18))),vh=Math.ceil(Math.max(cy+R+10,...ly.map(y=>y+22)))-vy;
-  let h=`<svg viewBox="0 ${vy} 340 ${vh}" id="wdn" role="group" aria-label="Pengeluaran per kategori, ketuk potongan untuk detail"><circle cx="${cx}" cy="${cy}" r="${(R+r)/2}" fill="none" stroke="var(--bg)" stroke-width="${R-r}"/>`;
+  let h=`<svg viewBox="0 ${vy} 340 ${vh}" id="wdn" role="group" aria-label="Pengeluaran per kategori, ketuk potongan untuk detail">`;
   const TP=Math.PI*2,rk=parts.map(o=>((o.m+Math.PI/2)%TP+TP)%TP),rs=[...rk].sort((a,b)=>a-b);
   parts.forEach((o,pi)=>{o.k=rs.indexOf(rk[pi]);const ex=o.side>0?240:100,tx=o.side>0?250:90,an=o.side>0?'start':'end',x=o.x,dx=(6*Math.cos(o.m)).toFixed(1)+'px',dy=(6*Math.sin(o.m)).toFixed(1)+'px',pc=Math.round(o.f*100);
-    h+=`<g class="sl" tabindex="0" role="button" data-a="wseg" data-nm="${esc(x.n)}" data-vl="${ktg(x.v)}" data-pc="${pc}%" aria-label="${esc(x.n)}, ${pc} persen, ${money(x.v)}" style="--i:${o.k};--dx:${dx};--dy:${dy}"><path d="${o.d}" fill="${x.c}" stroke="${x.c}" stroke-width="${SW}" stroke-linejoin="round"/><g class="lb"><path class="ln" pathLength="1" d="M${o.ax.toFixed(1)} ${o.ay.toFixed(1)}Q${o.qx.toFixed(1)} ${o.qy.toFixed(1)} ${ex} ${o.ly}h${o.side>0?8:-8}" fill="none" stroke="${x.c}" stroke-width="1.6" stroke-linecap="round"/><circle class="dt" cx="${o.ax.toFixed(1)}" cy="${o.ay.toFixed(1)}" r="2.6" fill="${x.c}"/><text x="${tx}" y="${o.ly-1}" text-anchor="${an}" class="nm">${esc(cut(x.n))}</text><text x="${tx}" y="${o.ly+13}" text-anchor="${an}">${pc}% · ${ktg(x.v)}</text></g></g>`});
-  return h+`<g class="cc" id="wcc"><text x="170" y="140" text-anchor="middle" id="wc1" style="font-size:11px">Total keluar</text><text x="170" y="158" text-anchor="middle" id="wc2" style="font-size:16px;font-weight:800;fill:var(--tx)" data-t="${ktg(tot)}">${ktg(tot)}</text><text x="170" y="172" text-anchor="middle" id="wc3" style="font-size:11px" data-t="${n} kategori">${n} kategori</text></g></svg>`}
+    h+=`<g class="sl" tabindex="0" role="button" data-a="wseg" data-nm="${esc(x.n)}" data-vl="${ktg(x.v)}" data-pc="${pc}%" aria-label="${esc(x.n)}, ${pc} persen, ${money(x.v)}" style="--i:${o.k};--dx:${dx};--dy:${dy}"><path d="${o.d}" fill="${x.c}" stroke="var(--sf)" stroke-width="1.6" stroke-linejoin="round"/><g class="lb"><path class="ln" pathLength="1" d="M${o.ax.toFixed(1)} ${o.ay.toFixed(1)}Q${o.qx.toFixed(1)} ${o.qy.toFixed(1)} ${ex} ${o.ly}h${o.side>0?8:-8}" fill="none" stroke="${x.c}" stroke-width="1.6" stroke-linecap="round"/><circle class="dt" cx="${o.ax.toFixed(1)}" cy="${o.ay.toFixed(1)}" r="2.6" fill="${x.c}"/><text x="${tx}" y="${o.ly-1}" text-anchor="${an}" class="nm">${esc(cut(x.n))}</text><text x="${tx}" y="${o.ly+13}" text-anchor="${an}">${pc}% · ${ktg(x.v)}</text></g></g>`});
+  return h+`<g class="cc" id="wcc" data-a="wcen" role="button" tabindex="0" aria-label="Ringkasan total. Ketuk untuk daftar kategori"><circle cx="${cx}" cy="${cy}" r="${r}" fill="transparent"/><text x="170" y="140" text-anchor="middle" id="wc1" style="font-size:11px">Total keluar</text><text x="170" y="158" text-anchor="middle" id="wc2" style="font-size:16px;font-weight:800;fill:var(--tx)" data-t="${ktg(tot)}">${ktg(tot)}</text><text x="170" y="172" text-anchor="middle" id="wc3" style="font-size:11px" data-t="${n} kategori">${n} kategori</text></g></svg>`}
 function repWeek(){
   const nowK=wkS(Date.now()),live=WK==nowK,td=ymd(Date.now()),K=t=>ymd(t.ts),pf=addD(WK,-7),dd=k=>new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8));
   const el=live?Math.min(7,Math.round((dd(td)-dd(WK))/864e5)+1):7;
@@ -1547,6 +1547,7 @@ cadd:el=>{const d=new Date(),[Y,M,D]=el.dataset.d.split('-');d.setFullYear(+Y,+M
 monset:el=>{mon=el.dataset.m;RP='m';render(false)},
 wseg:el=>{const sv=$('#wdn');if(!sv)return;const was=el.classList.contains('on');sv.querySelectorAll('.sl').forEach(x=>x.classList.toggle('on',!was&&x===el));sv.classList.toggle('has',!was);const t=(i,v)=>{const n=$('#wc'+i);n.textContent=v};t(1,was?'Total keluar':el.dataset.nm);t(2,was?$('#wc2').dataset.t:el.dataset.vl);t(3,was?$('#wc3').dataset.t:el.dataset.pc);const c=$('#wcc');c.style.animation='none';void c.getBoundingClientRect();c.style.animation=''},
 wfold:el=>{const k=el.dataset.k,o=el.getAttribute('aria-expanded')!='false';WKF[k]=o;el.setAttribute('aria-expanded',!o);el.nextElementSibling.classList.toggle('fold',o)},
+wcen:()=>{const on=$('#wdn .sl.on');if(on){A.wseg(on);return}const b=$('.wkbtn[data-a=wall]');if(b)A.wall(b)},
 wall:el=>{const b=$('#wkall'),o=b.hidden;b.hidden=!o;el.setAttribute('aria-expanded',o);el.textContent=o?'Sembunyikan':'Lihat semua '+b.querySelectorAll('.wkr').length+' kategori'},
 cpt:el=>{const c=el.dataset.c,box=$('#cd-'+c),sv=el.closest('svg'),was=el.classList.contains('on');sv.querySelectorAll('.cl').forEach(x=>x.classList.toggle('on',!was&&x===el));box.innerHTML=was?'':(CD[c]||[])[+el.dataset.i]||'';if(!was)box.firstElementChild&&box.firstElementChild.scrollIntoView({block:'nearest',behavior:'smooth'})},
 gomon:el=>{mon=el.dataset.m;RP='m';render(false);scrollTo({top:0})},
