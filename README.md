@@ -126,3 +126,7 @@ SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast 
 - Beranda: "Catat per kategori" dibungkus kartu putih lagi.
 - Total saldo di hero punya animasi count (naik dari angka sebelumnya, atau dari 0 saat masuk Beranda). Tidak jalan saat saldo disembunyikan atau mode kurangi gerak aktif.
 - Tombol mata: saat saldo disembunyikan, total dan saldo tiap dompet di sheet Kelola dompet ikut tersamarkan.
+
+## Versi 32
+- Donut Laporan (Minggu/Bulan/Tahun): animasi diganti ke versi ringan tanpa mask SVG (penyebab kedip di HP), dan baru main saat donut masuk layar. Potongan muncul searah jarum jam, lalu garis dan label.
+- Jarak antar potongan donut dibuat konstan dan sejajar (tidak lagi menyempit di sisi dalam).

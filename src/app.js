@@ -510,11 +510,11 @@ const wkLab=(k,long)=>{const e=addD(k,6),live=k==wkS(Date.now());return long&&li
 function wkDonut(L,tot){
   const n=L.length,big=L.slice(0,Math.ceil(n/2)),sm=L.slice(Math.ceil(n/2)),ord=[];
   for(let i=0;i<big.length;i++){ord.push(big[i]);if(sm[i])ord.push(sm[i])}
-  const cx=170,cy=150,R=62,r=38,GAP=n>1?.13:0,P=(rad,a)=>[cx+rad*Math.cos(a),cy+rad*Math.sin(a)],SW=4;
+  const cx=170,cy=150,R=62,r=38,GH=n>1?5.5:0,P=(rad,a)=>[cx+rad*Math.cos(a),cy+rad*Math.sin(a)],SW=4;
   const RA=R+8;
-  const build=off=>{let a0=-Math.PI/2+off;const ps=ord.map((x,k)=>{const f=x.v/tot,a1=a0+f*2*Math.PI,g=Math.min(GAP,(a1-a0)*.4),s=a0+g/2,e=a1-g/2,m=(a0+a1)/2,[ax,ay]=P(RA,m),[qx,qy]=P(R+30,m),side=Math.cos(m)>=0?1:-1;let d;
+  const build=off=>{let a0=-Math.PI/2+off;const ps=ord.map((x,k)=>{const f=x.v/tot,a1=a0+f*2*Math.PI,m=(a0+a1)/2,[ax,ay]=P(RA,m),[qx,qy]=P(R+30,m),side=Math.cos(m)>=0?1:-1;let d;
     if(f>.999)d=`M${cx-R} ${cy}A${R} ${R} 0 1 1 ${cx+R} ${cy}A${R} ${R} 0 1 1 ${cx-R} ${cy}ZM${cx-r} ${cy}A${r} ${r} 0 1 0 ${cx+r} ${cy}A${r} ${r} 0 1 0 ${cx-r} ${cy}Z`;
-    else{const Ro=R-SW/2,ri=r+SW/2,[x1,y1]=P(Ro,s),[x2,y2]=P(Ro,e),[x3,y3]=P(ri,e),[x4,y4]=P(ri,s),lg=e-s>Math.PI?1:0;d=`M${x1} ${y1}A${Ro} ${Ro} 0 ${lg} 1 ${x2} ${y2}L${x3} ${y3}A${ri} ${ri} 0 ${lg} 0 ${x4} ${y4}Z`}
+    else{const Ro=R-SW/2,ri=r+SW/2,cap=(a1-a0)*.38,so=Math.min(GH/Ro,cap),si=Math.min(GH/ri,cap),[x1,y1]=P(Ro,a0+so),[x2,y2]=P(Ro,a1-so),[x3,y3]=P(ri,a1-si),[x4,y4]=P(ri,a0+si),lg=(a1-a0)-2*so>Math.PI?1:0;d=`M${x1} ${y1}A${Ro} ${Ro} 0 ${lg} 1 ${x2} ${y2}L${x3} ${y3}A${ri} ${ri} 0 ${lg} 0 ${x4} ${y4}Z`}
     const o={k,x,f,m,ax,ay,qx,qy,side,ny:cy+(RA+10)*Math.sin(m),d};a0=a1;return o});
     let bad=0;[-1,1].forEach(sd=>{const arr=ps.filter(p=>p.side==sd).sort((a,b)=>a.ny-b.ny);let mn=34;arr.forEach(o=>{o.ly=Math.max(o.ny,mn);mn=o.ly+38});const ov=arr.length?arr[arr.length-1].ly-286:0;if(ov>0){arr.forEach(o=>o.ly-=ov);for(let i=arr.length-2;i>=0;i--)arr[i].ly=Math.min(arr[i].ly,arr[i+1].ly-38)}
       arr.forEach(o=>{const ex=sd>0?240:100;for(let t=0;t<=1;t+=.05){const u=1-t,px=u*u*o.ax+2*u*t*o.qx+t*t*ex,py=u*u*o.ay+2*u*t*o.qy+t*t*o.ly;if(Math.hypot(px-cx,py-cy)<R+5)bad++}})});
@@ -522,9 +522,10 @@ function wkDonut(L,tot){
   let parts=null,bs=1e18;for(let o=0;o<Math.PI*2;o+=Math.PI/90){const ps=build(o),nr=ps.filter(p=>p.side>0).length,sc=Math.abs(nr-(ps.length-nr))*1000+ps.bad*100000+o;if(sc<bs){bs=sc;parts=ps}}
   const cut=s=>s.length>12?s.slice(0,11)+'…':s;
   const ly=parts.map(o=>o.ly),vy=Math.floor(Math.min(cy-R-10,...ly.map(y=>y-18))),vh=Math.ceil(Math.max(cy+R+10,...ly.map(y=>y+22)))-vy;
-  let h=`<svg viewBox="0 ${vy} 340 ${vh}" id="wdn" role="group" aria-label="Pengeluaran per kategori, ketuk potongan untuk detail"><defs><mask id="wmk" maskUnits="userSpaceOnUse" x="-200" y="-200" width="740" height="900"><circle class="rv" cx="${cx}" cy="${cy}" r="${(R+18)/2}" fill="none" stroke="#fff" stroke-width="${R+18}" pathLength="100"/></mask></defs><circle cx="${cx}" cy="${cy}" r="${(R+r)/2}" fill="none" stroke="var(--bg)" stroke-width="${R-r}"/>`;
-  parts.forEach(o=>{const ex=o.side>0?240:100,tx=o.side>0?250:90,an=o.side>0?'start':'end',x=o.x,dx=(6*Math.cos(o.m)).toFixed(1)+'px',dy=(6*Math.sin(o.m)).toFixed(1)+'px',pc=Math.round(o.f*100);
-    h+=`<g class="sl" tabindex="0" role="button" data-a="wseg" data-nm="${esc(x.n)}" data-vl="${ktg(x.v)}" data-pc="${pc}%" aria-label="${esc(x.n)}, ${pc} persen, ${money(x.v)}" style="--i:${o.k};--dx:${dx};--dy:${dy}"><path d="${o.d}" fill="${x.c}" stroke="${x.c}" stroke-width="${SW}" stroke-linejoin="round" mask="url(#wmk)"/><g class="lb"><path class="ln" pathLength="1" d="M${o.ax.toFixed(1)} ${o.ay.toFixed(1)}Q${o.qx.toFixed(1)} ${o.qy.toFixed(1)} ${ex} ${o.ly}h${o.side>0?8:-8}" fill="none" stroke="${x.c}" stroke-width="1.6" stroke-linecap="round"/><circle class="dt" cx="${o.ax.toFixed(1)}" cy="${o.ay.toFixed(1)}" r="2.6" fill="${x.c}"/><text x="${tx}" y="${o.ly-1}" text-anchor="${an}" class="nm">${esc(cut(x.n))}</text><text x="${tx}" y="${o.ly+13}" text-anchor="${an}">${pc}% · ${ktg(x.v)}</text></g></g>`});
+  let h=`<svg viewBox="0 ${vy} 340 ${vh}" id="wdn" role="group" aria-label="Pengeluaran per kategori, ketuk potongan untuk detail"><circle cx="${cx}" cy="${cy}" r="${(R+r)/2}" fill="none" stroke="var(--bg)" stroke-width="${R-r}"/>`;
+  const TP=Math.PI*2,rk=parts.map(o=>((o.m+Math.PI/2)%TP+TP)%TP),rs=[...rk].sort((a,b)=>a-b);
+  parts.forEach((o,pi)=>{o.k=rs.indexOf(rk[pi]);const ex=o.side>0?240:100,tx=o.side>0?250:90,an=o.side>0?'start':'end',x=o.x,dx=(6*Math.cos(o.m)).toFixed(1)+'px',dy=(6*Math.sin(o.m)).toFixed(1)+'px',pc=Math.round(o.f*100);
+    h+=`<g class="sl" tabindex="0" role="button" data-a="wseg" data-nm="${esc(x.n)}" data-vl="${ktg(x.v)}" data-pc="${pc}%" aria-label="${esc(x.n)}, ${pc} persen, ${money(x.v)}" style="--i:${o.k};--dx:${dx};--dy:${dy}"><path d="${o.d}" fill="${x.c}" stroke="${x.c}" stroke-width="${SW}" stroke-linejoin="round"/><g class="lb"><path class="ln" pathLength="1" d="M${o.ax.toFixed(1)} ${o.ay.toFixed(1)}Q${o.qx.toFixed(1)} ${o.qy.toFixed(1)} ${ex} ${o.ly}h${o.side>0?8:-8}" fill="none" stroke="${x.c}" stroke-width="1.6" stroke-linecap="round"/><circle class="dt" cx="${o.ax.toFixed(1)}" cy="${o.ay.toFixed(1)}" r="2.6" fill="${x.c}"/><text x="${tx}" y="${o.ly-1}" text-anchor="${an}" class="nm">${esc(cut(x.n))}</text><text x="${tx}" y="${o.ly+13}" text-anchor="${an}">${pc}% · ${ktg(x.v)}</text></g></g>`});
   return h+`<g class="cc" id="wcc"><text x="170" y="140" text-anchor="middle" id="wc1" style="font-size:11px">Total keluar</text><text x="170" y="158" text-anchor="middle" id="wc2" style="font-size:16px;font-weight:800;fill:var(--tx)" data-t="${ktg(tot)}">${ktg(tot)}</text><text x="170" y="172" text-anchor="middle" id="wc3" style="font-size:11px" data-t="${n} kategori">${n} kategori</text></g></svg>`}
 function repWeek(){
   const nowK=wkS(Date.now()),live=WK==nowK,td=ymd(Date.now()),K=t=>ymd(t.ts),pf=addD(WK,-7),dd=k=>new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8));
@@ -812,6 +813,7 @@ function after(anim){
     if(REDUCE||el.dataset.t=='h'){setv(el,to);return}
     setv(el,from);requestAnimationFrame(()=>requestAnimationFrame(()=>setv(el,to)));
   });
+  const dn=$('#wdn');if(dn){if(typeof IntersectionObserver=='undefined')dn.classList.add('pl');else{const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){dn.classList.add('pl');io.disconnect()}},{threshold:.4});io.observe(dn)}}
 }
 
 /* ---------- Navigasi ---------- */

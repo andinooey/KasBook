@@ -906,15 +906,22 @@ html.lite .ab,html.lite .ahb .chv{transition:none}
 .cl rect:not(.hit){transition:opacity .2s}
 .hdd{animation:wcp .3s cubic-bezier(.2,.9,.3,1.2)}
 #wdn .sl{animation:none}
-#wdn .rv{stroke-dasharray:100;stroke-dashoffset:100;transform:rotate(-90deg);transform-origin:170px 150px;animation:wrv .9s cubic-bezier(.45,0,.2,1) forwards}
-#wdn .ln{stroke-dasharray:1;stroke-dashoffset:1;animation:wln .55s ease-out forwards;animation-delay:calc(.6s + var(--i)*70ms)}
-#wdn .dt{opacity:0;animation:wfd .3s forwards;animation-delay:calc(.55s + var(--i)*70ms)}
-#wdn .lb text{opacity:0;animation:wfd .4s forwards;animation-delay:calc(.8s + var(--i)*70ms)}
+#wdn.pl .sl>path{transform-box:view-box;transform-origin:170px 150px;animation:wsl .65s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*90ms)}
+#wdn:not(.pl) .sl>path{opacity:0}
+#wdn:not(.pl) .ln{stroke-dasharray:1;stroke-dashoffset:1}
+#wdn:not(.pl) .dt,#wdn:not(.pl) .lb text{opacity:0}
+#wdn.pl .ln{stroke-dasharray:1;stroke-dashoffset:1;animation:wln .5s ease-out forwards;animation-delay:calc(.45s + var(--i)*90ms)}
+#wdn.pl .dt{opacity:0;animation:wfd .3s forwards;animation-delay:calc(.4s + var(--i)*90ms)}
+#wdn.pl .lb text{opacity:0;animation:wfd .4s forwards;animation-delay:calc(.6s + var(--i)*90ms)}
+@keyframes wsl{from{opacity:0;transform:scale(.9) rotate(-14deg)}to{opacity:1;transform:none}}
 @keyframes wrv{to{stroke-dashoffset:0}}@keyframes wln{to{stroke-dashoffset:0}}@keyframes wfd{to{opacity:1}}
-#wdn .sl:hover path{filter:brightness(1.06)}
 @media(prefers-reduced-motion:reduce){#wdn .rv{animation:none;stroke-dashoffset:0}#wdn .ln{animation:none;stroke-dashoffset:0}#wdn .dt,#wdn .lb text{animation:none;opacity:1}}
 
 /* v31 */
 #page .qg.card{background:var(--sf);box-shadow:var(--sh);border-radius:24px;padding:16px 8px;gap:14px 0}
 .bigb{font-variant-numeric:tabular-nums}
 .wtot b.mk{width:5.2em;height:1.2em}.tr .am.mk{width:5.6em;text-align:left;flex:none}
+
+@media(prefers-reduced-motion:reduce){#wdn .sl>path,#wdn .ln,#wdn .dt,#wdn .lb text{animation:none!important;opacity:1!important;stroke-dashoffset:0!important}}
+
+#wdn .cc{transform:none;animation:wcf .5s ease both}@keyframes wcf{from{opacity:0}to{opacity:1}}
