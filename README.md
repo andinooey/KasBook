@@ -134,3 +134,7 @@ SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast 
 ## Versi 33
 - Donut: potongan menempel (hanya garis tipis pemisah), potongan terpilih zoom sedikit dari pusat, yang lain memudar.
 - Bagian tengah donut bisa diketuk: saat ada potongan terpilih akan membatalkan pilihan, kalau tidak akan membuka/menutup daftar semua kategori.
+
+## Versi 34
+- Sheet Budget, tab Mingguan: ada info budget bulanan bulan yang dipilih beserta hitungan per minggu (ikut berubah saat angka bulanan diketik). Tombol "Dari budget bulanan" sekarang memakai angka yang ada di kolom, termasuk yang belum disimpan.
+- Menu di Profil dinamai "Budget" (sebelumnya "Budget bulanan").

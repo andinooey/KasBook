@@ -740,7 +740,7 @@ function mePage(){
 </div>
 <div class="sec s2">Umum</div>
 <div class="grp"><button class="set" data-a="wals"><span class="si">${ic('wallet',19)}</span><span class="st">Dompet<small>${S.wal.length} dompet · total ${money(balance())}</small></span>${ic('cr',18)}</button>
-<button class="set" data-a="budget"><span class="si">${ic('target',19)}</span><span class="st">Budget bulanan<small>${!budOn()?'Nonaktif':(BG().total||wkBud())?[BG().total?money(BG().total)+'/bln':'',wkBud()?money(wkBud())+'/mgg':''].filter(Boolean).join(' · '):'Belum diatur'}</small></span>${ic('cr',18)}</button>
+<button class="set" data-a="budget"><span class="si">${ic('target',19)}</span><span class="st">Budget<small>${!budOn()?'Nonaktif':(BG().total||wkBud())?[BG().total?money(BG().total)+'/bln':'',wkBud()?money(wkBud())+'/mgg':''].filter(Boolean).join(' · '):'Belum diatur'}</small></span>${ic('cr',18)}</button>
 <button class="set" data-a="notif"><span class="si">${ic('bell',19)}</span><span class="st">Notifikasi<small>${notifSum()}</small></span>${ic('cr',18)}</button>
 <button class="set" data-a="cats"><span class="si">${ic('tag',19)}</span><span class="st">Kategori<small>${OUT.length} keluar · ${INC.length} masuk</small></span>${ic('cr',18)}</button>
 <button class="set" data-a="recs"><span class="si">${ic('repeat',19)}</span><span class="st">Transaksi berulang<small>${S.rec.length?S.rec.length+' aktif':'Belum ada'}</small></span>${ic('cr',18)}</button></div>
@@ -1203,7 +1203,7 @@ function applyRange(){
 
 /* --- Lembar budget --- */
 const avg3=()=>{const a={},t=[1,2,3].map(i=>inMonth(madd(curM(),-i)));OUT.forEach(k=>{const v=t.reduce((s,m)=>s+m.filter(x=>x.ty=='out'&&!x.adj&&x.c==k).reduce((q,x)=>q+x.a,0),0)/3;if(v>0)a[k]=Math.max(1e4,Math.ceil(v/1e4)*1e4)});return a};
-function budUpd(){const b=$('#bal');if(!b)return;const t=parseNum($('#bt').value);let a=0;$$('[data-bk]').forEach(i=>a+=parseNum(i.value));const p=t?a/t*100:0;b.style.width=Math.min(100,p)+'%';b.style.background=p>100?'var(--exp)':p>=90?'var(--amb)':'var(--p)';$('#bals').textContent=t?(a>t?'Melebihi total '+money(a-t):'Teralokasi '+money(a)+' dari '+money(t)+' · sisa '+money(t-a)):'Isi total dulu, lalu bagi ke kategori'}
+function budUpd(){wbi();const b=$('#bal');if(!b)return;const t=parseNum($('#bt').value);let a=0;$$('[data-bk]').forEach(i=>a+=parseNum(i.value));const p=t?a/t*100:0;b.style.width=Math.min(100,p)+'%';b.style.background=p>100?'var(--exp)':p>=90?'var(--amb)':'var(--p)';$('#bals').textContent=t?(a>t?'Melebihi total '+money(a-t):'Teralokasi '+money(a)+' dari '+money(t)+' · sisa '+money(t-a)):'Isi total dulu, lalu bagi ke kategori'}
 /* ---------- Notifikasi: batas persen budget dan jam pengingat ---------- */
 const NOTI=typeof Notification!='undefined';
 let ntTm=null,NTS=false;
@@ -1364,6 +1364,9 @@ function bgMonthHTML(){
 ${OUT.map(k=>`<div class="bkr" style="--c:${cat(k)[2]}"><span class="cico sm">${ic(cat(k)[1],18)}</span><div class="bkn"><b>${esc(cat(k)[0])}</b><small>${esc(mshort(BGMo))} ${money(sp[k]||0)}</small></div><div class="bki"><span>Rp</span><input data-bk="${k}" data-money inputmode="numeric" placeholder="0" value="${B.cats[k]?num(B.cats[k]):''}" aria-label="Budget ${esc(cat(k)[0])}"></div></div>`).join('')}</div>
 <button class="set" data-s="bgol" role="switch" aria-checked="${BGOL}" style="margin-top:8px"><span class="st">Hanya bulan ini<small>Bulan berikutnya tetap pakai budget sebelumnya</small></span><span class="tg${BGOL?' on':''}" id="bgoltg"><i></i></span></button>`;
 }
+function bgMT(){const t=parseNum(($('#bt')||{}).value);if(t)return t;let a=0;$$('[data-bk]').forEach(i=>a+=parseNum(i.value));return a}
+function bgDM(){return new Date(+BGMo.slice(0,4),+BGMo.slice(5),0).getDate()}
+function wbi(){const el=$('#wbinfo');if(!el)return;const t=bgMT(),w=t?Math.round(t*7/bgDM()/1e3)*1e3:0;el.innerHTML=t?`Budget bulanan ${esc(mlabel(BGMo))}: <b>${money(t)}</b>. Per minggu kira-kira <b>${money(w)}</b> (${money(t)} × 7 ÷ ${bgDM()} hari).`:`Budget bulanan ${esc(mlabel(BGMo))} belum diisi. Isi di tab Bulanan kalau mau dijadikan patokan.`}
 function openBudget(){
   BGO=budOn();BGT='m';BGMo=curM();BGOL=false;const W=(S.bud.wk&&S.bud.wk.total)||0;
   openSheet(`<div class="sheet" role="dialog" aria-modal="true" aria-label="Atur budget" tabindex="-1" style="--c:var(--p)"><div class="tint"></div><div class="grab"></div>
@@ -1374,7 +1377,7 @@ function openBudget(){
 <div id="bgmp">${bgMonthHTML()}</div>
 <div id="bgwp" hidden><div class="bt"><label for="wbt">Total per minggu</label><div class="bti"><span>Rp</span><input id="wbt" data-money inputmode="numeric" placeholder="0" value="${W?num(W):''}" aria-label="Total budget mingguan"></div>
 <div class="bpr">${[[250e3,'250 rb'],[500e3,'500 rb'],[750e3,'750 rb'],[1e6,'1 jt']].map(x=>`<button class="chip" data-s="wpre" data-v="${x[0]}">${x[1]}</button>`).join('')}</div>
-<div class="bact"><button class="btn2" data-s="wfrom">${ic('repeat',15)}Dari budget bulanan</button></div></div>
+<p class="hint" id="wbinfo" style="margin:10px 4px 0"></p><div class="bact"><button class="btn2" data-s="wfrom">${ic('repeat',15)}Dari budget bulanan</button></div></div>
 <p class="hint" style="margin:12px 4px 0">Minggu dihitung Senin sampai Minggu dan berlaku untuk semua minggu. Kosongkan untuk mematikan budget mingguan. Muncul di tab Minggu pada Laporan.</p></div></div>
 <p class="hint" style="margin:14px 4px 0">Notifikasi budget diatur di Profil &gt; Notifikasi.</p>
 <button class="save" data-s="bsave" style="background-color:var(--p);color:var(--pc)">Simpan budget</button></div>`,sh=>{budUpd();sh.addEventListener('input',budUpd)});
@@ -1598,7 +1601,7 @@ document.addEventListener('click',e=>{
     else if(v=='bgm'){BGMo=madd(BGMo,+s.dataset.d);$('#bgmp').innerHTML=bgMonthHTML();budUpd()}
     else if(v=='bgol'){BGOL=!BGOL;$('#bgoltg').classList.toggle('on',BGOL);s.setAttribute('aria-checked',BGOL)}
     else if(v=='wpre'){$('#wbt').value=num(+s.dataset.v)}
-    else if(v=='wfrom'){const t=bmo(BGMo).total;if(!t){toast('Isi budget bulanan dulu',{c:'var(--exp)'});return}const dm=new Date(+BGMo.slice(0,4),+BGMo.slice(5),0).getDate();$('#wbt').value=num(Math.round(t*7/dm/1e3)*1e3)}
+    else if(v=='wfrom'){const t=bgMT();if(!t){toast('Isi budget bulanan dulu',{c:'var(--exp)'});return}$('#wbt').value=num(Math.round(t*7/bgDM()/1e3)*1e3)}
     else if(v=='ntpct'||v=='ntday'){const f=$(v=='ntpct'?'#ntp':'#ntd');f.value=s.dataset.v;$$('[data-s='+v+']').forEach(b=>b.classList.toggle('on',b==s))}
     else if(v=='qup'||v=='qdn')qmove(s.dataset.k,v=='qup'?-1:1);
     else if(v=='qreset')qreset();
