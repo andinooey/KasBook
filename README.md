@@ -121,3 +121,8 @@ SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast 
 - Tab Minggu/Bulan/Tahun nempel di atas saat scroll.
 - Grafik bisa diketuk untuk detail: batang harian (Minggu), laju pengeluaran dan batang per rentang tanggal (Bulan), masuk vs keluar dan saldo (Tahun).
 - Donut baru: ujung potongan membulat, garis label melengkung, animasi sapuan donut lalu garis dan label muncul bergantian.
+
+## Versi 31
+- Beranda: "Catat per kategori" dibungkus kartu putih lagi.
+- Total saldo di hero punya animasi count (naik dari angka sebelumnya, atau dari 0 saat masuk Beranda). Tidak jalan saat saldo disembunyikan atau mode kurangi gerak aktif.
+- Tombol mata: saat saldo disembunyikan, total dan saldo tiap dompet di sheet Kelola dompet ikut tersamarkan.

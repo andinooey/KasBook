@@ -797,10 +797,16 @@ function render(anim){
 function setv(el,v){const t=el.dataset.t;if(t=='p')el.style.setProperty('--bp',v+'%');else if(t=='h')el.style.height=v+'%';else if(t=='w')el.style.transform='translateX('+(v-100)+'%)';else el.style.strokeDashoffset=v}
 const HIO=typeof IntersectionObserver!='undefined'?new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('off',!e.isIntersecting))):null;
 document.addEventListener('visibilitychange',()=>document.documentElement.classList.toggle('bgp',document.hidden));
+function cntUp(el,a,b,fm){
+  const t0=performance.now(),D=950;
+  const step=t=>{const p=Math.min(1,(t-t0)/D),e=1-Math.pow(1-p,4);el.textContent=fm(Math.round(a+(b-a)*e));if(p<1)el._r=requestAnimationFrame(step);else el.textContent=fm(b)};
+  el.textContent=fm(a);el._r=requestAnimationFrame(step);
+}
 function after(anim){
   if(HIO){HIO.disconnect();const h=$('#page .hero');if(h)HIO.observe(h)}
   const G=anim?{}:PV;
-  $$('#page [data-n]').forEach(el=>{const k=el.dataset.k,to=+el.dataset.n;PV[k]=to;el.textContent=(el.dataset.f=='c'?compact:money)(to)});
+  $$('#page [data-n]').forEach(el=>{const k=el.dataset.k,to=+el.dataset.n,f0=G[k],fm=el.dataset.f=='c'?compact:money;PV[k]=to;el.textContent=fm(to);
+    if(k=='bal'&&!REDUCE&&!el.classList.contains('mk')){const from=f0!=null?f0:0;if(from!=to)cntUp(el,from,to,fm)}});
   $$('#page [data-v]').forEach(el=>{
     const k=el.dataset.k,to=+el.dataset.v,from=G[k]!=null?G[k]:+el.dataset.z;PV[k]=to;
     if(REDUCE||el.dataset.t=='h'){setv(el,to);return}
@@ -1032,8 +1038,8 @@ function openWals(){
   const tot=balance();
   openSheet(`<div class="sheet" role="dialog" aria-modal="true" aria-label="Dompet" tabindex="-1" style="--c:var(--p)"><div class="tint"></div><div class="grab"></div>
 <div class="sh-top"><div class="sh-t">Dompet</div><div class="sh-act"><button class="ib" data-s="close" aria-label="Tutup">${ic('x',18)}</button></div></div>
-<div class="wtot"><small>Total semua dompet</small><b>${money(tot)}</b></div>
-<div class="bsc"><div class="list">${S.wal.map(w=>{const n=wUse(w.id);return`<button class="tr" data-s="wedit" data-id="${esc(w.id)}" style="--c:${w.c}"><span class="cico sm">${ic(w.i,20)}</span><span class="tm"><b>${esc(w.n)}</b><small>${n?NF0.format(n)+' transaksi':'Belum dipakai'}</small></span><b class="am">${money(wb(w.id))}</b></button>`}).join('')}</div></div>
+<div class="wtot"><small>Total semua dompet</small><b${S.set.hide?' class="mk"':''}>${money(tot)}</b></div>
+<div class="bsc"><div class="list">${S.wal.map(w=>{const n=wUse(w.id);return`<button class="tr" data-s="wedit" data-id="${esc(w.id)}" style="--c:${w.c}"><span class="cico sm">${ic(w.i,20)}</span><span class="tm"><b>${esc(w.n)}</b><small>${n?NF0.format(n)+' transaksi':'Belum dipakai'}</small></span><b class="am${S.set.hide?' mk':''}">${money(wb(w.id))}</b></button>`}).join('')}</div></div>
 <div class="row2"><button class="btn2" data-s="wtf" ${S.wal.length<2?'disabled':''}>${ic('swap',16)} Pindah dana</button><button class="btn2 pb2" data-s="wnew">${ic('plus',16,2.6)} Dompet baru</button></div>
 ${S.wal.length<2?'<p class="hint">Tambah dompet kedua (misalnya rekening bank atau e-wallet) untuk memakai pindah dana.</p>':''}</div>`);
 }
