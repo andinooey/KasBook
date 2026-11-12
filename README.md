@@ -107,3 +107,10 @@ SW memakai cache dulu lalu memperbarui di belakang, jadi pengguna melihat toast 
 - Perbaikan v28: nama kelas baris kategori Laporan bentrok dengan strip dompet di Beranda (diganti), garis penunjuk donut tidak lagi menyentuh cincin, kartu donut dirapatkan.
 
 - Judul section Laporan Minggu sekarang pakai ikon (kalender, pie, koin).
+
+## Versi 29
+- Laporan **Bulan**: arus bersih + budget bulanan, laju pengeluaran vs bulan lalu (dengan garis budget dan proyeksi), kalender heatmap (ketuk tanggal untuk rincian), pengeluaran per rentang tanggal, donut kategori.
+- Laporan **Tahun**: tabungan setahun, masuk vs keluar per bulan, pertumbuhan saldo, donut kategori, tren 3 kategori terbesar, total per 3 bulan. Pilih tahun lewat judul.
+- **Budget bulanan beda tiap bulan**: di sheet Budget pilih bulan (‹ ›). Yang disimpan berlaku dari bulan itu sampai diubah lagi; ada saklar "Hanya bulan ini". Data: `S.bud.mo['YYYY-MM']`; data lama tetap dipakai untuk bulan sebelum isian pertama.
+- **Budget mingguan** (`S.bud.wk.total`): tab Mingguan di sheet Budget, tampil sebagai bar di kartu atas Laporan Minggu.
+- Budget bulanan juga tampil di kartu atas Laporan Bulan. Jika belum diatur, ada tombol "Atur budget".
